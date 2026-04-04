@@ -53,15 +53,7 @@ textarea {
 select {
   min-height: 44px;
   appearance: none;
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
-    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-  background-position:
-    calc(100% - 18px) calc(50% - 3px),
-    calc(100% - 12px) calc(50% - 3px);
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
-  padding-right: 34px;
+  padding-right: 14px;
 }
 
 textarea {
@@ -161,6 +153,28 @@ textarea {
 
 .grouped-select {
   min-width: 240px;
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+}
+
+.select-wrap select {
+  width: 100%;
+  padding-right: 34px;
 }
 
 .metric,
@@ -352,6 +366,27 @@ textarea {
 
 .positions-textarea {
   width: 100%;
+}
+
+.positions-actions {
+  margin-top: 12px;
+}
+
+.button-like {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+:root[data-theme="dark"] .button-like {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .positions-meta {

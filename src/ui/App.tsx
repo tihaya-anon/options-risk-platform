@@ -59,6 +59,11 @@ export function App() {
   const [positionsInput, setPositionsInput] = useState<string>(DEFAULT_POSITIONS_INPUT);
   const { snapshot, error } = useSnapshot();
 
+  const handleFileUpload = async (file: File) => {
+    const text = await file.text();
+    setPositionsInput(text);
+  };
+
   useEffect(() => {
     localStorage.setItem("orp_language", language);
   }, [language]);
@@ -146,6 +151,7 @@ export function App() {
             t={t}
             palette={paletteColors}
             onPositionsInputChange={setPositionsInput}
+            onFileUpload={handleFileUpload}
           />
 
           <Suspense fallback={<ChartSectionFallback />}>

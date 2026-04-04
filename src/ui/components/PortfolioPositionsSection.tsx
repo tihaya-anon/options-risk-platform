@@ -9,6 +9,7 @@ export function PortfolioPositionsSection({
   t,
   palette,
   onPositionsInputChange,
+  onFileUpload,
 }: {
   positionsInput: string;
   exposure: PortfolioExposure;
@@ -16,9 +17,17 @@ export function PortfolioPositionsSection({
   t: (key: I18nKey) => string;
   palette: { up: string; down: string; neutral: string; accent: string };
   onPositionsInputChange: (value: string) => void;
+  onFileUpload: (file: File) => void;
 }) {
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     onPositionsInputChange(event.target.value);
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    onFileUpload(file);
+    event.target.value = "";
   };
 
   const metrics = [
@@ -48,6 +57,12 @@ export function PortfolioPositionsSection({
               placeholder={t("positionsPlaceholder")}
             />
           </label>
+          <div className="positions-actions">
+            <label className="button-like upload-control" style={{ borderColor: palette.accent }}>
+              <input type="file" accept=".csv,text/csv,.txt" onChange={handleFileChange} hidden />
+              {t("uploadCsv")}
+            </label>
+          </div>
         </article>
 
         <article className="card positions-summary">

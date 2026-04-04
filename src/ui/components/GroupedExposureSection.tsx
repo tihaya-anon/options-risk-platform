@@ -65,16 +65,18 @@ export function GroupedExposureSection({
         </div>
         <label className="toolbar-field grouped-select">
           <span>{t("groupBy")}</span>
-          <select
-            value={groupByMode}
-            onChange={(event) => onGroupByModeChange(event.target.value as GroupByMode)}
-          >
-            <option value="symbol">{t("groupBySymbol")}</option>
-            <option value="expiry">{t("groupByExpiry")}</option>
-            <option value="optionType">{t("groupByOptionType")}</option>
-            <option value="symbolExpiry">{t("groupBySymbolExpiry")}</option>
-            <option value="full">{t("groupByFull")}</option>
-          </select>
+          <div className="select-wrap">
+            <select
+              value={groupByMode}
+              onChange={(event) => onGroupByModeChange(event.target.value as GroupByMode)}
+            >
+              <option value="symbol">{t("groupBySymbol")}</option>
+              <option value="expiry">{t("groupByExpiry")}</option>
+              <option value="optionType">{t("groupByOptionType")}</option>
+              <option value="symbolExpiry">{t("groupBySymbolExpiry")}</option>
+              <option value="full">{t("groupByFull")}</option>
+            </select>
+          </div>
         </label>
       </div>
 

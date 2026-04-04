@@ -38,25 +38,31 @@ export function HeroSection({
           <div className="toolbar-grid">
             <label className="toolbar-field">
               <span>{t("language")}</span>
-              <select value={language} onChange={(event) => onLanguageChange(event.target.value as Language)}>
-                <option value="en">{t("english")}</option>
-                <option value="zh">{t("chinese")}</option>
-              </select>
+              <div className="select-wrap">
+                <select value={language} onChange={(event) => onLanguageChange(event.target.value as Language)}>
+                  <option value="en">{t("english")}</option>
+                  <option value="zh">{t("chinese")}</option>
+                </select>
+              </div>
             </label>
             <label className="toolbar-field">
               <span>{t("theme")}</span>
-              <select value={themeMode} onChange={(event) => onThemeChange(event.target.value as ThemeMode)}>
-                <option value="light">{t("light")}</option>
-                <option value="dark">{t("dark")}</option>
-              </select>
+              <div className="select-wrap">
+                <select value={themeMode} onChange={(event) => onThemeChange(event.target.value as ThemeMode)}>
+                  <option value="light">{t("light")}</option>
+                  <option value="dark">{t("dark")}</option>
+                </select>
+              </div>
             </label>
             <label className="toolbar-field toolbar-span-2">
               <span>{t("palette")}</span>
-              <select value={palette} onChange={(event) => onPaletteChange(event.target.value as Palette)}>
-                <option value="us">{t("paletteUs")}</option>
-                <option value="cn">{t("paletteCn")}</option>
-                <option value="amber">{t("paletteAmber")}</option>
-              </select>
+              <div className="select-wrap">
+                <select value={palette} onChange={(event) => onPaletteChange(event.target.value as Palette)}>
+                  <option value="us">{t("paletteUs")}</option>
+                  <option value="cn">{t("paletteCn")}</option>
+                  <option value="amber">{t("paletteAmber")}</option>
+                </select>
+              </div>
             </label>
           </div>
         </div>
