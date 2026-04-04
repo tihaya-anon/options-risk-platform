@@ -53,7 +53,22 @@ export type I18nKey =
   | "notional"
   | "unmatchedSymbols"
   | "parseErrors"
-  | "quantity";
+  | "quantity"
+  | "scenarioTitle"
+  | "scenarioDesc"
+  | "spotChange"
+  | "portfolioPnl"
+  | "groupedExposureTitle"
+  | "groupedExposureDesc"
+  | "bucket"
+  | "marketValue"
+  | "none"
+  | "groupBy"
+  | "groupBySymbol"
+  | "groupByExpiry"
+  | "groupByOptionType"
+  | "groupBySymbolExpiry"
+  | "groupByFull";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -116,6 +131,23 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     unmatchedSymbols: "Unmatched symbols",
     parseErrors: "Parse errors",
     quantity: "Quantity",
+    scenarioTitle: "Scenario PnL",
+    scenarioDesc:
+      "Reprice the imported portfolio across spot shocks while holding implied volatility and time-to-expiry constant.",
+    spotChange: "Spot change",
+    portfolioPnl: "Portfolio PnL",
+    groupedExposureTitle: "Grouped Exposure Breakdown",
+    groupedExposureDesc:
+      "Decompose portfolio risk by grouped buckets so you can see which symbol, expiry, or option side is dominating the book.",
+    bucket: "Bucket",
+    marketValue: "Market Value",
+    none: "None",
+    groupBy: "Group by",
+    groupBySymbol: "Symbol",
+    groupByExpiry: "Expiry",
+    groupByOptionType: "Option type",
+    groupBySymbolExpiry: "Symbol + expiry",
+    groupByFull: "Symbol + expiry + type",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -173,6 +205,23 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     unmatchedSymbols: "未匹配符号",
     parseErrors: "解析错误",
     quantity: "数量",
+    scenarioTitle: "场景 PnL",
+    scenarioDesc:
+      "在保持隐含波动率和剩余期限不变的前提下，观察导入组合在不同标的价格冲击下的重定价结果。",
+    spotChange: "标的变动",
+    portfolioPnl: "组合 PnL",
+    groupedExposureTitle: "分组暴露拆解",
+    groupedExposureDesc:
+      "按分组 bucket 拆开组合风险，帮助你看清到底是哪一组 symbol、expiry 或期权方向在主导风险。",
+    bucket: "分组",
+    marketValue: "市值",
+    none: "无",
+    groupBy: "分组方式",
+    groupBySymbol: "按标的",
+    groupByExpiry: "按到期日",
+    groupByOptionType: "按期权方向",
+    groupBySymbolExpiry: "按标的 + 到期日",
+    groupByFull: "按标的 + 到期日 + 方向",
   },
 };
 

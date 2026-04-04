@@ -148,6 +148,10 @@ textarea {
   gap: 8px;
 }
 
+.grouped-select {
+  min-width: 240px;
+}
+
 .metric,
 .greek-bar-card,
 .surface-card,
@@ -181,7 +185,9 @@ textarea {
 .surface-grid,
 .quote-grid,
 .term-grid,
-.positions-layout {
+.positions-layout,
+.scenario-layout,
+.grouped-exposure-grid {
   display: grid;
   gap: 12px;
 }
@@ -195,6 +201,14 @@ textarea {
 }
 
 .positions-layout {
+  grid-template-columns: 1fr;
+}
+
+.scenario-layout {
+  grid-template-columns: 1fr;
+}
+
+.grouped-exposure-grid {
   grid-template-columns: 1fr;
 }
 
@@ -329,6 +343,38 @@ textarea {
   gap: 4px;
 }
 
+.scenario-grid {
+  padding: 14px;
+}
+
+.scenario-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.scenario-row:last-child {
+  border-bottom: 0;
+}
+
+.grouped-exposure-card {
+  padding: 14px;
+}
+
+.grouped-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.grouped-stats strong {
+  display: block;
+  margin-top: 4px;
+}
+
 .empty-state {
   display: grid;
   place-items: center;
@@ -360,5 +406,13 @@ textarea {
 
   .positions-layout {
     grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  .scenario-layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  }
+
+  .grouped-exposure-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

@@ -8,12 +8,17 @@ import { detectLanguage, detectPalette, detectTheme } from "./preferences";
 import { useSnapshot } from "./hooks/useSnapshot";
 import { ChainSection } from "./components/ChainSection";
 import { GreeksSummarySection } from "./components/GreeksSummarySection";
+import { GroupedExposureSection } from "./components/GroupedExposureSection";
 import { HeroSection } from "./components/HeroSection";
 import { PortfolioPositionsSection } from "./components/PortfolioPositionsSection";
+import { ScenarioPnlSection } from "./components/ScenarioPnlSection";
 import { SkewSection } from "./components/SkewSection";
 import { TermStructureSection } from "./components/TermStructureSection";
 import {
   aggregatePortfolioExposure,
+  calculateGroupedExposures,
+  calculatePortfolioScenario,
+  type GroupByMode,
   parsePositionsInput,
 } from "./positions";
 
@@ -23,6 +28,7 @@ export function App() {
   const [language, setLanguage] = useState<Language>(detectLanguage);
   const [themeMode, setThemeMode] = useState<ThemeMode>(detectTheme);
   const [palette, setPalette] = useState<Palette>(detectPalette);
+  const [groupByMode, setGroupByMode] = useState<GroupByMode>("full");
   const [positionsInput, setPositionsInput] = useState<string>(DEFAULT_POSITIONS_INPUT);
   const { snapshot, error } = useSnapshot();
 
@@ -69,6 +75,23 @@ export function App() {
       parsedPositions.positions
     );
   }, [enrichedQuotes, parsedPositions.positions, snapshot]);
+  const portfolioScenario = useMemo(() => {
+    if (!snapshot) return [];
+    return calculatePortfolioScenario(
+      snapshot,
+      enrichedQuotes,
+      parsedPositions.positions
+    );
+  }, [enrichedQuotes, parsedPositions.positions, snapshot]);
+  const groupedExposures = useMemo(() => {
+    if (!snapshot) return [];
+    return calculateGroupedExposures(
+      snapshot,
+      enrichedQuotes,
+      parsedPositions.positions,
+      groupByMode
+    );
+  }, [enrichedQuotes, groupByMode, parsedPositions.positions, snapshot]);
   const paletteColors = paletteTokens[palette];
 
   return (
@@ -95,6 +118,18 @@ export function App() {
             t={t}
             palette={paletteColors}
             onPositionsInputChange={setPositionsInput}
+          />
+          <ScenarioPnlSection
+            scenarios={portfolioScenario}
+            t={t}
+            accentColor={paletteColors.accent}
+            neutralColor={paletteColors.neutral}
+          />
+          <GroupedExposureSection
+            groups={groupedExposures}
+            groupByMode={groupByMode}
+            t={t}
+            onGroupByModeChange={setGroupByMode}
           />
           <GreeksSummarySection
             summary={riskSummary}
