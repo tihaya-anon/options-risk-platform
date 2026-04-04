@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  Suspense,
+  lazy,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { blackScholesModel } from "../lib/bs";
 import { enrichSnapshot } from "../lib/enrich";
 import { getChartTheme } from "./chartTheme";
@@ -9,12 +15,8 @@ import { detectLanguage, detectPalette, detectTheme } from "./preferences";
 import { useSnapshot } from "./hooks/useSnapshot";
 import { ChainSection } from "./components/ChainSection";
 import { GreeksSummarySection } from "./components/GreeksSummarySection";
-import { GroupedExposureSection } from "./components/GroupedExposureSection";
 import { HeroSection } from "./components/HeroSection";
 import { PortfolioPositionsSection } from "./components/PortfolioPositionsSection";
-import { ScenarioPnlSection } from "./components/ScenarioPnlSection";
-import { SkewSection } from "./components/SkewSection";
-import { TermStructureSection } from "./components/TermStructureSection";
 import {
   aggregatePortfolioExposure,
   calculateGroupedExposures,
@@ -24,6 +26,30 @@ import {
 } from "./positions";
 
 const DEFAULT_POSITIONS_INPUT = "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1";
+const LazyGroupedExposureSection = lazy(() =>
+  import("./components/GroupedExposureSection").then((module) => ({
+    default: module.GroupedExposureSection,
+  }))
+);
+const LazyScenarioPnlSection = lazy(() =>
+  import("./components/ScenarioPnlSection").then((module) => ({
+    default: module.ScenarioPnlSection,
+  }))
+);
+const LazySkewSection = lazy(() =>
+  import("./components/SkewSection").then((module) => ({
+    default: module.SkewSection,
+  }))
+);
+const LazyTermStructureSection = lazy(() =>
+  import("./components/TermStructureSection").then((module) => ({
+    default: module.TermStructureSection,
+  }))
+);
+
+function ChartSectionFallback() {
+  return <div className="panel card chart-loading">Loading chart module...</div>;
+}
 
 export function App() {
   const [language, setLanguage] = useState<Language>(detectLanguage);
@@ -121,39 +147,52 @@ export function App() {
             palette={paletteColors}
             onPositionsInputChange={setPositionsInput}
           />
-          <ScenarioPnlSection
-            scenarios={portfolioScenario}
-            t={t}
-            accentColor={paletteColors.accent}
-            neutralColor={paletteColors.neutral}
-            chartTheme={chartTheme}
-          />
-          <GroupedExposureSection
-            groups={groupedExposures}
-            groupByMode={groupByMode}
-            t={t}
-            chartTheme={chartTheme}
-            onGroupByModeChange={setGroupByMode}
-          />
+
+          <Suspense fallback={<ChartSectionFallback />}>
+            <LazyScenarioPnlSection
+              scenarios={portfolioScenario}
+              t={t}
+              accentColor={paletteColors.accent}
+              neutralColor={paletteColors.neutral}
+              chartTheme={chartTheme}
+            />
+          </Suspense>
+
+          <Suspense fallback={<ChartSectionFallback />}>
+            <LazyGroupedExposureSection
+              groups={groupedExposures}
+              groupByMode={groupByMode}
+              t={t}
+              chartTheme={chartTheme}
+              onGroupByModeChange={setGroupByMode}
+            />
+          </Suspense>
+
           <GreeksSummarySection
             summary={riskSummary}
             palette={paletteColors}
             t={t}
           />
-          <TermStructureSection
-            rows={enrichedQuotes}
-            upColor={paletteColors.up}
-            downColor={paletteColors.down}
-            chartTheme={chartTheme}
-            t={t}
-          />
-          <SkewSection
-            rows={enrichedQuotes}
-            upColor={paletteColors.up}
-            downColor={paletteColors.down}
-            chartTheme={chartTheme}
-            t={t}
-          />
+          <Suspense fallback={<ChartSectionFallback />}>
+            <LazyTermStructureSection
+              rows={enrichedQuotes}
+              upColor={paletteColors.up}
+              downColor={paletteColors.down}
+              chartTheme={chartTheme}
+              t={t}
+            />
+          </Suspense>
+
+          <Suspense fallback={<ChartSectionFallback />}>
+            <LazySkewSection
+              rows={enrichedQuotes}
+              upColor={paletteColors.up}
+              downColor={paletteColors.down}
+              chartTheme={chartTheme}
+              t={t}
+            />
+          </Suspense>
+
           <ChainSection
             rows={enrichedQuotes}
             upColor={paletteColors.up}

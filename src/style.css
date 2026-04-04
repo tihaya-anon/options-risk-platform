@@ -405,6 +405,13 @@ textarea {
   color: var(--muted);
 }
 
+.chart-loading {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
 @media (min-width: 860px) {
   .hero {
     grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.85fr);
