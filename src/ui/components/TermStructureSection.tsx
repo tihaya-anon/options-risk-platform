@@ -1,6 +1,8 @@
 import type { EnrichedOptionQuote } from "../../types";
+import type { EChartsOption } from "echarts";
+import { averageIv, groupByExpiry } from "../format";
 import type { I18nKey } from "../i18n";
-import { SparkLine } from "./SparkLine";
+import { EChart } from "./EChart";
 
 export function TermStructureSection({
   rows,
@@ -13,6 +15,59 @@ export function TermStructureSection({
   downColor: string;
   t: (key: I18nKey) => string;
 }) {
+  const expiries = [...new Set(rows.map((row) => row.expiry))].sort();
+  const grouped = groupByExpiry(rows);
+  const callSeries = expiries.map((expiry) => averageIv(grouped.get(expiry) ?? [], "call"));
+  const putSeries = expiries.map((expiry) => averageIv(grouped.get(expiry) ?? [], "put"));
+
+  const option: EChartsOption = {
+    backgroundColor: "transparent",
+    animation: false,
+    grid: { top: 28, right: 18, bottom: 34, left: 52 },
+    tooltip: {
+      trigger: "axis",
+      valueFormatter: (value: unknown) =>
+        typeof value === "number" ? `${(value * 100).toFixed(2)}%` : String(value ?? ""),
+    },
+    legend: {
+      top: 0,
+      textStyle: { color: "var(--ink)" },
+      data: [t("callIv"), t("putIv")],
+    },
+    xAxis: {
+      type: "category",
+      data: expiries,
+      axisLabel: { color: "var(--muted)" },
+      axisLine: { lineStyle: { color: "rgba(128,128,128,0.25)" } },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        color: "var(--muted)",
+        formatter: (value: number) => `${(value * 100).toFixed(0)}%`,
+      },
+      splitLine: { lineStyle: { color: "rgba(128,128,128,0.15)" } },
+    },
+    series: [
+      {
+        name: t("callIv"),
+        type: "line",
+        smooth: true,
+        data: callSeries,
+        lineStyle: { color: upColor, width: 3 },
+        itemStyle: { color: upColor },
+      },
+      {
+        name: t("putIv"),
+        type: "line",
+        smooth: true,
+        data: putSeries,
+        lineStyle: { color: downColor, width: 3 },
+        itemStyle: { color: downColor },
+      },
+    ],
+  };
+
   return (
     <section className="panel card">
       <div className="panel-head">
@@ -25,16 +80,9 @@ export function TermStructureSection({
           <span><i className="legend-swatch" style={{ background: downColor }} />{t("putIv")}</span>
         </div>
       </div>
-      <div className="term-grid">
-        <article className="surface-card card">
-          <span className="subtle">{t("callIv")}</span>
-          <SparkLine rows={rows} optionType="call" color={upColor} />
-        </article>
-        <article className="surface-card card">
-          <span className="subtle">{t("putIv")}</span>
-          <SparkLine rows={rows} optionType="put" color={downColor} />
-        </article>
-      </div>
+      <article className="surface-card card">
+        <EChart option={option} height={340} />
+      </article>
     </section>
   );
 }

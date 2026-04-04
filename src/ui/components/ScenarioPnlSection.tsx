@@ -1,10 +1,7 @@
 import type { I18nKey } from "../i18n";
+import type { EChartsOption } from "echarts";
 import type { ScenarioPoint } from "../positions";
-
-function linePath(points: Array<{ x: number; y: number }>): string {
-  if (points.length === 0) return "";
-  return points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
-}
+import { EChart } from "./EChart";
 
 export function ScenarioPnlSection({
   scenarios,
@@ -17,25 +14,47 @@ export function ScenarioPnlSection({
   accentColor: string;
   neutralColor: string;
 }) {
-  const width = 760;
-  const height = 260;
-  const pad = 28;
-  const pnlValues = scenarios.map((scenario) => scenario.portfolioPnl);
-  const minPnl = Math.min(...pnlValues);
-  const maxPnl = Math.max(...pnlValues);
-  const zeroY =
-    height - pad - ((0 - minPnl) / Math.max(maxPnl - minPnl, 0.0001)) * (height - pad * 2);
-  const toX = (index: number) =>
-    pad + (index / Math.max(scenarios.length - 1, 1)) * (width - pad * 2);
-  const toY = (pnl: number) =>
-    height - pad - ((pnl - minPnl) / Math.max(maxPnl - minPnl, 0.0001)) * (height - pad * 2);
-
-  const path = linePath(
-    scenarios.map((scenario, index) => ({
-      x: toX(index),
-      y: toY(scenario.portfolioPnl),
-    }))
-  );
+  const option: EChartsOption = {
+    backgroundColor: "transparent",
+    animation: false,
+    grid: { top: 24, right: 18, bottom: 34, left: 60 },
+    tooltip: {
+      trigger: "axis",
+      valueFormatter: (value: unknown) =>
+        typeof value === "number" ? value.toFixed(2) : String(value ?? ""),
+    },
+    xAxis: {
+      type: "category",
+      data: scenarios.map((scenario) => `${(scenario.spotChangePct * 100).toFixed(0)}%`),
+      name: t("spotChange"),
+      nameLocation: "middle",
+      nameGap: 28,
+      axisLabel: { color: "var(--muted)" },
+      axisLine: { lineStyle: { color: "rgba(128,128,128,0.25)" } },
+    },
+    yAxis: {
+      type: "value",
+      name: t("portfolioPnl"),
+      nameTextStyle: { color: "var(--muted)" },
+      axisLabel: { color: "var(--muted)" },
+      splitLine: { lineStyle: { color: "rgba(128,128,128,0.15)" } },
+    },
+    series: [
+      {
+        name: t("portfolioPnl"),
+        type: "line",
+        data: scenarios.map((scenario) => scenario.portfolioPnl),
+        lineStyle: { color: accentColor, width: 3 },
+        itemStyle: { color: accentColor },
+        markLine: {
+          silent: true,
+          symbol: "none",
+          lineStyle: { color: neutralColor, type: "dashed" },
+          data: [{ yAxis: 0 }],
+        },
+      },
+    ],
+  };
 
   return (
     <section className="panel card">
@@ -48,33 +67,7 @@ export function ScenarioPnlSection({
 
       <div className="scenario-layout">
         <article className="surface-card card">
-          <svg viewBox={`0 0 ${width} ${height}`} className="chart-svg" role="img">
-            <line x1={pad} y1={height - pad} x2={width - pad} y2={height - pad} className="chart-axis" />
-            <line x1={pad} y1={pad} x2={pad} y2={height - pad} className="chart-axis" />
-            <line x1={pad} y1={zeroY} x2={width - pad} y2={zeroY} stroke={neutralColor} strokeDasharray="6 6" />
-            <path d={path} fill="none" stroke={accentColor} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
-            {scenarios.map((scenario, index) => (
-              <circle
-                key={scenario.spotChangePct}
-                cx={toX(index)}
-                cy={toY(scenario.portfolioPnl)}
-                r="4.5"
-                fill={accentColor}
-                className="chart-dot"
-              />
-            ))}
-          </svg>
-          <div className="chart-axis-wrap">
-            {scenarios.map((scenario, index) => (
-              <div
-                key={scenario.spotChangePct}
-                className="chart-axis-label"
-                style={{ left: `${toX(index)}px` }}
-              >
-                {(scenario.spotChangePct * 100).toFixed(0)}%
-              </div>
-            ))}
-          </div>
+          <EChart option={option} height={320} />
         </article>
 
         <article className="surface-card card scenario-grid">

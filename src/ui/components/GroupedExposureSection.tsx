@@ -1,5 +1,7 @@
 import type { I18nKey } from "../i18n";
+import type { EChartsOption } from "echarts";
 import type { GroupByMode, GroupedExposure } from "../positions";
+import { EChart } from "./EChart";
 
 export function GroupedExposureSection({
   groups,
@@ -12,6 +14,41 @@ export function GroupedExposureSection({
   t: (key: I18nKey) => string;
   onGroupByModeChange: (mode: GroupByMode) => void;
 }) {
+  const option: EChartsOption = {
+    backgroundColor: "transparent",
+    animation: false,
+    grid: { top: 16, right: 18, bottom: 24, left: 120 },
+    tooltip: {
+      trigger: "axis",
+      axisPointer: { type: "shadow" },
+    },
+    xAxis: {
+      type: "value",
+      axisLabel: { color: "var(--muted)" },
+      splitLine: { lineStyle: { color: "rgba(128,128,128,0.15)" } },
+    },
+    yAxis: {
+      type: "category",
+      data: groups.map((group) => group.bucket),
+      axisLabel: { color: "var(--muted)", width: 160, overflow: "truncate" },
+      axisLine: { lineStyle: { color: "rgba(128,128,128,0.25)" } },
+    },
+    series: [
+      {
+        name: t("portfolioVega"),
+        type: "bar",
+        data: groups.map((group) => group.netVega),
+        itemStyle: {
+          color: (params: { value?: unknown }) =>
+            typeof params.value === "number" && params.value >= 0
+              ? "#a44716"
+              : "#2563eb",
+          borderRadius: [0, 6, 6, 0],
+        },
+      },
+    ],
+  };
+
   return (
     <section className="panel card">
       <div className="panel-head">
@@ -35,6 +72,9 @@ export function GroupedExposureSection({
       </div>
 
       <div className="grouped-exposure-grid">
+        <article className="card grouped-exposure-card">
+          <EChart option={option} height={Math.max(260, groups.length * 56)} />
+        </article>
         {groups.map((group) => (
           <article key={group.bucket} className="card grouped-exposure-card">
             <div className="meta-block">
