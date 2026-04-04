@@ -1,7 +1,8 @@
 import type { EnrichedOptionQuote } from "../../types";
-import { linePath } from "../format";
+import type { EChartsOption } from "echarts";
 import type { I18nKey } from "../i18n";
 import type { ChartTheme } from "../chartTheme";
+import { EChart } from "./EChart";
 
 export function SkewCard({
   expiry,
@@ -18,9 +19,6 @@ export function SkewCard({
   chartTheme: ChartTheme;
   t: (key: I18nKey) => string;
 }) {
-  const chartWidth = 520;
-  const chartHeight = 180;
-  const pad = 18;
   const strikes = [...new Set(rows.map((row) => row.strike))].sort((a, b) => a - b);
   const calls = strikes
     .map((strike) => rows.find((row) => row.strike === strike && row.optionType === "call"))
@@ -28,28 +26,59 @@ export function SkewCard({
   const puts = strikes
     .map((strike) => rows.find((row) => row.strike === strike && row.optionType === "put"))
     .filter((row): row is EnrichedOptionQuote => Boolean(row));
-  const ivValues = [...calls, ...puts]
-    .map((row) => row.impliedVol)
-    .filter((value): value is number => value !== null);
-  const minIv = Math.min(...ivValues);
-  const maxIv = Math.max(...ivValues);
-  const minStrike = Math.min(...strikes);
-  const maxStrike = Math.max(...strikes);
-  const xFor = (strike: number) =>
-    pad + ((strike - minStrike) / Math.max(maxStrike - minStrike, 1)) * (chartWidth - pad * 2);
-  const yFor = (iv: number) =>
-    chartHeight - pad - ((iv - minIv) / Math.max(maxIv - minIv, 0.0001)) * (chartHeight - pad * 2);
-
-  const callPath = linePath(
-    calls
-      .filter((row) => row.impliedVol !== null)
-      .map((row) => ({ x: xFor(row.strike), y: yFor(row.impliedVol ?? minIv) }))
-  );
-  const putPath = linePath(
-    puts
-      .filter((row) => row.impliedVol !== null)
-      .map((row) => ({ x: xFor(row.strike), y: yFor(row.impliedVol ?? minIv) }))
-  );
+  const option: EChartsOption = {
+    backgroundColor: "transparent",
+    animation: false,
+    grid: { top: 20, right: 14, bottom: 28, left: 52 },
+    tooltip: {
+      trigger: "axis",
+      valueFormatter: (value: unknown) =>
+        typeof value === "number" ? `${(value * 100).toFixed(2)}%` : String(value ?? ""),
+    },
+    legend: {
+      top: 0,
+      textStyle: { color: chartTheme.textColor },
+      data: [t("call"), t("put")],
+    },
+    xAxis: {
+      type: "category",
+      name: t("strike"),
+      nameLocation: "middle",
+      nameGap: 24,
+      nameTextStyle: { color: chartTheme.subtleTextColor },
+      data: strikes.map((strike) => strike.toFixed(0)),
+      axisLabel: { color: chartTheme.subtleTextColor },
+      axisLine: { lineStyle: { color: chartTheme.gridLineColor } },
+    },
+    yAxis: {
+      type: "value",
+      name: t("impliedVolatility"),
+      nameTextStyle: { color: chartTheme.subtleTextColor },
+      axisLabel: {
+        color: chartTheme.subtleTextColor,
+        formatter: (value: number) => `${(value * 100).toFixed(0)}%`,
+      },
+      splitLine: { lineStyle: { color: chartTheme.gridLineColor } },
+    },
+    series: [
+      {
+        name: t("call"),
+        type: "line",
+        smooth: true,
+        data: calls.map((row) => row.impliedVol),
+        lineStyle: { color: upColor, width: 3 },
+        itemStyle: { color: upColor },
+      },
+      {
+        name: t("put"),
+        type: "line",
+        smooth: true,
+        data: puts.map((row) => row.impliedVol),
+        lineStyle: { color: downColor, width: 3 },
+        itemStyle: { color: downColor },
+      },
+    ],
+  };
 
   return (
     <article className="surface-card card">
@@ -60,33 +89,7 @@ export function SkewCard({
           <span><i className="legend-swatch" style={{ background: downColor }} />{t("put")}</span>
         </div>
       </div>
-      <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="chart-svg" role="img">
-        <line x1={pad} y1={chartHeight - pad} x2={chartWidth - pad} y2={chartHeight - pad} className="chart-axis" />
-        <line x1={pad} y1={pad} x2={pad} y2={chartHeight - pad} className="chart-axis" />
-        <text
-          x="10"
-          y={chartHeight / 2}
-          transform={`rotate(-90 10 ${chartHeight / 2})`}
-          className="chart-text"
-          fill={chartTheme.subtleTextColor}
-        >
-          {t("impliedVolatility")}
-        </text>
-        <path d={callPath} fill="none" stroke={upColor} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
-        <path d={putPath} fill="none" stroke={downColor} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
-        {strikes.map((strike) => (
-          <text
-            key={strike}
-            x={xFor(strike)}
-            y={chartHeight - 4}
-            textAnchor="middle"
-            className="chart-text"
-            fill={chartTheme.subtleTextColor}
-          >
-            {strike.toFixed(0)}
-          </text>
-        ))}
-      </svg>
+      <EChart option={option} height={260} />
     </article>
   );
 }

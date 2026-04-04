@@ -69,24 +69,9 @@ export function ScenarioPnlSection({
         </div>
       </div>
 
-      <div className="scenario-layout">
-        <article className="surface-card card">
-          <EChart option={option} height={320} />
-        </article>
-
-        <article className="surface-card card scenario-grid">
-          {scenarios.map((scenario) => (
-            <div key={scenario.spotChangePct} className="scenario-row">
-              <span>
-                {t("spotChange")} {(scenario.spotChangePct * 100).toFixed(0)}%
-              </span>
-              <strong>
-                {t("portfolioPnl")} {scenario.portfolioPnl.toFixed(2)}
-              </strong>
-            </div>
-          ))}
-        </article>
-      </div>
+      <article className="surface-card card">
+        <EChart option={option} height={340} />
+      </article>
     </section>
   );
 }
