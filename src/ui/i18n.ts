@@ -42,7 +42,18 @@ export type I18nKey =
   | "put"
   | "paletteUs"
   | "paletteCn"
-  | "paletteAmber";
+  | "paletteAmber"
+  | "positionsTitle"
+  | "positionsDesc"
+  | "positionsPlaceholder"
+  | "portfolioDelta"
+  | "portfolioGamma"
+  | "portfolioVega"
+  | "portfolioTheta"
+  | "notional"
+  | "unmatchedSymbols"
+  | "parseErrors"
+  | "quantity";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -93,6 +104,18 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     paletteUs: "US: green up / red down",
     paletteCn: "CN: red up / green down",
     paletteAmber: "Amber / blue neutral",
+    positionsTitle: "Portfolio Position Import",
+    positionsDesc:
+      "Paste simple CSV rows as symbol,quantity. Underlying shares are treated as delta 1. Option contracts are aggregated using chain Greeks times 100.",
+    positionsPlaceholder: "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1",
+    portfolioDelta: "Portfolio Delta",
+    portfolioGamma: "Portfolio Gamma",
+    portfolioVega: "Portfolio Vega",
+    portfolioTheta: "Portfolio Theta",
+    notional: "Market Value",
+    unmatchedSymbols: "Unmatched symbols",
+    parseErrors: "Parse errors",
+    quantity: "Quantity",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -138,6 +161,18 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     paletteUs: "海外：绿涨红跌",
     paletteCn: "内地：红涨绿跌",
     paletteAmber: "琥珀 / 蓝中性",
+    positionsTitle: "组合持仓导入",
+    positionsDesc:
+      "粘贴简单 CSV：symbol,quantity。标的现货按 delta=1 处理；期权合约按链上 Greeks 乘 100 股乘数聚合。",
+    positionsPlaceholder: "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1",
+    portfolioDelta: "组合 Delta",
+    portfolioGamma: "组合 Gamma",
+    portfolioVega: "组合 Vega",
+    portfolioTheta: "组合 Theta",
+    notional: "市值",
+    unmatchedSymbols: "未匹配符号",
+    parseErrors: "解析错误",
+    quantity: "数量",
   },
 };
 

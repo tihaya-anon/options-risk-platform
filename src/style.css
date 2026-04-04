@@ -36,17 +36,27 @@ body {
 }
 
 button,
-select {
+select,
+textarea {
   font: inherit;
 }
 
-select {
+select,
+textarea {
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.55);
   color: var(--ink);
   border-radius: 12px;
   padding: 10px 12px;
+}
+
+select {
   min-height: 44px;
+}
+
+textarea {
+  min-height: 180px;
+  resize: vertical;
 }
 
 :root[data-theme="dark"] select {
@@ -170,7 +180,8 @@ select {
 .metrics-grid,
 .surface-grid,
 .quote-grid,
-.term-grid {
+.term-grid,
+.positions-layout {
   display: grid;
   gap: 12px;
 }
@@ -180,6 +191,10 @@ select {
 }
 
 .term-grid {
+  grid-template-columns: 1fr;
+}
+
+.positions-layout {
   grid-template-columns: 1fr;
 }
 
@@ -293,6 +308,27 @@ select {
   margin-top: 4px;
 }
 
+.positions-editor,
+.positions-summary {
+  padding: 14px;
+}
+
+.positions-textarea {
+  width: 100%;
+}
+
+.positions-meta {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.meta-row,
+.meta-block {
+  display: grid;
+  gap: 4px;
+}
+
 .empty-state {
   display: grid;
   place-items: center;
@@ -320,5 +356,9 @@ select {
 
   .term-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .positions-layout {
+    grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
   }
 }
