@@ -57,18 +57,19 @@ textarea {
   min-height: 100vh;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 .page-shell {
-  width: min(1280px, calc(100vw - 32px));
+  width: min(1680px, calc(100vw - 24px));
   margin: 0 auto;
-  padding: 24px 0 56px;
+  padding: 12px 0 40px;
 }
 
-.page-shell > [id] {
-  scroll-margin-top: 92px;
+.dashboard-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-content {
+  min-width: 0;
 }
 
 .card {
@@ -80,35 +81,41 @@ html {
 }
 
 .hero,
-.panel {
-  margin-bottom: 18px;
-  padding: 24px;
+.panel,
+.sidebar {
+  margin-bottom: 14px;
+  padding: 18px;
   position: relative;
+  overflow: visible;
 }
 
 .hero {
   display: grid;
-  gap: 20px;
+  gap: 10px;
 }
 
-.hero-copy h1 {
-  margin: 0;
-  font-family: "Space Grotesk", "Segoe UI", sans-serif;
-  font-size: clamp(2.4rem, 5vw, 4.5rem);
-  line-height: 0.94;
-  letter-spacing: -0.06em;
-  color: var(--ink);
+.hero-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .eyebrow {
-  margin: 0 0 12px;
+  margin: 0;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: 0.76rem;
+  font-size: 0.7rem;
 }
 
-.lede,
+.hero-titleline {
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
 .subtle,
 .toolbar-field span,
 .quote-stats span,
@@ -125,20 +132,22 @@ html {
 .hero-panel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
 }
 
 .toolbar {
   grid-column: 1 / -1;
-  padding: 14px;
+  padding: 8px 10px;
   position: relative;
-  z-index: 30;
+  z-index: 300;
+  overflow: visible;
+  border-radius: 18px;
 }
 
 .toolbar-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 6px;
 }
 
 .toolbar-span-2 {
@@ -147,58 +156,97 @@ html {
 
 .toolbar-field {
   display: grid;
-  gap: 8px;
+  gap: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.toolbar-field:has(.select-field.open) {
+  z-index: 6000;
 }
 
 .grouped-select {
   min-width: 240px;
 }
 
-.section-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 12px;
-  margin-bottom: 18px;
+.sidebar {
+  align-self: start;
   position: sticky;
   top: 14px;
-  z-index: 25;
+  z-index: 40;
+  padding: 18px 16px;
 }
 
-.section-link {
-  display: inline-flex;
+.sidebar-head {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.sidebar-kicker {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.sidebar-title {
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  color: var(--ink);
+  font-size: 1.2rem;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 6px;
+}
+
+.sidebar-link {
+  display: flex;
   align-items: center;
-  min-height: 40px;
-  padding: 8px 12px;
+  min-height: 38px;
+  padding: 8px 10px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.55);
   color: var(--ink);
   text-decoration: none;
 }
 
-:root[data-theme="dark"] .section-link {
+:root[data-theme="dark"] .sidebar-link {
   background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-link.active {
+  border-color: color-mix(in srgb, var(--ink) 10%, var(--line));
+  background: color-mix(in srgb, var(--paper) 88%, var(--bg) 12%);
+  font-weight: 700;
 }
 
 .select-field {
   position: relative;
-  z-index: 40;
+  isolation: isolate;
+  z-index: 1000;
+}
+
+.select-field.open {
+  z-index: 10000;
 }
 
 .select-trigger {
   width: 100%;
-  min-height: 44px;
+  min-height: 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: 4px 8px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.55);
   color: var(--ink);
   cursor: pointer;
+  font-size: 0.82rem;
 }
 
 :root[data-theme="dark"] .select-trigger {
@@ -206,8 +254,8 @@ html {
 }
 
 .select-chevron {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-right: 2px solid var(--muted);
   border-bottom: 2px solid var(--muted);
   transform: rotate(45deg);
@@ -220,28 +268,29 @@ html {
 
 .select-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   left: 0;
   right: 0;
-  z-index: 200;
+  z-index: 2147483647;
   display: grid;
-  gap: 6px;
-  padding: 8px;
+  gap: 4px;
+  padding: 5px;
   border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--paper);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper) 99%, var(--bg) 1%);
   box-shadow: 0 20px 40px var(--shadow);
 }
 
 .select-option {
   width: 100%;
-  padding: 10px 12px;
+  padding: 7px 9px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   background: transparent;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
+  font-size: 0.82rem;
 }
 
 .select-option:hover,
@@ -253,13 +302,13 @@ html {
 .greek-bar-card,
 .surface-card,
 .quote-card {
-  padding: 14px;
+  padding: 12px;
 }
 
 .metric strong {
   display: block;
-  margin-top: 6px;
-  font-size: 1.06rem;
+  margin-top: 4px;
+  font-size: 1rem;
 }
 
 .panel-head {
@@ -267,14 +316,14 @@ html {
   align-items: end;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
 .panel-head h2 {
   margin: 0;
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
-  font-size: 1.55rem;
+  font-size: 1.3rem;
   letter-spacing: -0.04em;
   color: var(--ink);
 }
@@ -520,8 +569,13 @@ html {
 }
 
 @media (min-width: 860px) {
+  .dashboard-layout {
+    grid-template-columns: 240px minmax(0, 1fr);
+    align-items: start;
+  }
+
   .hero {
-    grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.85fr);
+    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
     align-items: stretch;
   }
 
@@ -551,5 +605,37 @@ html {
 
   .grouped-exposure-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 859px) {
+  .page-shell {
+    width: min(100vw - 16px, 100%);
+    padding: 10px 0 28px;
+  }
+
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    top: auto;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar-span-2 {
+    grid-column: auto;
   }
 }
