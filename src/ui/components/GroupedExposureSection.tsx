@@ -1,5 +1,6 @@
 import type { I18nKey } from "../i18n";
 import type { EChartsOption } from "echarts";
+import type { ChartTheme } from "../chartTheme";
 import type { GroupByMode, GroupedExposure } from "../positions";
 import { EChart } from "./EChart";
 
@@ -7,11 +8,13 @@ export function GroupedExposureSection({
   groups,
   groupByMode,
   t,
+  chartTheme,
   onGroupByModeChange,
 }: {
   groups: GroupedExposure[];
   groupByMode: GroupByMode;
   t: (key: I18nKey) => string;
+  chartTheme: ChartTheme;
   onGroupByModeChange: (mode: GroupByMode) => void;
 }) {
   const option: EChartsOption = {
@@ -24,14 +27,18 @@ export function GroupedExposureSection({
     },
     xAxis: {
       type: "value",
-      axisLabel: { color: "var(--muted)" },
-      splitLine: { lineStyle: { color: "rgba(128,128,128,0.15)" } },
+      axisLabel: { color: chartTheme.subtleTextColor },
+      splitLine: { lineStyle: { color: chartTheme.gridLineColor } },
     },
     yAxis: {
       type: "category",
       data: groups.map((group) => group.bucket),
-      axisLabel: { color: "var(--muted)", width: 160, overflow: "truncate" },
-      axisLine: { lineStyle: { color: "rgba(128,128,128,0.25)" } },
+      axisLabel: {
+        color: chartTheme.subtleTextColor,
+        width: 160,
+        overflow: "truncate",
+      },
+      axisLine: { lineStyle: { color: chartTheme.gridLineColor } },
     },
     series: [
       {

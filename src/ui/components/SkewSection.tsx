@@ -1,4 +1,5 @@
 import type { EnrichedOptionQuote } from "../../types";
+import type { ChartTheme } from "../chartTheme";
 import { groupByExpiry } from "../format";
 import type { I18nKey } from "../i18n";
 import { SkewCard } from "./SkewCard";
@@ -7,11 +8,13 @@ export function SkewSection({
   rows,
   upColor,
   downColor,
+  chartTheme,
   t,
 }: {
   rows: EnrichedOptionQuote[];
   upColor: string;
   downColor: string;
+  chartTheme: ChartTheme;
   t: (key: I18nKey) => string;
 }) {
   const grouped = groupByExpiry(rows);
@@ -32,6 +35,7 @@ export function SkewSection({
             rows={expiryRows}
             upColor={upColor}
             downColor={downColor}
+            chartTheme={chartTheme}
             t={t}
           />
         ))}

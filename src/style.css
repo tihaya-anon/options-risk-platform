@@ -52,6 +52,16 @@ textarea {
 
 select {
   min-height: 44px;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 12px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 34px;
 }
 
 textarea {
@@ -98,6 +108,7 @@ textarea {
   font-size: clamp(2.4rem, 5vw, 4.5rem);
   line-height: 0.94;
   letter-spacing: -0.06em;
+  color: var(--ink);
 }
 
 .eyebrow {
@@ -179,6 +190,7 @@ textarea {
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
   font-size: 1.55rem;
   letter-spacing: -0.04em;
+  color: var(--ink);
 }
 
 .metrics-grid,
@@ -305,6 +317,7 @@ textarea {
   margin: 12px 0 4px;
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
   font-size: 1.32rem;
+  color: var(--ink);
 }
 
 .quote-mid {
@@ -320,6 +333,16 @@ textarea {
 .quote-stats strong {
   display: block;
   margin-top: 4px;
+}
+
+.quote-stats strong,
+.metric strong,
+.meta-row strong,
+.meta-block strong,
+.surface-head h3,
+.scenario-row strong,
+.greek-bar-head strong {
+  color: var(--ink);
 }
 
 .positions-editor,

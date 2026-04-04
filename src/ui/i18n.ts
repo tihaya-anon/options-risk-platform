@@ -68,7 +68,8 @@ export type I18nKey =
   | "groupByExpiry"
   | "groupByOptionType"
   | "groupBySymbolExpiry"
-  | "groupByFull";
+  | "groupByFull"
+  | "impliedVolatility";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -148,6 +149,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     groupByOptionType: "Option type",
     groupBySymbolExpiry: "Symbol + expiry",
     groupByFull: "Symbol + expiry + type",
+    impliedVolatility: "Implied Volatility",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -222,6 +224,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     groupByOptionType: "按期权方向",
     groupBySymbolExpiry: "按标的 + 到期日",
     groupByFull: "按标的 + 到期日 + 方向",
+    impliedVolatility: "隐含波动率",
   },
 };
 

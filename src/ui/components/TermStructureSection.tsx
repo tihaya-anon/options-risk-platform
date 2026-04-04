@@ -2,17 +2,20 @@ import type { EnrichedOptionQuote } from "../../types";
 import type { EChartsOption } from "echarts";
 import { averageIv, groupByExpiry } from "../format";
 import type { I18nKey } from "../i18n";
+import type { ChartTheme } from "../chartTheme";
 import { EChart } from "./EChart";
 
 export function TermStructureSection({
   rows,
   upColor,
   downColor,
+  chartTheme,
   t,
 }: {
   rows: EnrichedOptionQuote[];
   upColor: string;
   downColor: string;
+  chartTheme: ChartTheme;
   t: (key: I18nKey) => string;
 }) {
   const expiries = [...new Set(rows.map((row) => row.expiry))].sort();
@@ -31,22 +34,25 @@ export function TermStructureSection({
     },
     legend: {
       top: 0,
-      textStyle: { color: "var(--ink)" },
+      textStyle: { color: chartTheme.textColor },
       data: [t("callIv"), t("putIv")],
     },
     xAxis: {
       type: "category",
       data: expiries,
-      axisLabel: { color: "var(--muted)" },
-      axisLine: { lineStyle: { color: "rgba(128,128,128,0.25)" } },
+      axisLabel: {
+        color: chartTheme.subtleTextColor,
+        formatter: (value: string) => value.slice(5),
+      },
+      axisLine: { lineStyle: { color: chartTheme.gridLineColor } },
     },
     yAxis: {
       type: "value",
       axisLabel: {
-        color: "var(--muted)",
+        color: chartTheme.subtleTextColor,
         formatter: (value: number) => `${(value * 100).toFixed(0)}%`,
       },
-      splitLine: { lineStyle: { color: "rgba(128,128,128,0.15)" } },
+      splitLine: { lineStyle: { color: chartTheme.gridLineColor } },
     },
     series: [
       {

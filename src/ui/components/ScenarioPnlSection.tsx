@@ -1,6 +1,7 @@
 import type { I18nKey } from "../i18n";
 import type { EChartsOption } from "echarts";
 import type { ScenarioPoint } from "../positions";
+import type { ChartTheme } from "../chartTheme";
 import { EChart } from "./EChart";
 
 export function ScenarioPnlSection({
@@ -8,11 +9,13 @@ export function ScenarioPnlSection({
   t,
   accentColor,
   neutralColor,
+  chartTheme,
 }: {
   scenarios: ScenarioPoint[];
   t: (key: I18nKey) => string;
   accentColor: string;
   neutralColor: string;
+  chartTheme: ChartTheme;
 }) {
   const option: EChartsOption = {
     backgroundColor: "transparent",
@@ -29,15 +32,16 @@ export function ScenarioPnlSection({
       name: t("spotChange"),
       nameLocation: "middle",
       nameGap: 28,
-      axisLabel: { color: "var(--muted)" },
-      axisLine: { lineStyle: { color: "rgba(128,128,128,0.25)" } },
+      nameTextStyle: { color: chartTheme.subtleTextColor },
+      axisLabel: { color: chartTheme.subtleTextColor },
+      axisLine: { lineStyle: { color: chartTheme.gridLineColor } },
     },
     yAxis: {
       type: "value",
       name: t("portfolioPnl"),
-      nameTextStyle: { color: "var(--muted)" },
-      axisLabel: { color: "var(--muted)" },
-      splitLine: { lineStyle: { color: "rgba(128,128,128,0.15)" } },
+      nameTextStyle: { color: chartTheme.subtleTextColor },
+      axisLabel: { color: chartTheme.subtleTextColor },
+      splitLine: { lineStyle: { color: chartTheme.gridLineColor } },
     },
     series: [
       {

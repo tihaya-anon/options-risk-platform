@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { blackScholesModel } from "../lib/bs";
 import { enrichSnapshot } from "../lib/enrich";
+import { getChartTheme } from "./chartTheme";
 import { paletteTokens, type Language, type Palette, type ThemeMode } from "./config";
 import { calculateRiskSummary } from "./format";
 import { createTranslator } from "./i18n";
@@ -93,6 +94,7 @@ export function App() {
     );
   }, [enrichedQuotes, groupByMode, parsedPositions.positions, snapshot]);
   const paletteColors = paletteTokens[palette];
+  const chartTheme = useMemo(() => getChartTheme(themeMode), [themeMode]);
 
   return (
     <main className="page-shell">
@@ -124,11 +126,13 @@ export function App() {
             t={t}
             accentColor={paletteColors.accent}
             neutralColor={paletteColors.neutral}
+            chartTheme={chartTheme}
           />
           <GroupedExposureSection
             groups={groupedExposures}
             groupByMode={groupByMode}
             t={t}
+            chartTheme={chartTheme}
             onGroupByModeChange={setGroupByMode}
           />
           <GreeksSummarySection
@@ -140,12 +144,14 @@ export function App() {
             rows={enrichedQuotes}
             upColor={paletteColors.up}
             downColor={paletteColors.down}
+            chartTheme={chartTheme}
             t={t}
           />
           <SkewSection
             rows={enrichedQuotes}
             upColor={paletteColors.up}
             downColor={paletteColors.down}
+            chartTheme={chartTheme}
             t={t}
           />
           <ChainSection
