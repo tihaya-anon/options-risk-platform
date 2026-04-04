@@ -1,0 +1,157 @@
+{
+  "source": "synthetic-fallback",
+  "generatedAt": "2026-04-04T08:27:58.386Z",
+  "riskFreeRate": 0.045,
+  "underlying": {
+    "symbol": "SPY",
+    "spot": 524.36,
+    "currency": "USD",
+    "timestamp": "2026-04-04T08:27:58.386Z"
+  },
+  "quotes": [
+    {
+      "symbol": "SPY20260417C00000510",
+      "underlying": "SPY",
+      "optionType": "call",
+      "strike": 510,
+      "expiry": "2026-04-17",
+      "bid": 28.58,
+      "ask": 29.03,
+      "last": 28.81,
+      "volume": 2325,
+      "openInterest": 10408
+    },
+    {
+      "symbol": "SPY20260417P00000510",
+      "underlying": "SPY",
+      "optionType": "put",
+      "strike": 510,
+      "expiry": "2026-04-17",
+      "bid": 12.88,
+      "ask": 13.33,
+      "last": 13.1,
+      "volume": 1025,
+      "openInterest": 8462
+    },
+    {
+      "symbol": "SPY20260417C00000525",
+      "underlying": "SPY",
+      "optionType": "call",
+      "strike": 525,
+      "expiry": "2026-04-17",
+      "bid": 25.02,
+      "ask": 25.47,
+      "last": 25.25,
+      "volume": 2557,
+      "openInterest": 12857
+    },
+    {
+      "symbol": "SPY20260417P00000525",
+      "underlying": "SPY",
+      "optionType": "put",
+      "strike": 525,
+      "expiry": "2026-04-17",
+      "bid": 23.24,
+      "ask": 23.69,
+      "last": 23.46,
+      "volume": 1165,
+      "openInterest": 5668
+    },
+    {
+      "symbol": "SPY20260417C00000540",
+      "underlying": "SPY",
+      "optionType": "call",
+      "strike": 540,
+      "expiry": "2026-04-17",
+      "bid": 13.6,
+      "ask": 14.05,
+      "last": 13.83,
+      "volume": 2589,
+      "openInterest": 2541
+    },
+    {
+      "symbol": "SPY20260417P00000540",
+      "underlying": "SPY",
+      "optionType": "put",
+      "strike": 540,
+      "expiry": "2026-04-17",
+      "bid": 27.96,
+      "ask": 28.41,
+      "last": 28.18,
+      "volume": 1725,
+      "openInterest": 2658
+    },
+    {
+      "symbol": "SPY20260515C00000510",
+      "underlying": "SPY",
+      "optionType": "call",
+      "strike": 510,
+      "expiry": "2026-05-15",
+      "bid": 33.64,
+      "ask": 34.09,
+      "last": 33.87,
+      "volume": 2528,
+      "openInterest": 14720
+    },
+    {
+      "symbol": "SPY20260515P00000510",
+      "underlying": "SPY",
+      "optionType": "put",
+      "strike": 510,
+      "expiry": "2026-05-15",
+      "bid": 17.47,
+      "ask": 17.92,
+      "last": 17.69,
+      "volume": 2538,
+      "openInterest": 7035
+    },
+    {
+      "symbol": "SPY20260515C00000525",
+      "underlying": "SPY",
+      "optionType": "call",
+      "strike": 525,
+      "expiry": "2026-05-15",
+      "bid": 33.86,
+      "ask": 34.31,
+      "last": 34.08,
+      "volume": 1325,
+      "openInterest": 10881
+    },
+    {
+      "symbol": "SPY20260515P00000525",
+      "underlying": "SPY",
+      "optionType": "put",
+      "strike": 525,
+      "expiry": "2026-05-15",
+      "bid": 31.22,
+      "ask": 31.67,
+      "last": 31.45,
+      "volume": 889,
+      "openInterest": 14544
+    },
+    {
+      "symbol": "SPY20260515C00000540",
+      "underlying": "SPY",
+      "optionType": "call",
+      "strike": 540,
+      "expiry": "2026-05-15",
+      "bid": 18.44,
+      "ask": 18.89,
+      "last": 18.66,
+      "volume": 2348,
+      "openInterest": 13055
+    },
+    {
+      "symbol": "SPY20260515P00000540",
+      "underlying": "SPY",
+      "optionType": "put",
+      "strike": 540,
+      "expiry": "2026-05-15",
+      "bid": 32.35,
+      "ask": 32.8,
+      "last": 32.57,
+      "volume": 2592,
+      "openInterest": 14123
+    }
+  ]
+}
