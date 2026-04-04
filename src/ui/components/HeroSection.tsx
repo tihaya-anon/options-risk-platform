@@ -1,6 +1,7 @@
 import type { OptionSnapshotFile } from "../../types";
 import type { Language, Palette, ThemeMode } from "../config";
 import type { I18nKey } from "../i18n";
+import { SelectField } from "./SelectField";
 
 export function HeroSection({
   snapshot,
@@ -38,31 +39,37 @@ export function HeroSection({
           <div className="toolbar-grid">
             <label className="toolbar-field">
               <span>{t("language")}</span>
-              <div className="select-wrap">
-                <select value={language} onChange={(event) => onLanguageChange(event.target.value as Language)}>
-                  <option value="en">{t("english")}</option>
-                  <option value="zh">{t("chinese")}</option>
-                </select>
-              </div>
+              <SelectField
+                value={language}
+                onChange={onLanguageChange}
+                options={[
+                  { value: "en", label: t("english") },
+                  { value: "zh", label: t("chinese") },
+                ]}
+              />
             </label>
             <label className="toolbar-field">
               <span>{t("theme")}</span>
-              <div className="select-wrap">
-                <select value={themeMode} onChange={(event) => onThemeChange(event.target.value as ThemeMode)}>
-                  <option value="light">{t("light")}</option>
-                  <option value="dark">{t("dark")}</option>
-                </select>
-              </div>
+              <SelectField
+                value={themeMode}
+                onChange={onThemeChange}
+                options={[
+                  { value: "light", label: t("light") },
+                  { value: "dark", label: t("dark") },
+                ]}
+              />
             </label>
             <label className="toolbar-field toolbar-span-2">
               <span>{t("palette")}</span>
-              <div className="select-wrap">
-                <select value={palette} onChange={(event) => onPaletteChange(event.target.value as Palette)}>
-                  <option value="us">{t("paletteUs")}</option>
-                  <option value="cn">{t("paletteCn")}</option>
-                  <option value="amber">{t("paletteAmber")}</option>
-                </select>
-              </div>
+              <SelectField
+                value={palette}
+                onChange={onPaletteChange}
+                options={[
+                  { value: "us", label: t("paletteUs") },
+                  { value: "cn", label: t("paletteCn") },
+                  { value: "amber", label: t("paletteAmber") },
+                ]}
+              />
             </label>
           </div>
         </div>

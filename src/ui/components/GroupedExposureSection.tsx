@@ -3,6 +3,7 @@ import type { EChartsOption } from "echarts";
 import type { ChartTheme } from "../chartTheme";
 import type { GroupByMode, GroupedExposure } from "../positions";
 import { EChart } from "./EChart";
+import { SelectField } from "./SelectField";
 
 export function GroupedExposureSection({
   groups,
@@ -65,18 +66,17 @@ export function GroupedExposureSection({
         </div>
         <label className="toolbar-field grouped-select">
           <span>{t("groupBy")}</span>
-          <div className="select-wrap">
-            <select
-              value={groupByMode}
-              onChange={(event) => onGroupByModeChange(event.target.value as GroupByMode)}
-            >
-              <option value="symbol">{t("groupBySymbol")}</option>
-              <option value="expiry">{t("groupByExpiry")}</option>
-              <option value="optionType">{t("groupByOptionType")}</option>
-              <option value="symbolExpiry">{t("groupBySymbolExpiry")}</option>
-              <option value="full">{t("groupByFull")}</option>
-            </select>
-          </div>
+          <SelectField
+            value={groupByMode}
+            onChange={onGroupByModeChange}
+            options={[
+              { value: "symbol", label: t("groupBySymbol") },
+              { value: "expiry", label: t("groupByExpiry") },
+              { value: "optionType", label: t("groupByOptionType") },
+              { value: "symbolExpiry", label: t("groupBySymbolExpiry") },
+              { value: "full", label: t("groupByFull") },
+            ]}
+          />
         </label>
       </div>
 

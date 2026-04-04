@@ -70,7 +70,10 @@ export type I18nKey =
   | "groupBySymbolExpiry"
   | "groupByFull"
   | "impliedVolatility"
-  | "uploadCsv";
+  | "uploadCsv"
+  | "volScenarioTitle"
+  | "volScenarioDesc"
+  | "volChange";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -152,6 +155,10 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     groupByFull: "Symbol + expiry + type",
     impliedVolatility: "Implied Volatility",
     uploadCsv: "Upload CSV",
+    volScenarioTitle: "Volatility Shock PnL",
+    volScenarioDesc:
+      "Reprice the imported portfolio under parallel implied-volatility shifts while keeping spot and time-to-expiry fixed.",
+    volChange: "Vol change",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -228,6 +235,10 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     groupByFull: "按标的 + 到期日 + 方向",
     impliedVolatility: "隐含波动率",
     uploadCsv: "上传 CSV",
+    volScenarioTitle: "波动率冲击 PnL",
+    volScenarioDesc:
+      "在保持标的价格和剩余期限不变的前提下，对隐含波动率做平行移动并重定价组合。",
+    volChange: "波动率变动",
   },
 };
 
