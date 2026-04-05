@@ -77,6 +77,16 @@ function buildSyntheticChain(symbol: string, spot: number, generatedAt: string) 
 
 export const yahooSyntheticProvider: SnapshotProvider = {
   name: "yahooSynthetic",
+  metadata: {
+    id: "yahooSynthetic",
+    label: "Yahoo spot + synthetic chain",
+    requiresApiKey: false,
+    supportsSnapshots: true,
+    supportsOptionChain: true,
+    supportsGreeks: true,
+    supportsScenarios: true,
+    notes: "Fetches live underlying spot from Yahoo Finance and builds a synthetic option chain.",
+  },
   async getSnapshot(config: ProviderConfig): Promise<SnapshotFile> {
     const generatedAt = new Date().toISOString();
     const spot = await fetchYahooSpot(config.symbol);

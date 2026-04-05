@@ -102,7 +102,14 @@ export type I18nKey =
   | "capabilitySnapshot"
   | "capabilityGreeks"
   | "capabilityScenarios"
-  | "capabilityGroupedRisk";
+  | "capabilityGroupedRisk"
+  | "testConnection"
+  | "testingConnection"
+  | "connectionError"
+  | "providerNotes"
+  | "apiKeyPlaceholder"
+  | "apiKeyRequired"
+  | "apiKeyOptional";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -221,6 +228,13 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     capabilityGreeks: "Greeks enrichment",
     capabilityScenarios: "Scenario analysis",
     capabilityGroupedRisk: "Grouped risk breakdown",
+    testConnection: "Test connection",
+    testingConnection: "Testing...",
+    connectionError: "Connection error",
+    providerNotes: "Provider notes",
+    apiKeyPlaceholder: "API key placeholder",
+    apiKeyRequired: "This provider will require an API key.",
+    apiKeyOptional: "No API key required for the current provider.",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -333,6 +347,13 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     capabilityGreeks: "Greeks 富化",
     capabilityScenarios: "场景分析",
     capabilityGroupedRisk: "分组风险拆解",
+    testConnection: "测试连接",
+    testingConnection: "测试中...",
+    connectionError: "连接错误",
+    providerNotes: "提供方说明",
+    apiKeyPlaceholder: "API Key 占位",
+    apiKeyRequired: "该提供方未来需要 API Key。",
+    apiKeyOptional: "当前提供方不需要 API Key。",
   },
 };
 

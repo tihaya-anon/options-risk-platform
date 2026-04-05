@@ -26,6 +26,7 @@ export * from './optionQuote';
 export * from './optionQuoteOptionType';
 export * from './parsedPositions';
 export * from './portfolioExposure';
+export * from './providerMetadata';
 export * from './spotScenarioPoint';
 export * from './timeScenarioPoint';
 export * from './underlyingSnapshot';

@@ -7,13 +7,14 @@ The frontend should treat this contract as the canonical integration surface.
 
  * OpenAPI spec version: 0.1.0
  */
-import type { ProviderMetadata } from './providerMetadata';
 
-export type GetConfig200 = {
-  provider: string;
-  defaultSymbol: string;
-  llmAdvisorMode: string;
-  providers: string[];
-  advisorModes: string[];
-  providerMetadata: ProviderMetadata[];
-};
+export interface ProviderMetadata {
+  id: string;
+  label: string;
+  requiresApiKey: boolean;
+  supportsSnapshots: boolean;
+  supportsOptionChain: boolean;
+  supportsGreeks: boolean;
+  supportsScenarios: boolean;
+  notes: string;
+}

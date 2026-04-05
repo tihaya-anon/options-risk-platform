@@ -128,7 +128,19 @@ export interface ProviderConfig {
   riskFreeRate: number;
 }
 
+export interface ProviderMetadata {
+  id: string;
+  label: string;
+  requiresApiKey: boolean;
+  supportsSnapshots: boolean;
+  supportsOptionChain: boolean;
+  supportsGreeks: boolean;
+  supportsScenarios: boolean;
+  notes: string;
+}
+
 export interface SnapshotProvider {
   name: string;
+  metadata: ProviderMetadata;
   getSnapshot(config: ProviderConfig): Promise<SnapshotFile>;
 }

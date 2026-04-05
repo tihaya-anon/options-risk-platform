@@ -10,3 +10,7 @@ const providers: Record<string, SnapshotProvider> = {
 export function getProvider(name: string): SnapshotProvider {
   return providers[name] ?? providers.mock;
 }
+
+export function listProviders(): SnapshotProvider[] {
+  return Object.values(providers);
+}

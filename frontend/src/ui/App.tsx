@@ -107,7 +107,12 @@ export function App() {
 
   const t = useMemo(() => createTranslator(language), [language]);
   const runtimeConfig = useRuntimeConfig(settings.apiBaseUrl);
-  const { health, error: healthError } = useConnectionHealth(settings.apiBaseUrl);
+  const {
+    health,
+    error: healthError,
+    isChecking: isConnectionChecking,
+    testConnection,
+  } = useConnectionHealth(settings.apiBaseUrl);
   const { analysis, error: analysisError } = usePortfolioAnalysis({
     snapshot,
     positionsInput,
@@ -178,11 +183,15 @@ export function App() {
                   settings={settings}
                   providers={runtimeConfig?.providers ?? ["mock", "yahooSynthetic"]}
                   advisorModes={runtimeConfig?.advisorModes ?? ["rules", "llm"]}
+                  providerMetadata={runtimeConfig?.providerMetadata ?? []}
                   connectionStatus={health && !healthError ? "connected" : "degraded"}
                   connectionProvider={health?.provider ?? settings.provider}
+                  connectionError={healthError}
+                  isConnectionChecking={isConnectionChecking}
                   t={t}
                   onSettingsChange={setSettings}
                   onSave={() => setSettings({ ...settings })}
+                  onTestConnection={testConnection}
                 />
               }
             />

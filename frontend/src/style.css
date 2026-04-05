@@ -676,6 +676,22 @@ input {
   font-size: 0.82rem;
 }
 
+.provider-note,
+.connection-error {
+  display: grid;
+  gap: 4px;
+  margin-top: 14px;
+}
+
+.provider-note strong,
+.connection-error strong {
+  color: var(--ink);
+}
+
+.settings-actions {
+  margin-top: 14px;
+}
+
 .positions-meta {
   display: grid;
   gap: 10px;

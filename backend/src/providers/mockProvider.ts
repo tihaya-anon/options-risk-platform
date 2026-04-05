@@ -62,6 +62,16 @@ function buildSyntheticChain(symbol: string, spot: number, generatedAt: string) 
 
 export const mockProvider: SnapshotProvider = {
   name: "mock",
+  metadata: {
+    id: "mock",
+    label: "Mock provider",
+    requiresApiKey: false,
+    supportsSnapshots: true,
+    supportsOptionChain: true,
+    supportsGreeks: true,
+    supportsScenarios: true,
+    notes: "Deterministic local snapshot for UI development and demo flows.",
+  },
   async getSnapshot(config: ProviderConfig): Promise<SnapshotFile> {
     const generatedAt = new Date().toISOString();
     const spot = 524.36;

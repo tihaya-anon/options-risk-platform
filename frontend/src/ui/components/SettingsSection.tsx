@@ -1,5 +1,6 @@
 import type { ChangeEvent, FormEvent } from "react";
 import type { FrontendSettings } from "../../types";
+import type { ProviderMetadata } from "../../api/generated/model/providerMetadata";
 import type { I18nKey } from "../i18n";
 import { PanelSection } from "./PanelSection";
 import { SelectField } from "./SelectField";
@@ -8,20 +9,28 @@ export function SettingsSection({
   settings,
   providers,
   advisorModes,
+  providerMetadata,
   connectionStatus,
   connectionProvider,
+  connectionError,
+  isConnectionChecking,
   t,
   onSettingsChange,
   onSave,
+  onTestConnection,
 }: {
   settings: FrontendSettings;
   providers: string[];
   advisorModes: string[];
+  providerMetadata: ProviderMetadata[];
   connectionStatus: "connected" | "degraded";
   connectionProvider: string;
+  connectionError: string | null;
+  isConnectionChecking: boolean;
   t: (key: I18nKey) => string;
   onSettingsChange: (settings: FrontendSettings) => void;
   onSave: () => void;
+  onTestConnection: () => void;
 }) {
   const handleChange =
     (field: keyof FrontendSettings) =>
@@ -36,6 +45,9 @@ export function SettingsSection({
     event.preventDefault();
     onSave();
   };
+
+  const selectedProvider =
+    providerMetadata.find((provider) => provider.id === settings.provider) ?? null;
 
   return (
     <PanelSection
@@ -71,19 +83,60 @@ export function SettingsSection({
               </strong>
             </div>
           </div>
+          {connectionError ? (
+            <div className="connection-error">
+              <span>{t("connectionError")}</span>
+              <strong>{connectionError}</strong>
+            </div>
+          ) : null}
+          <div className="settings-actions">
+            <button
+              type="button"
+              className="button-like"
+              onClick={onTestConnection}
+              disabled={isConnectionChecking}
+            >
+              {isConnectionChecking ? t("testingConnection") : t("testConnection")}
+            </button>
+          </div>
         </article>
 
         <article className="card settings-card">
           <div className="meta-block">
             <span>{t("providerCapabilities")}</span>
-            <strong>{t("providerCapabilitiesDesc")}</strong>
+            <strong>{selectedProvider?.label ?? t("providerCapabilitiesDesc")}</strong>
           </div>
           <div className="capability-list">
-            <span className="capability-chip">{t("capabilitySnapshot")}</span>
-            <span className="capability-chip">{t("capabilityGreeks")}</span>
-            <span className="capability-chip">{t("capabilityScenarios")}</span>
-            <span className="capability-chip">{t("capabilityGroupedRisk")}</span>
+            {selectedProvider?.supportsSnapshots ? (
+              <span className="capability-chip">{t("capabilitySnapshot")}</span>
+            ) : null}
+            {selectedProvider?.supportsGreeks ? (
+              <span className="capability-chip">{t("capabilityGreeks")}</span>
+            ) : null}
+            {selectedProvider?.supportsScenarios ? (
+              <span className="capability-chip">{t("capabilityScenarios")}</span>
+            ) : null}
+            {selectedProvider?.supportsOptionChain ? (
+              <span className="capability-chip">{t("capabilityGroupedRisk")}</span>
+            ) : null}
           </div>
+          <div className="provider-note">
+            <span>{t("providerNotes")}</span>
+            <strong>{selectedProvider?.notes ?? t("providerCapabilitiesDesc")}</strong>
+          </div>
+          <label className="field-stack">
+            <span>{t("apiKeyPlaceholder")}</span>
+            <input
+              className="settings-input"
+              type="password"
+              placeholder={
+                selectedProvider?.requiresApiKey
+                  ? t("apiKeyRequired")
+                  : t("apiKeyOptional")
+              }
+              disabled={!selectedProvider?.requiresApiKey}
+            />
+          </label>
         </article>
       </div>
       <form className="settings-form" onSubmit={handleSubmit}>

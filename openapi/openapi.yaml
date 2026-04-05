@@ -46,6 +46,7 @@ paths:
                   - llmAdvisorMode
                   - providers
                   - advisorModes
+                  - providerMetadata
                 properties:
                   provider:
                     type: string
@@ -61,6 +62,10 @@ paths:
                     type: array
                     items:
                       type: string
+                  providerMetadata:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ProviderMetadata"
 
   /snapshot:
     get:
@@ -107,6 +112,35 @@ paths:
 
 components:
   schemas:
+    ProviderMetadata:
+      type: object
+      required:
+        - id
+        - label
+        - requiresApiKey
+        - supportsSnapshots
+        - supportsOptionChain
+        - supportsGreeks
+        - supportsScenarios
+        - notes
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        requiresApiKey:
+          type: boolean
+        supportsSnapshots:
+          type: boolean
+        supportsOptionChain:
+          type: boolean
+        supportsGreeks:
+          type: boolean
+        supportsScenarios:
+          type: boolean
+        notes:
+          type: string
+
     OptionQuote:
       type: object
       required:

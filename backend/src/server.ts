@@ -2,7 +2,7 @@ import http from "node:http";
 import { loadConfig } from "./config.js";
 import { enrichSnapshot } from "./lib/enrichSnapshot.js";
 import { analyzePortfolio } from "./lib/portfolioAnalysis.js";
-import { getProvider } from "./providers/providerRegistry.js";
+import { getProvider, listProviders } from "./providers/providerRegistry.js";
 import type { AnalysisRequest } from "./types.js";
 
 const config = loadConfig();
@@ -50,12 +50,14 @@ const server = http.createServer(async (req: any, res: any) => {
     }
 
     if (req.method === "GET" && url.pathname === "/api/config") {
+      const providerMetadata = listProviders().map((provider) => provider.metadata);
       sendJson(res, 200, {
         provider: config.provider,
         defaultSymbol: config.defaultSymbol,
         llmAdvisorMode: config.llmAdvisorMode,
-        providers: ["mock", "yahooSynthetic"],
+        providers: providerMetadata.map((provider) => provider.id),
         advisorModes: ["rules", "llm"],
+        providerMetadata,
       });
       return;
     }
