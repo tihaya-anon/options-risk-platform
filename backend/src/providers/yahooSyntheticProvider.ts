@@ -1,12 +1,14 @@
-function nextMonthlyExpiries(baseDate = new Date()) {
-  const expiries = [];
+import type { ProviderConfig, SnapshotFile, SnapshotProvider } from "../types.js";
+
+function nextMonthlyExpiries(baseDate = new Date()): string[] {
+  const expiries: Date[] = [];
   const startMonth = baseDate.getUTCMonth();
   const startYear = baseDate.getUTCFullYear();
 
   for (let offset = 0; offset < 2; offset += 1) {
     const date = new Date(Date.UTC(startYear, startMonth + offset + 1, 0));
     const first = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
-    const fridays = [];
+    const fridays: Date[] = [];
     for (let d = new Date(first); d <= date; d.setUTCDate(d.getUTCDate() + 1)) {
       if (d.getUTCDay() === 5) fridays.push(new Date(d));
     }
@@ -16,7 +18,7 @@ function nextMonthlyExpiries(baseDate = new Date()) {
   return expiries.map((date) => date.toISOString().slice(0, 10));
 }
 
-async function fetchYahooSpot(symbol) {
+async function fetchYahooSpot(symbol: string): Promise<number> {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`;
   const response = await fetch(url, {
     headers: { "user-agent": "Mozilla/5.0" },
@@ -24,6 +26,7 @@ async function fetchYahooSpot(symbol) {
   if (!response.ok) {
     throw new Error(`Yahoo spot fetch failed with ${response.status}`);
   }
+
   const data = await response.json();
   const close = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
   if (typeof close !== "number") {
@@ -32,7 +35,7 @@ async function fetchYahooSpot(symbol) {
   return close;
 }
 
-function buildSyntheticChain(symbol, spot, generatedAt) {
+function buildSyntheticChain(symbol: string, spot: number, generatedAt: string) {
   const expiries = nextMonthlyExpiries(new Date(generatedAt));
   const strikes = [-15, 0, 15].map((offset) =>
     Math.round((spot + offset) / 5) * 5
@@ -50,7 +53,7 @@ function buildSyntheticChain(symbol, spot, generatedAt) {
         Math.max(strike - spot, 0) +
         (5.5 + 18 * Math.exp(-Math.abs(moneyness) * 6)) * timePremium;
 
-      for (const optionType of ["call", "put"]) {
+      for (const optionType of ["call", "put"] as const) {
         const mid = optionType === "call" ? callMid : putMid;
         const spread = mid < 3 ? 0.15 : 0.45;
         quotes.push({
@@ -72,22 +75,23 @@ function buildSyntheticChain(symbol, spot, generatedAt) {
   return quotes;
 }
 
-export const yahooSyntheticProvider = {
+export const yahooSyntheticProvider: SnapshotProvider = {
   name: "yahooSynthetic",
-  async getSnapshot({ symbol, riskFreeRate }) {
+  async getSnapshot(config: ProviderConfig): Promise<SnapshotFile> {
     const generatedAt = new Date().toISOString();
-    const spot = await fetchYahooSpot(symbol);
+    const spot = await fetchYahooSpot(config.symbol);
+
     return {
       source: "yahoo-spot+synthetic-chain",
       generatedAt,
-      riskFreeRate,
+      riskFreeRate: config.riskFreeRate,
       underlying: {
-        symbol,
+        symbol: config.symbol,
         spot: Number(spot.toFixed(2)),
         currency: "USD",
         timestamp: generatedAt,
       },
-      quotes: buildSyntheticChain(symbol, spot, generatedAt),
+      quotes: buildSyntheticChain(config.symbol, spot, generatedAt),
     };
   },
 };

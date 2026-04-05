@@ -1,6 +1,13 @@
-import { clamp, normCdf, normPdf } from "./math.mjs";
+import { clamp, normCdf, normPdf } from "./math.js";
+import type { OptionRight } from "../types.js";
 
-function d1(spot, strike, rate, timeToExpiryYears, volatility) {
+function d1(
+  spot: number,
+  strike: number,
+  rate: number,
+  timeToExpiryYears: number,
+  volatility: number
+): number {
   return (
     (Math.log(spot / strike) +
       (rate + 0.5 * volatility * volatility) * timeToExpiryYears) /
@@ -8,21 +15,25 @@ function d1(spot, strike, rate, timeToExpiryYears, volatility) {
   );
 }
 
-function d2(spot, strike, rate, timeToExpiryYears, volatility) {
-  return (
-    d1(spot, strike, rate, timeToExpiryYears, volatility) -
-    volatility * Math.sqrt(timeToExpiryYears)
-  );
+function d2(
+  spot: number,
+  strike: number,
+  rate: number,
+  timeToExpiryYears: number,
+  volatility: number
+): number {
+  return d1(spot, strike, rate, timeToExpiryYears, volatility) -
+    volatility * Math.sqrt(timeToExpiryYears);
 }
 
 export function optionPrice(
-  spot,
-  strike,
-  rate,
-  timeToExpiryYears,
-  volatility,
-  optionType
-) {
+  spot: number,
+  strike: number,
+  rate: number,
+  timeToExpiryYears: number,
+  volatility: number,
+  optionType: OptionRight
+): number {
   if (timeToExpiryYears <= 0 || volatility <= 0 || spot <= 0 || strike <= 0) {
     return optionType === "call"
       ? Math.max(spot - strike, 0)
@@ -40,12 +51,12 @@ export function optionPrice(
 }
 
 export function optionGreeks(
-  spot,
-  strike,
-  rate,
-  timeToExpiryYears,
-  volatility,
-  optionType
+  spot: number,
+  strike: number,
+  rate: number,
+  timeToExpiryYears: number,
+  volatility: number,
+  optionType: OptionRight
 ) {
   const price = optionPrice(
     spot,
@@ -77,25 +88,30 @@ export function optionGreeks(
     (-spot * pdf * volatility / (2 * sqrtT) +
       rate * strike * discount * normCdf(-dd2)) /
     365;
-  const theta = optionType === "call" ? callTheta : putTheta;
 
-  return { price, delta, gamma, vega, theta };
+  return {
+    price,
+    delta,
+    gamma,
+    vega,
+    theta: optionType === "call" ? callTheta : putTheta,
+  };
 }
 
 export function impliedVolatility(
-  marketPrice,
-  spot,
-  strike,
-  rate,
-  timeToExpiryYears,
-  optionType
-) {
+  marketPrice: number,
+  spot: number,
+  strike: number,
+  rate: number,
+  timeToExpiryYears: number,
+  optionType: OptionRight
+): number | null {
   if (marketPrice <= 0 || spot <= 0 || strike <= 0 || timeToExpiryYears <= 0) {
     return null;
   }
 
   let sigma = 0.25;
-  for (let i = 0; i < 100; i += 1) {
+  for (let index = 0; index < 100; index += 1) {
     const greeks = optionGreeks(
       spot,
       strike,

@@ -8,7 +8,12 @@ import {
   type ThemeMode,
 } from "./config";
 import { createTranslator } from "./i18n";
-import { detectLanguage, detectPalette, detectTheme } from "./preferences";
+import {
+  detectFrontendSettings,
+  detectLanguage,
+  detectPalette,
+  detectTheme,
+} from "./preferences";
 import { useSnapshot } from "./hooks/useSnapshot";
 import { usePortfolioAnalysis } from "./hooks/usePortfolioAnalysis";
 import { ChainSection } from "./components/ChainSection";
@@ -16,10 +21,10 @@ import { GreeksSummarySection } from "./components/GreeksSummarySection";
 import { HeroSection } from "./components/HeroSection";
 import { OverviewSection } from "./components/OverviewSection";
 import { PortfolioPositionsSection } from "./components/PortfolioPositionsSection";
+import { SettingsSection } from "./components/SettingsSection";
 import { SidebarNav } from "./components/SidebarNav";
-import type { GroupByMode } from "../types";
+import type { FrontendSettings, GroupByMode } from "../types";
 
-const DEFAULT_SYMBOL = "SPY";
 const DEFAULT_POSITIONS_INPUT =
   "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1";
 
@@ -63,9 +68,10 @@ export function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(detectTheme);
   const [palette, setPalette] = useState<Palette>(detectPalette);
   const [groupByMode, setGroupByMode] = useState<GroupByMode>("full");
+  const [settings, setSettings] = useState<FrontendSettings>(detectFrontendSettings);
   const [positionsInput, setPositionsInput] =
     useState<string>(DEFAULT_POSITIONS_INPUT);
-  const { snapshot } = useSnapshot(DEFAULT_SYMBOL);
+  const { snapshot } = useSnapshot(settings.symbol, settings.apiBaseUrl);
 
   useEffect(() => {
     localStorage.setItem("orp_language", language);
@@ -80,6 +86,11 @@ export function App() {
     localStorage.setItem("orp_palette", palette);
   }, [palette]);
 
+  useEffect(() => {
+    localStorage.setItem("orp_api_base_url", settings.apiBaseUrl);
+    localStorage.setItem("orp_symbol", settings.symbol);
+  }, [settings]);
+
   const handleFileUpload = async (file: File) => {
     const text = await file.text();
     setPositionsInput(text);
@@ -90,6 +101,7 @@ export function App() {
     snapshot,
     positionsInput,
     groupByMode,
+    apiBaseUrl: settings.apiBaseUrl,
   });
   const enrichedQuotes = snapshot?.quotes ?? [];
   const parsedPositions = analysis?.parsedPositions;
@@ -112,6 +124,7 @@ export function App() {
   const navItems = useMemo(
     () => [
       { path: "/overview", label: t("overviewTitle") },
+      { path: "/settings", label: t("settingsTitle") },
       { path: "/positions", label: t("positionsTitle") },
       { path: "/spot-scenario", label: t("scenarioTitle") },
       { path: "/time-scenario", label: t("timeScenarioTitle") },
@@ -144,6 +157,17 @@ export function App() {
         {!snapshot ? null : (
           <Routes>
             <Route path="/" element={<Navigate to="/overview" replace />} />
+            <Route
+              path="/settings"
+              element={
+                <SettingsSection
+                  settings={settings}
+                  t={t}
+                  onSettingsChange={setSettings}
+                  onSave={() => setSettings({ ...settings })}
+                />
+              }
+            />
             <Route
               path="/overview"
               element={

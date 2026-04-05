@@ -4,17 +4,14 @@ import type {
   GroupByMode,
 } from "../types";
 
-const DEFAULT_API_BASE_URL = "http://localhost:8787/api";
-
-function getApiBaseUrl(): string {
-  return import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL;
-}
+export const DEFAULT_API_BASE_URL = "http://localhost:8787/api";
 
 export async function fetchSnapshot(
-  symbol: string
+  symbol: string,
+  apiBaseUrl: string
 ): Promise<EnrichedSnapshotFile> {
   const response = await fetch(
-    `${getApiBaseUrl()}/snapshot?symbol=${encodeURIComponent(symbol)}`
+    `${apiBaseUrl}/snapshot?symbol=${encodeURIComponent(symbol)}`
   );
   if (!response.ok) {
     throw new Error(`Snapshot request failed: ${response.status}`);
@@ -26,11 +23,16 @@ export async function analyzePortfolio(input: {
   snapshot: EnrichedSnapshotFile;
   positionsInput: string;
   groupByMode: GroupByMode;
+  apiBaseUrl: string;
 }): Promise<AnalysisResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/portfolio/analyze`, {
+  const response = await fetch(`${input.apiBaseUrl}/portfolio/analyze`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
+    body: JSON.stringify({
+      snapshot: input.snapshot,
+      positionsInput: input.positionsInput,
+      groupByMode: input.groupByMode,
+    }),
   });
   if (!response.ok) {
     throw new Error(`Portfolio analysis failed: ${response.status}`);

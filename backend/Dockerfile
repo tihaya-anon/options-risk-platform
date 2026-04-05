@@ -1,8 +1,21 @@
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+COPY package.json tsconfig.json ./
+RUN corepack enable
+RUN npm install
+
+COPY src ./src
+RUN npm run build
+
 FROM node:20-alpine
 
 WORKDIR /app
 
 COPY package.json ./
-COPY src ./src
+RUN npm install --omit=dev
 
-CMD ["node", "src/server.mjs"]
+COPY --from=build /app/dist ./dist
+
+CMD ["node", "dist/server.js"]

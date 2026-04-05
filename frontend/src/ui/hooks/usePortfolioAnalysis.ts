@@ -10,6 +10,7 @@ export function usePortfolioAnalysis(input: {
   snapshot: EnrichedSnapshotFile | null;
   positionsInput: string;
   groupByMode: GroupByMode;
+  apiBaseUrl: string;
 }) {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +27,7 @@ export function usePortfolioAnalysis(input: {
       snapshot: input.snapshot,
       positionsInput: input.positionsInput,
       groupByMode: input.groupByMode,
+      apiBaseUrl: input.apiBaseUrl,
     })
       .then((result) => {
         if (isActive) setAnalysis(result);
@@ -39,7 +41,7 @@ export function usePortfolioAnalysis(input: {
     return () => {
       isActive = false;
     };
-  }, [input.groupByMode, input.positionsInput, input.snapshot]);
+  }, [input.apiBaseUrl, input.groupByMode, input.positionsInput, input.snapshot]);
 
   return { analysis, error };
 }

@@ -15,6 +15,11 @@ export type I18nKey =
   | "dark"
   | "english"
   | "chinese"
+  | "settingsTitle"
+  | "settingsDesc"
+  | "apiBaseUrl"
+  | "symbol"
+  | "saveSettings"
   | "overviewTitle"
   | "overviewDesc"
   | "greeksSummaryTitle"
@@ -101,6 +106,12 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dark: "Dark",
     english: "English",
     chinese: "中文",
+    settingsTitle: "Settings",
+    settingsDesc:
+      "Configure where the frontend requests data from, and which default underlying to analyze.",
+    apiBaseUrl: "API Base URL",
+    symbol: "Symbol",
+    saveSettings: "Save settings",
     overviewTitle: "Overview",
     overviewDesc:
       "A compact landing page for the most important current risk signals before you drill into detail pages.",
@@ -196,6 +207,12 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dark: "夜间",
     english: "English",
     chinese: "中文",
+    settingsTitle: "设置",
+    settingsDesc:
+      "配置前端请求数据的 API 地址，以及默认分析的标的代码。",
+    apiBaseUrl: "API 基础地址",
+    symbol: "标的代码",
+    saveSettings: "保存设置",
     overviewTitle: "总览",
     overviewDesc:
       "打开平台后先看到最关键的风险摘要，再决定是否继续深入到细分页面。",

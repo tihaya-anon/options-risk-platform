@@ -1,13 +1,14 @@
-import { impliedVolatility, optionGreeks } from "./blackScholes.mjs";
+import { impliedVolatility, optionGreeks } from "./blackScholes.js";
+import type { EnrichedSnapshotFile, SnapshotFile } from "../types.js";
 
-function timeToExpiryYears(expiry, generatedAt) {
+function timeToExpiryYears(expiry: string, generatedAt: string): number {
   const expiryDate = new Date(`${expiry}T20:00:00Z`);
   const now = new Date(generatedAt);
   const milliseconds = expiryDate.getTime() - now.getTime();
   return Math.max(milliseconds / (365 * 24 * 60 * 60 * 1000), 1 / 365);
 }
 
-export function enrichSnapshot(snapshot) {
+export function enrichSnapshot(snapshot: SnapshotFile): EnrichedSnapshotFile {
   return {
     ...snapshot,
     quotes: snapshot.quotes.map((quote) => {

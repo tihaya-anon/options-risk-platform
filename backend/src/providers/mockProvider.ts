@@ -1,22 +1,26 @@
-function nextMonthlyExpiries(baseDate = new Date()) {
-  const expiries = [];
+import type { ProviderConfig, SnapshotFile, SnapshotProvider } from "../types.js";
+
+function nextMonthlyExpiries(baseDate = new Date()): string[] {
+  const expiries: Date[] = [];
   const startMonth = baseDate.getUTCMonth();
   const startYear = baseDate.getUTCFullYear();
 
   for (let offset = 0; offset < 2; offset += 1) {
     const date = new Date(Date.UTC(startYear, startMonth + offset + 1, 0));
     const first = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
-    const fridays = [];
+    const fridays: Date[] = [];
+
     for (let d = new Date(first); d <= date; d.setUTCDate(d.getUTCDate() + 1)) {
       if (d.getUTCDay() === 5) fridays.push(new Date(d));
     }
+
     expiries.push(fridays[2] ?? fridays[fridays.length - 1]);
   }
 
   return expiries.map((date) => date.toISOString().slice(0, 10));
 }
 
-function buildSyntheticChain(symbol, spot, generatedAt) {
+function buildSyntheticChain(symbol: string, spot: number, generatedAt: string) {
   const expiries = nextMonthlyExpiries(new Date(generatedAt));
   const strikes = [-15, 0, 15].map((offset) =>
     Math.round((spot + offset) / 5) * 5
@@ -34,7 +38,7 @@ function buildSyntheticChain(symbol, spot, generatedAt) {
         Math.max(strike - spot, 0) +
         (5.5 + 18 * Math.exp(-Math.abs(moneyness) * 6)) * timePremium;
 
-      for (const optionType of ["call", "put"]) {
+      for (const optionType of ["call", "put"] as const) {
         const mid = optionType === "call" ? callMid : putMid;
         const spread = mid < 3 ? 0.15 : 0.45;
         quotes.push({
@@ -56,22 +60,23 @@ function buildSyntheticChain(symbol, spot, generatedAt) {
   return quotes;
 }
 
-export const mockProvider = {
+export const mockProvider: SnapshotProvider = {
   name: "mock",
-  async getSnapshot({ symbol, riskFreeRate }) {
+  async getSnapshot(config: ProviderConfig): Promise<SnapshotFile> {
     const generatedAt = new Date().toISOString();
     const spot = 524.36;
+
     return {
       source: "mock-provider",
       generatedAt,
-      riskFreeRate,
+      riskFreeRate: config.riskFreeRate,
       underlying: {
-        symbol,
+        symbol: config.symbol,
         spot,
         currency: "USD",
         timestamp: generatedAt,
       },
-      quotes: buildSyntheticChain(symbol, spot, generatedAt),
+      quotes: buildSyntheticChain(config.symbol, spot, generatedAt),
     };
   },
 };

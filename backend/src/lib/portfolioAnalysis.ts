@@ -1,15 +1,29 @@
-import { optionPrice } from "./blackScholes.mjs";
+import { optionPrice } from "./blackScholes.js";
+import type {
+  AnalysisRequest,
+  AnalysisResponse,
+  EnrichedSnapshotFile,
+  GroupByMode,
+  GroupedExposure,
+  ImportedPosition,
+  ParsedPositions,
+  PortfolioExposure,
+  SnapshotFile,
+  SpotScenarioPoint,
+  TimeScenarioPoint,
+  VolScenarioPoint,
+} from "../types.js";
 
 const OPTION_CONTRACT_MULTIPLIER = 100;
 
-export function parsePositionsInput(input) {
+export function parsePositionsInput(input: string): ParsedPositions {
   const lines = input
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
 
-  const positions = [];
-  const errors = [];
+  const positions: ImportedPosition[] = [];
+  const errors: string[] = [];
 
   for (const [index, line] of lines.entries()) {
     const [symbolPart, quantityPart] = line.split(",").map((part) => part.trim());
@@ -28,9 +42,12 @@ export function parsePositionsInput(input) {
   return { positions, errors };
 }
 
-export function aggregatePortfolioExposure(snapshot, positions) {
+export function aggregatePortfolioExposure(
+  snapshot: EnrichedSnapshotFile,
+  positions: ImportedPosition[]
+): PortfolioExposure {
   const quoteMap = new Map(snapshot.quotes.map((quote) => [quote.symbol, quote]));
-  const unmatchedSymbols = [];
+  const unmatchedSymbols: string[] = [];
   let netDelta = 0;
   let netGamma = 0;
   let netVega = 0;
@@ -68,7 +85,10 @@ export function aggregatePortfolioExposure(snapshot, positions) {
   };
 }
 
-export function calculateSpotScenario(snapshot, positions) {
+export function calculateSpotScenario(
+  snapshot: EnrichedSnapshotFile,
+  positions: ImportedPosition[]
+): SpotScenarioPoint[] {
   const quoteMap = new Map(snapshot.quotes.map((quote) => [quote.symbol, quote]));
   const baselineValue = aggregatePortfolioExposure(snapshot, positions).marketValue;
   const spotShocks = [-0.2, -0.15, -0.1, -0.05, 0, 0.05, 0.1, 0.15, 0.2];
@@ -82,8 +102,10 @@ export function calculateSpotScenario(snapshot, positions) {
         portfolioValue += position.quantity * shockedSpot;
         continue;
       }
+
       const quote = quoteMap.get(position.symbol);
       if (!quote || quote.impliedVol === null) continue;
+
       const price = optionPrice(
         shockedSpot,
         quote.strike,
@@ -104,18 +126,23 @@ export function calculateSpotScenario(snapshot, positions) {
   });
 }
 
-export function calculateVolScenario(snapshot, positions) {
+export function calculateVolScenario(
+  snapshot: EnrichedSnapshotFile,
+  positions: ImportedPosition[]
+): VolScenarioPoint[] {
   const quoteMap = new Map(snapshot.quotes.map((quote) => [quote.symbol, quote]));
   const baselineValue = aggregatePortfolioExposure(snapshot, positions).marketValue;
   const volShifts = [-0.1, -0.05, -0.02, 0, 0.02, 0.05, 0.1];
 
   return volShifts.map((volShift) => {
     let portfolioValue = 0;
+
     for (const position of positions) {
       if (position.symbol === snapshot.underlying.symbol) {
         portfolioValue += position.quantity * snapshot.underlying.spot;
         continue;
       }
+
       const quote = quoteMap.get(position.symbol);
       if (!quote || quote.impliedVol === null) continue;
       const shockedVol = Math.max(quote.impliedVol + volShift, 0.0001);
@@ -129,6 +156,7 @@ export function calculateVolScenario(snapshot, positions) {
       );
       portfolioValue += position.quantity * OPTION_CONTRACT_MULTIPLIER * price;
     }
+
     return {
       volShift,
       portfolioValue,
@@ -137,21 +165,29 @@ export function calculateVolScenario(snapshot, positions) {
   });
 }
 
-export function calculateTimeScenario(snapshot, positions) {
+export function calculateTimeScenario(
+  snapshot: EnrichedSnapshotFile,
+  positions: ImportedPosition[]
+): TimeScenarioPoint[] {
   const quoteMap = new Map(snapshot.quotes.map((quote) => [quote.symbol, quote]));
   const baselineValue = aggregatePortfolioExposure(snapshot, positions).marketValue;
   const dayShifts = [0, 3, 7, 14, 21, 30];
 
   return dayShifts.map((daysForward) => {
     let portfolioValue = 0;
+
     for (const position of positions) {
       if (position.symbol === snapshot.underlying.symbol) {
         portfolioValue += position.quantity * snapshot.underlying.spot;
         continue;
       }
+
       const quote = quoteMap.get(position.symbol);
       if (!quote || quote.impliedVol === null) continue;
-      const shockedTime = Math.max(quote.timeToExpiryYears - daysForward / 365, 1 / 3650);
+      const shockedTime = Math.max(
+        quote.timeToExpiryYears - daysForward / 365,
+        1 / 3650
+      );
       const price = optionPrice(
         snapshot.underlying.spot,
         quote.strike,
@@ -162,6 +198,7 @@ export function calculateTimeScenario(snapshot, positions) {
       );
       portfolioValue += position.quantity * OPTION_CONTRACT_MULTIPLIER * price;
     }
+
     return {
       daysForward,
       portfolioValue,
@@ -170,12 +207,18 @@ export function calculateTimeScenario(snapshot, positions) {
   });
 }
 
-function buildBucket(snapshot, quote, position, groupByMode) {
+function buildBucket(
+  snapshot: SnapshotFile,
+  quote: EnrichedSnapshotFile["quotes"][number] | undefined,
+  position: ImportedPosition,
+  groupByMode: GroupByMode
+): string {
   if (position.symbol === snapshot.underlying.symbol) {
     return groupByMode === "symbol"
       ? snapshot.underlying.symbol
       : `${snapshot.underlying.symbol} | underlying`;
   }
+
   if (!quote) return `${position.symbol} | unmatched`;
 
   switch (groupByMode) {
@@ -193,9 +236,13 @@ function buildBucket(snapshot, quote, position, groupByMode) {
   }
 }
 
-export function calculateGroupedExposures(snapshot, positions, groupByMode) {
+export function calculateGroupedExposures(
+  snapshot: EnrichedSnapshotFile,
+  positions: ImportedPosition[],
+  groupByMode: GroupByMode
+): GroupedExposure[] {
   const quoteMap = new Map(snapshot.quotes.map((quote) => [quote.symbol, quote]));
-  const buckets = new Map();
+  const buckets = new Map<string, GroupedExposure>();
 
   for (const position of positions) {
     const quote = quoteMap.get(position.symbol);
@@ -238,8 +285,12 @@ export function calculateGroupedExposures(snapshot, positions, groupByMode) {
   );
 }
 
-export function buildRuleBasedAdvice(exposure, groupedExposures) {
+export function buildRuleBasedAdvice(
+  exposure: PortfolioExposure,
+  groupedExposures: GroupedExposure[]
+) {
   const suggestions = [];
+
   if (Math.abs(exposure.netDelta) > 150) {
     suggestions.push({
       risk: "Directional delta concentration",
@@ -250,6 +301,7 @@ export function buildRuleBasedAdvice(exposure, groupedExposures) {
       source: "rules",
     });
   }
+
   if (Math.abs(exposure.netVega) > 800) {
     suggestions.push({
       risk: "Large net vega exposure",
@@ -260,6 +312,7 @@ export function buildRuleBasedAdvice(exposure, groupedExposures) {
       source: "rules",
     });
   }
+
   const topBucket = groupedExposures[0];
   if (topBucket) {
     suggestions.push({
@@ -272,7 +325,7 @@ export function buildRuleBasedAdvice(exposure, groupedExposures) {
   return suggestions;
 }
 
-export function analyzePortfolio(payload) {
+export function analyzePortfolio(payload: AnalysisRequest): AnalysisResponse {
   const parsed = parsePositionsInput(payload.positionsInput ?? "");
   const exposure = aggregatePortfolioExposure(payload.snapshot, parsed.positions);
   const groupedExposures = calculateGroupedExposures(

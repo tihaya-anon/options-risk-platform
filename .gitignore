@@ -6,3 +6,5 @@ backend/node_modules
 .pnpm-home
 .pnpm-store
 .npm-cache
+.vite
+frontend/.vite

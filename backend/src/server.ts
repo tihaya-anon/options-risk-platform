@@ -1,13 +1,18 @@
 import http from "node:http";
-import { loadConfig } from "./config.mjs";
-import { enrichSnapshot } from "./lib/enrichSnapshot.mjs";
-import { analyzePortfolio } from "./lib/portfolioAnalysis.mjs";
-import { getProvider } from "./providers/providerRegistry.mjs";
+import { loadConfig } from "./config.js";
+import { enrichSnapshot } from "./lib/enrichSnapshot.js";
+import { analyzePortfolio } from "./lib/portfolioAnalysis.js";
+import { getProvider } from "./providers/providerRegistry.js";
+import type { AnalysisRequest } from "./types.js";
 
 const config = loadConfig();
 const provider = getProvider(config.provider);
 
-function sendJson(res, statusCode, payload) {
+function sendJson(
+  res: any,
+  statusCode: number,
+  payload: unknown
+) {
   res.writeHead(statusCode, {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
@@ -17,14 +22,16 @@ function sendJson(res, statusCode, payload) {
   res.end(JSON.stringify(payload));
 }
 
-async function readJsonBody(req) {
-  const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
+async function readJsonBody(req: any): Promise<unknown> {
+  const chunks: any[] = [];
+  for await (const chunk of req) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
   if (chunks.length === 0) return {};
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
 }
 
-const server = http.createServer(async (req, res) => {
+const server = http.createServer(async (req: any, res: any) => {
   if (!req.url || !req.method) {
     sendJson(res, 400, { error: "Invalid request" });
     return;
@@ -63,7 +70,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && url.pathname === "/api/portfolio/analyze") {
-      const payload = await readJsonBody(req);
+      const payload = (await readJsonBody(req)) as AnalysisRequest;
       if (!payload.snapshot) {
         sendJson(res, 400, { error: "Missing snapshot payload" });
         return;

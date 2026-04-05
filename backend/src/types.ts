@@ -20,7 +20,7 @@ export interface UnderlyingSnapshot {
   timestamp: string;
 }
 
-export interface OptionSnapshotFile {
+export interface SnapshotFile {
   source: string;
   generatedAt: string;
   riskFreeRate: number;
@@ -39,24 +39,9 @@ export interface EnrichedOptionQuote extends OptionQuote {
 }
 
 export interface EnrichedSnapshotFile
-  extends Omit<OptionSnapshotFile, "quotes"> {
+  extends Omit<SnapshotFile, "quotes"> {
   quotes: EnrichedOptionQuote[];
 }
-
-export interface Greeks {
-  price: number;
-  delta: number;
-  gamma: number;
-  vega: number;
-  theta: number;
-}
-
-export type GroupByMode =
-  | "symbol"
-  | "expiry"
-  | "optionType"
-  | "symbolExpiry"
-  | "full";
 
 export interface ImportedPosition {
   symbol: string;
@@ -78,22 +63,21 @@ export interface PortfolioExposure {
 }
 
 export interface ScenarioPoint {
+  portfolioValue: number;
+  portfolioPnl: number;
+}
+
+export interface SpotScenarioPoint extends ScenarioPoint {
   spot: number;
   spotChangePct: number;
-  portfolioValue: number;
-  portfolioPnl: number;
 }
 
-export interface VolScenarioPoint {
+export interface VolScenarioPoint extends ScenarioPoint {
   volShift: number;
-  portfolioValue: number;
-  portfolioPnl: number;
 }
 
-export interface TimeScenarioPoint {
+export interface TimeScenarioPoint extends ScenarioPoint {
   daysForward: number;
-  portfolioValue: number;
-  portfolioPnl: number;
 }
 
 export interface GroupedExposure {
@@ -106,16 +90,29 @@ export interface GroupedExposure {
   netTheta: number;
 }
 
+export type GroupByMode =
+  | "symbol"
+  | "expiry"
+  | "optionType"
+  | "symbolExpiry"
+  | "full";
+
 export interface AdvisorSuggestion {
   risk: string;
   action: string;
   source: string;
 }
 
+export interface AnalysisRequest {
+  snapshot: EnrichedSnapshotFile;
+  positionsInput: string;
+  groupByMode?: GroupByMode;
+}
+
 export interface AnalysisResponse {
   parsedPositions: ParsedPositions;
   exposure: PortfolioExposure;
-  spotScenarios: ScenarioPoint[];
+  spotScenarios: SpotScenarioPoint[];
   volScenarios: VolScenarioPoint[];
   timeScenarios: TimeScenarioPoint[];
   groupedExposures: GroupedExposure[];
@@ -125,35 +122,12 @@ export interface AnalysisResponse {
   };
 }
 
-export interface FrontendSettings {
-  apiBaseUrl: string;
+export interface ProviderConfig {
   symbol: string;
+  riskFreeRate: number;
 }
 
-export interface IvModel {
-  readonly name: string;
-  price(
-    spot: number,
-    strike: number,
-    rate: number,
-    timeToExpiryYears: number,
-    volatility: number,
-    optionType: OptionRight
-  ): number;
-  greeks(
-    spot: number,
-    strike: number,
-    rate: number,
-    timeToExpiryYears: number,
-    volatility: number,
-    optionType: OptionRight
-  ): Greeks;
-  impliedVolatility(
-    marketPrice: number,
-    spot: number,
-    strike: number,
-    rate: number,
-    timeToExpiryYears: number,
-    optionType: OptionRight
-  ): number | null;
+export interface SnapshotProvider {
+  name: string;
+  getSnapshot(config: ProviderConfig): Promise<SnapshotFile>;
 }
