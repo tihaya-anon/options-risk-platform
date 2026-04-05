@@ -1,48 +1,58 @@
 # Options Risk Platform
 
-Options risk workbench delivered as a frontend + backend product.
+这是一个前后端分离的期权与组合风险工作台。
 
-## Architecture
+## 架构
 
-- `frontend`:
-  Static React dashboard focused on visualization and decision support
-- `backend`:
-  Provider adapters, option-chain enrichment, and portfolio analysis
-- `docker-compose.yml`:
-  Bundles both services for end users
+- `frontend`
+  静态 React 面板，负责可视化、交互和工作流页面
+- `backend`
+  负责 provider adapter、期权链富化、组合分析和对冲逻辑
+- `docker-compose.yml`
+  作为最终面向用户的交付入口
 
-## Product Model
+## 产品形态
 
-The intended delivery model is:
+当前希望交付给用户的是：
 
-- users run the stack themselves
-- users provide their own API keys in backend configuration
-- users import their own position data
-- the platform provides visualization, risk decomposition, and analysis
+- 用户自己运行整套系统
+- 用户自己提供 API key
+- 用户自己导入持仓
+- 平台负责：
+  - 可视化
+  - 风险拆解
+  - 对冲比较
+  - 决策辅助
 
-## Current Backend Responsibilities
+路线图见：
 
-- provider selection
-- snapshot retrieval
-- IV / Greeks enrichment
-- portfolio risk aggregation
-- scenario analysis:
+- `ROADMAP.md`
+
+## 当前后端职责
+
+- provider 选择
+- snapshot 获取
+- IV / Greeks 富化
+- 组合风险聚合
+- 场景分析
   - spot shock
   - volatility shock
   - time decay shock
-- rule-based advisory output
+- 规则型 advisory 输出
+- book / risk-map / hedge-lab / strategy-compare 最小接口
 
-## Current Frontend Responsibilities
+## 当前前端职责
 
 - route-based dashboard UI
 - positions import
 - grouped exposure views
 - scenario charts
-- overview workflow page
+- current book / risk map / hedge lab / strategy compare
+- option surface / option risk profile
 
-## Local Development
+## 本地开发
 
-Frontend:
+前端：
 
 ```bash
 cd frontend
@@ -50,7 +60,7 @@ pnpm install
 pnpm dev
 ```
 
-Backend:
+后端：
 
 ```bash
 cd backend
@@ -63,18 +73,32 @@ node --watch src/server.mjs
 docker compose up --build
 ```
 
-Then open:
+启动后：
 
 - frontend: `http://localhost:8080`
 - backend: `http://localhost:8787/api/health`
 
-## Provider Notes
+## Provider 说明
 
-The backend currently ships with:
+当前内置：
 
 - `mock`
 - `yahooSynthetic`
 
-`yahooSynthetic` fetches a live underlying spot and generates a synthetic option chain around it. This is useful for architecture validation, but it is not a production-grade chain source.
+其中：
 
-The next step is to add real provider adapters that read user-supplied API keys from backend configuration.
+- `yahooSynthetic` 会拉取真实标的现价
+- 再围绕现价生成一份合成期权链
+
+它适合：
+
+- 架构验证
+- 面板开发
+- 工作流联调
+
+但它还不是生产级真实期权链数据源。
+
+后续会继续增加：
+
+- 更真实的 provider adapter
+- 用户自带 API key 的接入模式

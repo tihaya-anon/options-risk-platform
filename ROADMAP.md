@@ -1,0 +1,208 @@
+# 路线图
+
+这个文档用于跟踪产品从“单标的期权风险工作台”演进为“组合风险与对冲决策平台”的迭代计划。
+
+## 产品方向
+
+当前产品正在从：
+
+- `single-underlying options risk workbench`
+
+演进到：
+
+- `portfolio risk and hedge decision workbench`
+
+希望最终形成的主流程是：
+
+1. `Current Book`
+2. `Risk Map`
+3. `Hedge Lab`
+4. `Strategy Compare`
+5. `Surface / Option Risk Profile`
+
+## 当前状态
+
+- [x] 前后端分离架构
+- [x] OpenAPI 契约与 Orval 生成链
+- [x] MSW mock 开发链
+- [x] `Overview`
+- [x] `Current Book`
+- [x] `Risk Map`
+- [x] `Hedge Lab` 最小版
+- [x] `Strategy Compare` 最小版
+- [x] `Surface` 分组下的 `Term Structure / Skew / Chain / Option Risk Profile`
+- [x] `Provider Connection` 基础页面
+
+## 近期功能
+
+### Provider Connection
+
+- [ ] 新增 `provider-aware connection test`
+  - 目标：不只测服务是否存活，而是真正测试当前 provider 和当前 symbol
+  - 预期返回：
+    - 是否成功
+    - provider id
+    - symbol
+    - 响应耗时
+    - 错误详情
+
+- [ ] 在后端新增 `POST /providers/test`
+
+- [ ] 在前端 `Provider Connection` 页展示连接测试结果面板
+
+- [ ] 根据 provider metadata 展示更明确的能力边界
+  - [ ] 是否需要 API key
+  - [ ] 是否支持真实期权链
+  - [ ] 是否支持 Greeks
+  - [ ] 是否支持场景分析
+
+### Hedge Lab
+
+- [ ] 增加 `hedge universe` 控制
+  - [ ] `futures only`
+  - [ ] `options only`
+  - [ ] `futures + options`
+
+- [x] 增加 `hedge target`
+  - [x] `neutralize delta`
+  - [x] `reduce beta`
+  - [x] `tail protection`
+
+- [ ] 让 `Hedge Lab` 的 proposal 更贴近决策页面
+  - [ ] 显示为什么推荐该方案
+  - [ ] 显示该方案主要 trade-off
+  - [ ] 显示主要残余风险
+
+### Strategy Compare
+
+- [ ] 增加 explanation block
+  - [ ] 解释 upside retention
+  - [ ] 解释 downside protection
+  - [ ] 解释 carry / theta
+  - [ ] 解释 residual beta / delta / vega
+
+- [ ] 支持 comparison row 的排序和筛选
+
+### Option Risk Profile
+
+- [x] 合约分层筛选
+  - [x] expiry
+  - [x] option type
+  - [x] strike
+
+- [ ] 增加更真实的单合约场景视图
+  - [ ] vol shock
+  - [ ] time decay
+  - [ ] 更明确的单合约 PnL 解释
+
+- [ ] 增加与 `Chain` 的更强联动
+  - [x] 点击 chain 卡片跳转到 profile
+  - [ ] 选中高亮
+  - [ ] 返回链上保留上下文
+
+## 数据模型与契约
+
+### 已完成
+
+- [x] `Position`
+- [x] `BookSnapshot`
+- [x] `ExposureSummary`
+- [x] `RiskMap`
+- [x] `HedgeProposal`
+- [x] `StrategyComparison`
+
+### 下一步
+
+- [ ] 让 `book/parse` 支持更明确的 instrument type 输入格式
+- [ ] 让 `risk-map` 输出更丰富的 concentration / factor 风险摘要
+- [ ] 让 `hedge-lab` 输出更丰富的 rationale 字段
+- [ ] 让 `strategy-compare` 输出 explanation 字段
+
+## UI 与信息架构
+
+### Sidebar
+
+- [x] 改为按工作流分组
+  - [x] `Book`
+  - [x] `Risk`
+  - [x] `Hedge`
+  - [x] `Surface`
+
+- [ ] 增加更清晰的当前路径提示
+- [ ] 增加折叠态设计
+
+### Greeks 展示规则
+
+- [x] 抽出统一 Greeks 视觉组件
+- [x] 单合约和组合层共享同一套视觉语言
+- [x] 希腊字母主视觉 + 英文小号说明
+
+- [ ] 清查剩余页面，确认没有遗漏的旧样式
+
+### Chain / Surface
+
+- [x] `Chain` 双视图
+  - [x] cards
+  - [x] compare table
+
+- [x] cards 视图基础排序
+- [x] table 视图全字段排序
+
+- [ ] 考虑是否加入“固定列”或“更多列可配置”
+
+## LLM 悬浮助手
+
+### 目标
+
+- [ ] 做成一个全局悬浮球入口
+- [ ] 让助手理解“当前页面上下文”
+- [ ] 尽量减少幻觉，避免让 LLM 成为核心逻辑依赖
+
+### 设计原则
+
+- [ ] 不先做通用聊天框
+- [ ] 优先做 `page-aware copilot`
+- [ ] 不通过 DOM 文本抓取作为主数据来源
+- [ ] 通过结构化 page context 向助手提供数据
+
+### 实施阶段
+
+- [ ] Phase 1：悬浮球 + 空面板 + 页面上下文框架
+- [ ] Phase 2：读取当前页面结构化上下文
+- [ ] Phase 3：接 mock / placeholder reasoning layer
+- [ ] Phase 4：接真实 LLM 后端
+
+### 页面上下文计划
+
+- [ ] `Current Book` 上下文
+- [ ] `Risk Map` 上下文
+- [ ] `Hedge Lab` 上下文
+- [ ] `Strategy Compare` 上下文
+- [ ] `Option Risk Profile` 上下文
+
+## 推荐实现顺序
+
+- [ ] 1. `provider-aware connection test`
+- [ ] 2. `hedge universe controls`
+- [ ] 3. `strategy compare explanation layer`
+- [ ] 4. `option risk profile` 更真实的场景分析
+- [ ] 5. 全局 page context 基础设施
+- [ ] 6. LLM 悬浮球 UI
+- [ ] 7. 真实 LLM 接入
+
+## 暂不做
+
+- [ ] broker execution / 下单路由
+- [ ] 实时流式行情
+- [ ] 复杂期权策略编辑器
+- [ ] 超出以下范围的广义多资产支持：
+  - [ ] equities
+  - [ ] futures overlays
+  - [ ] listed options
+
+当前阶段最重要的是：
+
+- 范围清晰
+- 决策路径清晰
+- 数据契约稳定
+- 页面之间不是功能堆砌，而是工作流闭环
