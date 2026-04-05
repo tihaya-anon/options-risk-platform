@@ -1,3 +1,5 @@
+import { PanelSection } from "./PanelSection";
+
 export function StatusPanel({
   title,
   message,
@@ -6,13 +8,8 @@ export function StatusPanel({
   message: string;
 }) {
   return (
-    <section className="panel card status-panel">
-      <div className="panel-head">
-        <div>
-          <h2>{title}</h2>
-          <p>{message}</p>
-        </div>
-      </div>
-    </section>
+    <PanelSection title={title} description={message} className="status-panel">
+      <div />
+    </PanelSection>
   );
 }

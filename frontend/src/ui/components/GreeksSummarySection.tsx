@@ -1,4 +1,5 @@
 import type { I18nKey } from "../i18n";
+import { PanelSection } from "./PanelSection";
 
 export function GreeksSummarySection({
   summary,
@@ -25,13 +26,10 @@ export function GreeksSummarySection({
   ];
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("greeksSummaryTitle")}</h2>
-          <p>{t("greeksSummaryDesc")}</p>
-        </div>
-      </div>
+    <PanelSection
+      title={t("greeksSummaryTitle")}
+      description={t("greeksSummaryDesc")}
+    >
       <div className="metrics-grid">
         {metrics.map((metric) => {
           const width = (Math.abs(metric.value) / maxAbs) * 100;
@@ -48,6 +46,6 @@ export function GreeksSummarySection({
           );
         })}
       </div>
-    </section>
+    </PanelSection>
   );
 }

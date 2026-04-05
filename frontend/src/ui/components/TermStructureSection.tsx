@@ -4,6 +4,7 @@ import { averageIv, groupByExpiry } from "../format";
 import type { I18nKey } from "../i18n";
 import type { ChartTheme } from "../chartTheme";
 import { EChart } from "./EChart";
+import { PanelSection } from "./PanelSection";
 
 export function TermStructureSection({
   rows,
@@ -75,17 +76,16 @@ export function TermStructureSection({
   };
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("termTitle")}</h2>
-          <p>{t("termDesc")}</p>
-        </div>
+    <PanelSection
+      title={t("termTitle")}
+      description={t("termDesc")}
+      actions={
         <div className="legend">
           <span><i className="legend-swatch" style={{ background: upColor }} />{t("callIv")}</span>
           <span><i className="legend-swatch" style={{ background: downColor }} />{t("putIv")}</span>
         </div>
-      </div>
+      }
+    >
       <article className="surface-card card">
         {rows.length === 0 ? (
           <div className="empty-state">No chart data available.</div>
@@ -93,6 +93,6 @@ export function TermStructureSection({
           <EChart option={option} height={340} />
         )}
       </article>
-    </section>
+    </PanelSection>
   );
 }

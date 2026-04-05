@@ -1,5 +1,6 @@
 import type { EnrichedOptionQuote } from "../../types";
 import type { I18nKey } from "../i18n";
+import { PanelSection } from "./PanelSection";
 import { QuoteCard } from "./QuoteCard";
 
 export function ChainSection({
@@ -23,13 +24,7 @@ export function ChainSection({
     );
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("chainTitle")}</h2>
-          <p>{t("chainDesc")}</p>
-        </div>
-      </div>
+    <PanelSection title={t("chainTitle")} description={t("chainDesc")}>
       <div className="quote-grid">
         {sortedRows.map((row) => (
           <QuoteCard
@@ -40,6 +35,6 @@ export function ChainSection({
           />
         ))}
       </div>
-    </section>
+    </PanelSection>
   );
 }

@@ -31,7 +31,7 @@ export function HeroSection({
       </div>
 
       <div className="utility-dock card">
-        <label className="utility-field">
+        <label className="field-stack compact">
           <span>{t("language")}</span>
           <SelectField
             value={language}
@@ -42,7 +42,7 @@ export function HeroSection({
             ]}
           />
         </label>
-        <label className="utility-field">
+        <label className="field-stack compact">
           <span>{t("theme")}</span>
           <SelectField
             value={themeMode}
@@ -53,7 +53,7 @@ export function HeroSection({
             ]}
           />
         </label>
-        <label className="utility-field">
+        <label className="field-stack compact">
           <span>{t("palette")}</span>
           <SelectField
             value={palette}

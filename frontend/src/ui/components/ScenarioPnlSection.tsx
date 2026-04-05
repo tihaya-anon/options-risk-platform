@@ -3,6 +3,7 @@ import type { EChartsOption } from "echarts";
 import type { ScenarioPoint } from "../positions";
 import type { ChartTheme } from "../chartTheme";
 import { EChart } from "./EChart";
+import { PanelSection } from "./PanelSection";
 
 export function ScenarioPnlSection({
   scenarios,
@@ -61,14 +62,7 @@ export function ScenarioPnlSection({
   };
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("scenarioTitle")}</h2>
-          <p>{t("scenarioDesc")}</p>
-        </div>
-      </div>
-
+    <PanelSection title={t("scenarioTitle")} description={t("scenarioDesc")}>
       <article className="surface-card card">
         {scenarios.length === 0 ? (
           <div className="empty-state">No chart data available.</div>
@@ -76,6 +70,6 @@ export function ScenarioPnlSection({
           <EChart option={option} height={340} />
         )}
       </article>
-    </section>
+    </PanelSection>
   );
 }

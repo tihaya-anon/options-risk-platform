@@ -1,6 +1,7 @@
 import type { ChangeEvent } from "react";
 import type { I18nKey } from "../i18n";
 import type { PortfolioExposure } from "../positions";
+import { PanelSection } from "./PanelSection";
 
 export function PortfolioPositionsSection({
   positionsInput,
@@ -38,17 +39,14 @@ export function PortfolioPositionsSection({
   ];
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("positionsTitle")}</h2>
-          <p>{t("positionsDesc")}</p>
-        </div>
-      </div>
-
+    <PanelSection
+      title={t("positionsTitle")}
+      description={t("positionsDesc")}
+      bodyClassName="positions-panel-content"
+    >
       <div className="positions-layout">
         <article className="card positions-editor">
-          <label className="toolbar-field">
+          <label className="field-stack">
             <span>{t("positionsTitle")}</span>
             <textarea
               className="positions-textarea"
@@ -100,6 +98,6 @@ export function PortfolioPositionsSection({
           </div>
         </article>
       </div>
-    </section>
+    </PanelSection>
   );
 }

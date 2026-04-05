@@ -1,6 +1,7 @@
 import type { ChangeEvent, FormEvent } from "react";
 import type { FrontendSettings } from "../../types";
 import type { I18nKey } from "../i18n";
+import { PanelSection } from "./PanelSection";
 import { SelectField } from "./SelectField";
 
 export function SettingsSection({
@@ -37,13 +38,11 @@ export function SettingsSection({
   };
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("settingsTitle")}</h2>
-          <p>{t("settingsDesc")}</p>
-        </div>
-      </div>
+    <PanelSection
+      title={t("settingsTitle")}
+      description={t("settingsDesc")}
+      bodyClassName="settings-panel-content"
+    >
       <div className="settings-layout">
         <article className="card settings-card">
           <div className="meta-block">
@@ -88,7 +87,7 @@ export function SettingsSection({
         </article>
       </div>
       <form className="settings-form" onSubmit={handleSubmit}>
-        <label className="toolbar-field">
+        <label className="field-stack">
           <span>{t("apiBaseUrl")}</span>
           <input
             className="settings-input"
@@ -96,7 +95,7 @@ export function SettingsSection({
             onChange={handleChange("apiBaseUrl")}
           />
         </label>
-        <label className="toolbar-field">
+        <label className="field-stack">
           <span>{t("symbol")}</span>
           <input
             className="settings-input"
@@ -104,7 +103,7 @@ export function SettingsSection({
             onChange={handleChange("symbol")}
           />
         </label>
-        <label className="toolbar-field">
+        <label className="field-stack">
           <span>{t("provider")}</span>
           <SelectField
             value={settings.provider}
@@ -122,7 +121,7 @@ export function SettingsSection({
             }))}
           />
         </label>
-        <label className="toolbar-field">
+        <label className="field-stack">
           <span>{t("advisorMode")}</span>
           <SelectField
             value={settings.advisorMode}
@@ -139,6 +138,6 @@ export function SettingsSection({
           {t("saveSettings")}
         </button>
       </form>
-    </section>
+    </PanelSection>
   );
 }

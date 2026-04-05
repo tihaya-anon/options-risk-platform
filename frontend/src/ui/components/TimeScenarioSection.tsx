@@ -3,6 +3,7 @@ import type { ChartTheme } from "../chartTheme";
 import type { I18nKey } from "../i18n";
 import type { TimeScenarioPoint } from "../positions";
 import { EChart } from "./EChart";
+import { PanelSection } from "./PanelSection";
 
 export function TimeScenarioSection({
   scenarios,
@@ -63,13 +64,7 @@ export function TimeScenarioSection({
   };
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("timeScenarioTitle")}</h2>
-          <p>{t("timeScenarioDesc")}</p>
-        </div>
-      </div>
+    <PanelSection title={t("timeScenarioTitle")} description={t("timeScenarioDesc")}>
       <article className="surface-card card">
         {scenarios.length === 0 ? (
           <div className="empty-state">No chart data available.</div>
@@ -77,6 +72,6 @@ export function TimeScenarioSection({
           <EChart option={option} height={340} />
         )}
       </article>
-    </section>
+    </PanelSection>
   );
 }

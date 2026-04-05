@@ -168,164 +168,166 @@ export function App() {
           onPaletteChange={setPalette}
         />
 
-        <Routes>
-          <Route path="/" element={<Navigate to="/overview" replace />} />
-          <Route
-            path="/settings"
-            element={
-              <SettingsSection
-                settings={settings}
-                providers={runtimeConfig?.providers ?? ["mock", "yahooSynthetic"]}
-                advisorModes={runtimeConfig?.advisorModes ?? ["rules", "llm"]}
-                connectionStatus={health && !healthError ? "connected" : "degraded"}
-                connectionProvider={health?.provider ?? settings.provider}
-                t={t}
-                onSettingsChange={setSettings}
-                onSave={() => setSettings({ ...settings })}
-              />
-            }
-          />
-          <Route
-            path="/overview"
-            element={
-              !snapshot ? (
-                <StatusPanel
-                  title={snapshotError ? t("failedLoad") : t("overviewTitle")}
-                  message={statusMessage ?? t("loading")}
+        <div className="dashboard-main custom-scrollbar">
+          <Routes>
+            <Route path="/" element={<Navigate to="/overview" replace />} />
+            <Route
+              path="/settings"
+              element={
+                <SettingsSection
+                  settings={settings}
+                  providers={runtimeConfig?.providers ?? ["mock", "yahooSynthetic"]}
+                  advisorModes={runtimeConfig?.advisorModes ?? ["rules", "llm"]}
+                  connectionStatus={health && !healthError ? "connected" : "degraded"}
+                  connectionProvider={health?.provider ?? settings.provider}
+                  t={t}
+                  onSettingsChange={setSettings}
+                  onSave={() => setSettings({ ...settings })}
                 />
-              ) : (
-                <OverviewSection
-                  snapshot={snapshot}
+              }
+            />
+            <Route
+              path="/overview"
+              element={
+                !snapshot ? (
+                  <StatusPanel
+                    title={snapshotError ? t("failedLoad") : t("overviewTitle")}
+                    message={statusMessage ?? t("loading")}
+                  />
+                ) : (
+                  <OverviewSection
+                    snapshot={snapshot}
+                    exposure={portfolioExposure}
+                    spotScenarios={portfolioScenario}
+                    timeScenarios={portfolioTimeScenario}
+                    volScenarios={portfolioVolScenario}
+                    groupedExposures={groupedExposures}
+                    t={t}
+                  />
+                )
+              }
+            />
+            <Route
+              path="/positions"
+              element={
+                <PortfolioPositionsSection
+                  positionsInput={positionsInput}
                   exposure={portfolioExposure}
-                  spotScenarios={portfolioScenario}
-                  timeScenarios={portfolioTimeScenario}
-                  volScenarios={portfolioVolScenario}
-                  groupedExposures={groupedExposures}
+                  parseErrors={parsedPositions?.errors ?? []}
+                  t={t}
+                  palette={paletteColors}
+                  onPositionsInputChange={setPositionsInput}
+                  onFileUpload={handleFileUpload}
+                />
+              }
+            />
+            <Route
+              path="/spot-scenario"
+              element={
+                <Suspense fallback={<ChartSectionFallback />}>
+                  <LazyScenarioPnlSection
+                    scenarios={portfolioScenario}
+                    t={t}
+                    accentColor={paletteColors.accent}
+                    neutralColor={paletteColors.neutral}
+                    chartTheme={chartTheme}
+                  />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/time-scenario"
+              element={
+                <Suspense fallback={<ChartSectionFallback />}>
+                  <LazyTimeScenarioSection
+                    scenarios={portfolioTimeScenario}
+                    t={t}
+                    accentColor={paletteColors.down}
+                    neutralColor={paletteColors.neutral}
+                    chartTheme={chartTheme}
+                  />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/vol-scenario"
+              element={
+                <Suspense fallback={<ChartSectionFallback />}>
+                  <LazyVolScenarioSection
+                    scenarios={portfolioVolScenario}
+                    t={t}
+                    accentColor={paletteColors.up}
+                    neutralColor={paletteColors.neutral}
+                    chartTheme={chartTheme}
+                  />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/grouped-exposure"
+              element={
+                <Suspense fallback={<ChartSectionFallback />}>
+                  <LazyGroupedExposureSection
+                    groups={groupedExposures}
+                    groupByMode={groupByMode}
+                    t={t}
+                    chartTheme={chartTheme}
+                    onGroupByModeChange={setGroupByMode}
+                  />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/greeks-summary"
+              element={
+                <GreeksSummarySection
+                  summary={riskSummary}
+                  palette={paletteColors}
                   t={t}
                 />
-              )
-            }
-          />
-          <Route
-            path="/positions"
-            element={
-              <PortfolioPositionsSection
-                positionsInput={positionsInput}
-                exposure={portfolioExposure}
-                parseErrors={parsedPositions?.errors ?? []}
-                t={t}
-                palette={paletteColors}
-                onPositionsInputChange={setPositionsInput}
-                onFileUpload={handleFileUpload}
-              />
-            }
-          />
-          <Route
-            path="/spot-scenario"
-            element={
-              <Suspense fallback={<ChartSectionFallback />}>
-                <LazyScenarioPnlSection
-                  scenarios={portfolioScenario}
-                  t={t}
-                  accentColor={paletteColors.accent}
-                  neutralColor={paletteColors.neutral}
-                  chartTheme={chartTheme}
-                />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/time-scenario"
-            element={
-              <Suspense fallback={<ChartSectionFallback />}>
-                <LazyTimeScenarioSection
-                  scenarios={portfolioTimeScenario}
-                  t={t}
-                  accentColor={paletteColors.down}
-                  neutralColor={paletteColors.neutral}
-                  chartTheme={chartTheme}
-                />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/vol-scenario"
-            element={
-              <Suspense fallback={<ChartSectionFallback />}>
-                <LazyVolScenarioSection
-                  scenarios={portfolioVolScenario}
-                  t={t}
-                  accentColor={paletteColors.up}
-                  neutralColor={paletteColors.neutral}
-                  chartTheme={chartTheme}
-                />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/grouped-exposure"
-            element={
-              <Suspense fallback={<ChartSectionFallback />}>
-                <LazyGroupedExposureSection
-                  groups={groupedExposures}
-                  groupByMode={groupByMode}
-                  t={t}
-                  chartTheme={chartTheme}
-                  onGroupByModeChange={setGroupByMode}
-                />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/greeks-summary"
-            element={
-              <GreeksSummarySection
-                summary={riskSummary}
-                palette={paletteColors}
-                t={t}
-              />
-            }
-          />
-          <Route
-            path="/term-structure"
-            element={
-              <Suspense fallback={<ChartSectionFallback />}>
-                <LazyTermStructureSection
+              }
+            />
+            <Route
+              path="/term-structure"
+              element={
+                <Suspense fallback={<ChartSectionFallback />}>
+                  <LazyTermStructureSection
+                    rows={enrichedQuotes}
+                    upColor={paletteColors.up}
+                    downColor={paletteColors.down}
+                    chartTheme={chartTheme}
+                    t={t}
+                  />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/skew"
+              element={
+                <Suspense fallback={<ChartSectionFallback />}>
+                  <LazySkewSection
+                    rows={enrichedQuotes}
+                    upColor={paletteColors.up}
+                    downColor={paletteColors.down}
+                    chartTheme={chartTheme}
+                    t={t}
+                  />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/chain"
+              element={
+                <ChainSection
                   rows={enrichedQuotes}
                   upColor={paletteColors.up}
                   downColor={paletteColors.down}
-                  chartTheme={chartTheme}
                   t={t}
                 />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/skew"
-            element={
-              <Suspense fallback={<ChartSectionFallback />}>
-                <LazySkewSection
-                  rows={enrichedQuotes}
-                  upColor={paletteColors.up}
-                  downColor={paletteColors.down}
-                  chartTheme={chartTheme}
-                  t={t}
-                />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/chain"
-            element={
-              <ChainSection
-                rows={enrichedQuotes}
-                upColor={paletteColors.up}
-                downColor={paletteColors.down}
-                t={t}
-              />
-            }
-          />
-        </Routes>
+              }
+            />
+          </Routes>
+        </div>
       </main>
     </div>
   );

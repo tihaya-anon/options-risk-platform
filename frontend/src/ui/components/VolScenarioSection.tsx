@@ -3,6 +3,7 @@ import type { ChartTheme } from "../chartTheme";
 import type { I18nKey } from "../i18n";
 import type { VolScenarioPoint } from "../positions";
 import { EChart } from "./EChart";
+import { PanelSection } from "./PanelSection";
 
 export function VolScenarioSection({
   scenarios,
@@ -63,13 +64,7 @@ export function VolScenarioSection({
   };
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("volScenarioTitle")}</h2>
-          <p>{t("volScenarioDesc")}</p>
-        </div>
-      </div>
+    <PanelSection title={t("volScenarioTitle")} description={t("volScenarioDesc")}>
       <article className="surface-card card">
         {scenarios.length === 0 ? (
           <div className="empty-state">No chart data available.</div>
@@ -77,6 +72,6 @@ export function VolScenarioSection({
           <EChart option={option} height={340} />
         )}
       </article>
-    </section>
+    </PanelSection>
   );
 }

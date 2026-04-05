@@ -3,6 +3,7 @@ import type { EChartsOption } from "echarts";
 import type { ChartTheme } from "../chartTheme";
 import type { GroupByMode, GroupedExposure } from "../positions";
 import { EChart } from "./EChart";
+import { PanelSection } from "./PanelSection";
 import { SelectField } from "./SelectField";
 
 export function GroupedExposureSection({
@@ -58,13 +59,11 @@ export function GroupedExposureSection({
   };
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("groupedExposureTitle")}</h2>
-          <p>{t("groupedExposureDesc")}</p>
-        </div>
-        <label className="toolbar-field grouped-select">
+    <PanelSection
+      title={t("groupedExposureTitle")}
+      description={t("groupedExposureDesc")}
+      actions={
+        <label className="field-stack grouped-select">
           <span>{t("groupBy")}</span>
           <SelectField
             value={groupByMode}
@@ -78,8 +77,8 @@ export function GroupedExposureSection({
             ]}
           />
         </label>
-      </div>
-
+      }
+    >
       <div className="grouped-exposure-grid">
         <article className="card grouped-exposure-card">
           {groups.length === 0 ? (
@@ -105,6 +104,6 @@ export function GroupedExposureSection({
           </article>
         ))}
       </div>
-    </section>
+    </PanelSection>
   );
 }

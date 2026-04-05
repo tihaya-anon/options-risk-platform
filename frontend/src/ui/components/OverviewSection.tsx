@@ -7,6 +7,7 @@ import type {
   TimeScenarioPoint,
   VolScenarioPoint,
 } from "../positions";
+import { PanelSection } from "./PanelSection";
 
 function getWorstScenario<T extends { portfolioPnl: number }>(items: T[]): T | null {
   if (items.length === 0) return null;
@@ -79,13 +80,7 @@ export function OverviewSection({
   ];
 
   return (
-    <section className="panel card">
-      <div className="panel-head">
-        <div>
-          <h2>{t("overviewTitle")}</h2>
-          <p>{t("overviewDesc")}</p>
-        </div>
-      </div>
+    <PanelSection title={t("overviewTitle")} description={t("overviewDesc")}>
       <div className="overview-grid">
         {cards.map((card) => (
           <article key={card.label} className="card overview-card">
@@ -94,6 +89,6 @@ export function OverviewSection({
           </article>
         ))}
       </div>
-    </section>
+    </PanelSection>
   );
 }
