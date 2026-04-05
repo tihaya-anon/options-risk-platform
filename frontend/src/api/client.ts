@@ -3,6 +3,12 @@ import type {
   EnrichedSnapshotFile,
   GroupByMode,
 } from "../types";
+import {
+  analyzePortfolio as analyzePortfolioGenerated,
+  getSnapshot as getSnapshotGenerated,
+} from "./generated/default/default";
+import type { AnalysisRequestAdvisorMode } from "./generated/model/analysisRequestAdvisorMode";
+import { setApiBaseUrl } from "./mutator";
 
 export const DEFAULT_API_BASE_URL = "http://localhost:8787/api";
 
@@ -11,13 +17,9 @@ export async function fetchSnapshot(
   provider: string,
   apiBaseUrl: string
 ): Promise<EnrichedSnapshotFile> {
-  const response = await fetch(
-    `${apiBaseUrl}/snapshot?symbol=${encodeURIComponent(symbol)}&provider=${encodeURIComponent(provider)}`
-  );
-  if (!response.ok) {
-    throw new Error(`Snapshot request failed: ${response.status}`);
-  }
-  return (await response.json()) as EnrichedSnapshotFile;
+  setApiBaseUrl(apiBaseUrl);
+  const response = await getSnapshotGenerated({ symbol, provider });
+  return response.data as EnrichedSnapshotFile;
 }
 
 export async function analyzePortfolio(input: {
@@ -27,18 +29,12 @@ export async function analyzePortfolio(input: {
   apiBaseUrl: string;
   advisorMode: string;
 }): Promise<AnalysisResponse> {
-  const response = await fetch(`${input.apiBaseUrl}/portfolio/analyze`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  setApiBaseUrl(input.apiBaseUrl);
+  const response = await analyzePortfolioGenerated({
       snapshot: input.snapshot,
       positionsInput: input.positionsInput,
       groupByMode: input.groupByMode,
-      advisorMode: input.advisorMode,
-    }),
+      advisorMode: input.advisorMode as AnalysisRequestAdvisorMode,
   });
-  if (!response.ok) {
-    throw new Error(`Portfolio analysis failed: ${response.status}`);
-  }
-  return (await response.json()) as AnalysisResponse;
+  return response.data as AnalysisResponse;
 }
