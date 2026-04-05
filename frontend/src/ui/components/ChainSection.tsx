@@ -5,6 +5,73 @@ import { PanelSection } from "./PanelSection";
 import { QuoteCard } from "./QuoteCard";
 import { SelectField } from "./SelectField";
 
+type ChainSortKey =
+  | "expiry"
+  | "strike"
+  | "iv"
+  | "oi"
+  | "mid"
+  | "delta"
+  | "gamma"
+  | "vega"
+  | "theta"
+  | "optionType";
+
+type SortDirection = "asc" | "desc";
+
+function getSortValue(row: EnrichedOptionQuote, sortKey: ChainSortKey) {
+  switch (sortKey) {
+    case "expiry":
+      return row.expiry;
+    case "strike":
+      return row.strike;
+    case "iv":
+      return row.impliedVol ?? Number.NEGATIVE_INFINITY;
+    case "oi":
+      return row.openInterest;
+    case "mid":
+      return row.mid;
+    case "delta":
+      return row.delta ?? Number.NEGATIVE_INFINITY;
+    case "gamma":
+      return row.gamma ?? Number.NEGATIVE_INFINITY;
+    case "vega":
+      return row.vega ?? Number.NEGATIVE_INFINITY;
+    case "theta":
+      return row.theta ?? Number.NEGATIVE_INFINITY;
+    case "optionType":
+      return row.optionType;
+    default:
+      return row.expiry;
+  }
+}
+
+function compareRows(
+  left: EnrichedOptionQuote,
+  right: EnrichedOptionQuote,
+  sortKey: ChainSortKey,
+  direction: SortDirection,
+) {
+  const leftValue = getSortValue(left, sortKey);
+  const rightValue = getSortValue(right, sortKey);
+
+  let result = 0;
+  if (typeof leftValue === "number" && typeof rightValue === "number") {
+    result = leftValue - rightValue;
+  } else {
+    result = String(leftValue).localeCompare(String(rightValue));
+  }
+
+  if (result === 0) {
+    result =
+      left.expiry.localeCompare(right.expiry) ||
+      left.optionType.localeCompare(right.optionType) ||
+      left.strike - right.strike;
+  }
+
+  return direction === "asc" ? result : -result;
+}
+
 export function ChainSection({
   rows,
   upColor,
@@ -19,31 +86,86 @@ export function ChainSection({
   onSelectSymbol?: (symbol: string) => void;
 }) {
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+  const [cardSortKey, setCardSortKey] = useState<ChainSortKey>("expiry");
+  const [cardSortDirection, setCardSortDirection] = useState<SortDirection>("asc");
+  const [tableSortKey, setTableSortKey] = useState<ChainSortKey>("expiry");
+  const [tableSortDirection, setTableSortDirection] = useState<SortDirection>("asc");
+
   const sortedRows = rows
     .slice()
-    .sort(
-      (left, right) =>
-        left.expiry.localeCompare(right.expiry) ||
-        left.strike - right.strike ||
-        left.optionType.localeCompare(right.optionType)
-    );
+    .sort((left, right) => compareRows(left, right, cardSortKey, cardSortDirection));
+  const tableRows = rows
+    .slice()
+    .sort((left, right) => compareRows(left, right, tableSortKey, tableSortDirection));
+
+  const cardSortOptions: Array<{ value: ChainSortKey; label: string }> = [
+    { value: "expiry", label: t("sortExpiry") },
+    { value: "strike", label: t("sortStrike") },
+    { value: "iv", label: t("sortIv") },
+    { value: "oi", label: t("sortOi") },
+  ];
+
+  const renderSortHeader = (label: string, key: ChainSortKey) => (
+    <button
+      type="button"
+      className="table-sort-button"
+      onClick={() => {
+        if (tableSortKey === key) {
+          setTableSortDirection((value) => (value === "asc" ? "desc" : "asc"));
+        } else {
+          setTableSortKey(key);
+          setTableSortDirection("asc");
+        }
+      }}
+    >
+      {label}
+      <span className="table-sort-indicator">
+        {tableSortKey === key ? (tableSortDirection === "asc" ? "↑" : "↓") : "↕"}
+      </span>
+    </button>
+  );
 
   return (
     <PanelSection
       title={t("chainTitle")}
       description={t("chainDesc")}
       actions={
-        <label className="field-stack grouped-select">
-          <span>{t("chainView")}</span>
-          <SelectField
-            value={viewMode}
-            onChange={(value: "cards" | "table") => setViewMode(value)}
-            options={[
-              { value: "cards", label: t("chainViewCards") },
-              { value: "table", label: t("chainViewTable") },
-            ]}
-          />
-        </label>
+        <div className="chain-actions">
+          <label className="field-stack grouped-select">
+            <span>{t("chainView")}</span>
+            <SelectField
+              value={viewMode}
+              onChange={(value: "cards" | "table") => setViewMode(value)}
+              options={[
+                { value: "cards", label: t("chainViewCards") },
+                { value: "table", label: t("chainViewTable") },
+              ]}
+            />
+          </label>
+          {viewMode === "cards" ? (
+            <>
+              <label className="field-stack grouped-select">
+                <span>{t("sortBy")}</span>
+                <SelectField
+                  value={cardSortKey}
+                  onChange={(value: ChainSortKey) => setCardSortKey(value)}
+                  options={cardSortOptions}
+                />
+              </label>
+              <label className="field-stack grouped-select">
+                <span>{t("groupBy")}</span>
+                <SelectField
+                  value={cardSortDirection}
+                  onChange={(value: SortDirection) => setCardSortDirection(value)}
+                  options={[
+                    { value: "asc", label: t("sortAscending") },
+                    { value: "desc", label: t("sortDescending") },
+                  ]}
+                />
+              </label>
+            </>
+          ) : null}
+        </div>
       }
     >
       {viewMode === "cards" ? (
@@ -63,19 +185,19 @@ export function ChainSection({
           <table className="book-table chain-table">
             <thead>
               <tr>
-                <th>{t("call")}/{t("put")}</th>
-                <th>{t("strike")}</th>
-                <th>{t("mid")}</th>
-                <th>{t("impliedVolatility")}</th>
-                <th>{t("delta")}</th>
-                <th>{t("gamma")}</th>
-                <th>{t("vega")}</th>
-                <th>{t("theta")}</th>
-                <th>{t("oi")}</th>
+                <th>{renderSortHeader(`${t("call")}/${t("put")}`, "optionType")}</th>
+                <th>{renderSortHeader(t("strike"), "strike")}</th>
+                <th>{renderSortHeader(t("mid"), "mid")}</th>
+                <th>{renderSortHeader(t("impliedVolatility"), "iv")}</th>
+                <th>{renderSortHeader(t("delta"), "delta")}</th>
+                <th>{renderSortHeader(t("gamma"), "gamma")}</th>
+                <th>{renderSortHeader(t("vega"), "vega")}</th>
+                <th>{renderSortHeader(t("theta"), "theta")}</th>
+                <th>{renderSortHeader(t("oi"), "oi")}</th>
               </tr>
             </thead>
             <tbody>
-              {sortedRows.map((row) => (
+              {tableRows.map((row) => (
                 <tr
                   key={row.symbol}
                   className="chain-row-clickable"

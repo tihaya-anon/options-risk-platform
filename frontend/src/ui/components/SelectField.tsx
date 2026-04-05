@@ -23,6 +23,7 @@ export function SelectField<T extends string>({
     left: number;
     width: number;
   } | null>(null);
+  const [triggerWidth, setTriggerWidth] = useState<number | null>(null);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -42,20 +43,47 @@ export function SelectField<T extends string>({
   }, []);
 
   useLayoutEffect(() => {
+    if (!containerRef.current) return;
+    const trigger = containerRef.current.querySelector(".select-trigger");
+    if (!(trigger instanceof HTMLElement)) return;
+
+    const styles = window.getComputedStyle(trigger);
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    context.font = styles.font;
+    const widestLabel = options.reduce((widest, option) => {
+      const width = context.measureText(option.label).width;
+      return Math.max(widest, width);
+    }, 0);
+
+    const horizontalPadding =
+      Number.parseFloat(styles.paddingLeft || "0") +
+      Number.parseFloat(styles.paddingRight || "0");
+    const chromeWidth = 28;
+    setTriggerWidth(Math.ceil(widestLabel + horizontalPadding + chromeWidth));
+  }, [options]);
+
+  useLayoutEffect(() => {
     if (!isOpen || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     setMenuStyle({
       top: rect.bottom + 8,
       left: rect.left,
-      width: rect.width,
+      width: triggerWidth ?? rect.width,
     });
-  }, [isOpen, options.length, value]);
+  }, [isOpen, options.length, triggerWidth, value]);
 
   const selected = options.find((option) => option.value === value) ?? options[0];
 
   return (
-    <div className={`select-field ${isOpen ? "open" : ""}`} ref={containerRef}>
+    <div
+      className={`select-field ${isOpen ? "open" : ""}`}
+      ref={containerRef}
+      style={triggerWidth ? { width: `${triggerWidth}px` } : undefined}
+    >
       <button
         type="button"
         className="select-trigger"

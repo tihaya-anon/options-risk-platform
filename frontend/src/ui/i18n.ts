@@ -52,6 +52,19 @@ export type I18nKey =
   | "chainView"
   | "chainViewCards"
   | "chainViewTable"
+  | "sortBy"
+  | "sortAscending"
+  | "sortDescending"
+  | "sortExpiry"
+  | "sortStrike"
+  | "sortIv"
+  | "sortOi"
+  | "sortMid"
+  | "sortDelta"
+  | "sortGamma"
+  | "sortVega"
+  | "sortTheta"
+  | "sortType"
   | "strike"
   | "mid"
   | "delta"
@@ -213,6 +226,19 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     chainView: "View",
     chainViewCards: "Cards",
     chainViewTable: "Compare table",
+    sortBy: "Sort by",
+    sortAscending: "Ascending",
+    sortDescending: "Descending",
+    sortExpiry: "Expiry",
+    sortStrike: "Strike",
+    sortIv: "Implied vol",
+    sortOi: "Open interest",
+    sortMid: "Mid",
+    sortDelta: "Delta",
+    sortGamma: "Gamma",
+    sortVega: "Vega",
+    sortTheta: "Theta",
+    sortType: "Type",
     strike: "Strike",
     mid: "Mid",
     delta: "Delta",
@@ -370,6 +396,19 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     chainView: "视图",
     chainViewCards: "卡片",
     chainViewTable: "对比表",
+    sortBy: "排序字段",
+    sortAscending: "升序",
+    sortDescending: "降序",
+    sortExpiry: "到期日",
+    sortStrike: "行权价",
+    sortIv: "隐含波动率",
+    sortOi: "持仓量",
+    sortMid: "中间价",
+    sortDelta: "Delta",
+    sortGamma: "Gamma",
+    sortVega: "Vega",
+    sortTheta: "Theta",
+    sortType: "方向",
     strike: "行权价",
     mid: "中间价",
     delta: "Delta",
