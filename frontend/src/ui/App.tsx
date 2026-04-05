@@ -1,7 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { blackScholesModel } from "../lib/bs";
-import { enrichSnapshot } from "../lib/enrich";
 import { getChartTheme } from "./chartTheme";
 import {
   paletteTokens,
@@ -9,25 +7,19 @@ import {
   type Palette,
   type ThemeMode,
 } from "./config";
-import { calculateRiskSummary } from "./format";
 import { createTranslator } from "./i18n";
 import { detectLanguage, detectPalette, detectTheme } from "./preferences";
 import { useSnapshot } from "./hooks/useSnapshot";
+import { usePortfolioAnalysis } from "./hooks/usePortfolioAnalysis";
 import { ChainSection } from "./components/ChainSection";
 import { GreeksSummarySection } from "./components/GreeksSummarySection";
 import { HeroSection } from "./components/HeroSection";
 import { OverviewSection } from "./components/OverviewSection";
 import { PortfolioPositionsSection } from "./components/PortfolioPositionsSection";
 import { SidebarNav } from "./components/SidebarNav";
-import {
-  aggregatePortfolioExposure,
-  calculateGroupedExposures,
-  calculatePortfolioScenario,
-  calculatePortfolioVolScenario,
-  type GroupByMode,
-  parsePositionsInput,
-} from "./positions";
+import type { GroupByMode } from "../types";
 
+const DEFAULT_SYMBOL = "SPY";
 const DEFAULT_POSITIONS_INPUT =
   "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1";
 
@@ -56,20 +48,14 @@ const LazyVolScenarioSection = lazy(() =>
     default: module.VolScenarioSection,
   }))
 );
+const LazyTimeScenarioSection = lazy(() =>
+  import("./components/TimeScenarioSection").then((module) => ({
+    default: module.TimeScenarioSection,
+  }))
+);
 
 function ChartSectionFallback() {
   return <div className="panel card chart-loading">Loading chart module...</div>;
-}
-
-function EmptyExposure() {
-  return {
-    netDelta: 0,
-    netGamma: 0,
-    netVega: 0,
-    netTheta: 0,
-    marketValue: 0,
-    unmatchedSymbols: [],
-  };
 }
 
 export function App() {
@@ -79,7 +65,7 @@ export function App() {
   const [groupByMode, setGroupByMode] = useState<GroupByMode>("full");
   const [positionsInput, setPositionsInput] =
     useState<string>(DEFAULT_POSITIONS_INPUT);
-  const { snapshot } = useSnapshot();
+  const { snapshot } = useSnapshot(DEFAULT_SYMBOL);
 
   useEffect(() => {
     localStorage.setItem("orp_language", language);
@@ -100,51 +86,26 @@ export function App() {
   };
 
   const t = useMemo(() => createTranslator(language), [language]);
-  const enrichedQuotes = useMemo(
-    () => (snapshot ? enrichSnapshot(snapshot, blackScholesModel) : []),
-    [snapshot]
-  );
-  const parsedPositions = useMemo(
-    () => parsePositionsInput(positionsInput),
-    [positionsInput]
-  );
-  const riskSummary = useMemo(
-    () => calculateRiskSummary(enrichedQuotes),
-    [enrichedQuotes]
-  );
-  const portfolioExposure = useMemo(() => {
-    if (!snapshot) return EmptyExposure();
-    return aggregatePortfolioExposure(
-      snapshot,
-      enrichedQuotes,
-      parsedPositions.positions
-    );
-  }, [enrichedQuotes, parsedPositions.positions, snapshot]);
-  const portfolioScenario = useMemo(() => {
-    if (!snapshot) return [];
-    return calculatePortfolioScenario(
-      snapshot,
-      enrichedQuotes,
-      parsedPositions.positions
-    );
-  }, [enrichedQuotes, parsedPositions.positions, snapshot]);
-  const portfolioVolScenario = useMemo(() => {
-    if (!snapshot) return [];
-    return calculatePortfolioVolScenario(
-      snapshot,
-      enrichedQuotes,
-      parsedPositions.positions
-    );
-  }, [enrichedQuotes, parsedPositions.positions, snapshot]);
-  const groupedExposures = useMemo(() => {
-    if (!snapshot) return [];
-    return calculateGroupedExposures(
-      snapshot,
-      enrichedQuotes,
-      parsedPositions.positions,
-      groupByMode
-    );
-  }, [enrichedQuotes, groupByMode, parsedPositions.positions, snapshot]);
+  const { analysis } = usePortfolioAnalysis({
+    snapshot,
+    positionsInput,
+    groupByMode,
+  });
+  const enrichedQuotes = snapshot?.quotes ?? [];
+  const parsedPositions = analysis?.parsedPositions;
+  const riskSummary = analysis?.exposure ?? {
+    netDelta: 0,
+    netGamma: 0,
+    netVega: 0,
+    netTheta: 0,
+    marketValue: 0,
+    unmatchedSymbols: [],
+  };
+  const portfolioExposure = analysis?.exposure ?? riskSummary;
+  const portfolioScenario = analysis?.spotScenarios ?? [];
+  const portfolioVolScenario = analysis?.volScenarios ?? [];
+  const portfolioTimeScenario = analysis?.timeScenarios ?? [];
+  const groupedExposures = analysis?.groupedExposures ?? [];
 
   const paletteColors = paletteTokens[palette];
   const chartTheme = useMemo(() => getChartTheme(themeMode), [themeMode]);
@@ -153,6 +114,7 @@ export function App() {
       { path: "/overview", label: t("overviewTitle") },
       { path: "/positions", label: t("positionsTitle") },
       { path: "/spot-scenario", label: t("scenarioTitle") },
+      { path: "/time-scenario", label: t("timeScenarioTitle") },
       { path: "/vol-scenario", label: t("volScenarioTitle") },
       { path: "/grouped-exposure", label: t("groupedExposureTitle") },
       { path: "/greeks-summary", label: t("greeksSummaryTitle") },
@@ -189,6 +151,7 @@ export function App() {
                   snapshot={snapshot}
                   exposure={portfolioExposure}
                   spotScenarios={portfolioScenario}
+                  timeScenarios={portfolioTimeScenario}
                   volScenarios={portfolioVolScenario}
                   groupedExposures={groupedExposures}
                   t={t}
@@ -201,7 +164,7 @@ export function App() {
                 <PortfolioPositionsSection
                   positionsInput={positionsInput}
                   exposure={portfolioExposure}
-                  parseErrors={parsedPositions.errors}
+                  parseErrors={parsedPositions?.errors ?? []}
                   t={t}
                   palette={paletteColors}
                   onPositionsInputChange={setPositionsInput}
@@ -217,6 +180,20 @@ export function App() {
                     scenarios={portfolioScenario}
                     t={t}
                     accentColor={paletteColors.accent}
+                    neutralColor={paletteColors.neutral}
+                    chartTheme={chartTheme}
+                  />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/time-scenario"
+              element={
+                <Suspense fallback={<ChartSectionFallback />}>
+                  <LazyTimeScenarioSection
+                    scenarios={portfolioTimeScenario}
+                    t={t}
+                    accentColor={paletteColors.down}
                     neutralColor={paletteColors.neutral}
                     chartTheme={chartTheme}
                   />

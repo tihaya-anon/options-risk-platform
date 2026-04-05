@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "update-data": "node scripts/update-data.mjs"
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@types/react": "^18.3.23",

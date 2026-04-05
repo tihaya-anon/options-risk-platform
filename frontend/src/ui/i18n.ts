@@ -78,7 +78,11 @@ export type I18nKey =
   | "volChange"
   | "worstSpotScenario"
   | "worstVolScenario"
-  | "topRiskBucket";
+  | "topRiskBucket"
+  | "timeScenarioTitle"
+  | "timeScenarioDesc"
+  | "daysForward"
+  | "worstTimeScenario";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -170,6 +174,11 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     worstSpotScenario: "Worst Spot Scenario",
     worstVolScenario: "Worst Vol Scenario",
     topRiskBucket: "Top Risk Bucket",
+    timeScenarioTitle: "Time Decay Shock PnL",
+    timeScenarioDesc:
+      "Reprice the imported portfolio after moving time forward while keeping spot and implied volatility fixed.",
+    daysForward: "Days forward",
+    worstTimeScenario: "Worst Time Scenario",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -256,6 +265,11 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     worstSpotScenario: "最差 Spot 场景",
     worstVolScenario: "最差波动率场景",
     topRiskBucket: "最高风险分组",
+    timeScenarioTitle: "时间衰减冲击 PnL",
+    timeScenarioDesc:
+      "在保持标的价格和隐含波动率不变的前提下，把时间向前推进后重新定价组合。",
+    daysForward: "向前推进天数",
+    worstTimeScenario: "最差时间场景",
   },
 };
 

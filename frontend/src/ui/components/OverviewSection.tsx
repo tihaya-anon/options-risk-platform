@@ -4,6 +4,7 @@ import type {
   GroupedExposure,
   PortfolioExposure,
   ScenarioPoint,
+  TimeScenarioPoint,
   VolScenarioPoint,
 } from "../positions";
 
@@ -18,6 +19,7 @@ export function OverviewSection({
   snapshot,
   exposure,
   spotScenarios,
+  timeScenarios,
   volScenarios,
   groupedExposures,
   t,
@@ -25,11 +27,13 @@ export function OverviewSection({
   snapshot: OptionSnapshotFile;
   exposure: PortfolioExposure;
   spotScenarios: ScenarioPoint[];
+  timeScenarios: TimeScenarioPoint[];
   volScenarios: VolScenarioPoint[];
   groupedExposures: GroupedExposure[];
   t: (key: I18nKey) => string;
 }) {
   const worstSpot = getWorstScenario(spotScenarios);
+  const worstTime = getWorstScenario(timeScenarios);
   const worstVol = getWorstScenario(volScenarios);
   const topRiskBucket = groupedExposures[0] ?? null;
 
@@ -63,12 +67,14 @@ export function OverviewSection({
         : t("none"),
     },
     {
-      label: t("topRiskBucket"),
-      value: topRiskBucket ? topRiskBucket.bucket : t("none"),
+      label: t("worstTimeScenario"),
+      value: worstTime
+        ? `${worstTime.daysForward}d / ${worstTime.portfolioPnl.toFixed(2)}`
+        : t("none"),
     },
     {
-      label: t("snapshot"),
-      value: new Date(snapshot.generatedAt).toLocaleString(),
+      label: t("topRiskBucket"),
+      value: topRiskBucket ? topRiskBucket.bucket : t("none"),
     },
   ];
 

@@ -35,6 +35,12 @@ export interface VolScenarioPoint {
   portfolioPnl: number;
 }
 
+export interface TimeScenarioPoint {
+  daysForward: number;
+  portfolioValue: number;
+  portfolioPnl: number;
+}
+
 export interface GroupedExposure {
   bucket: string;
   quantity: number;
@@ -207,6 +213,54 @@ export function calculatePortfolioVolScenario(
 
     return {
       volShift,
+      portfolioValue,
+      portfolioPnl: portfolioValue - baselineValue,
+    };
+  });
+}
+
+export function calculatePortfolioTimeScenario(
+  snapshot: OptionSnapshotFile,
+  quotes: EnrichedOptionQuote[],
+  positions: ImportedPosition[]
+): TimeScenarioPoint[] {
+  const quoteMap = new Map(quotes.map((quote) => [quote.symbol, quote]));
+  const baselineExposure = aggregatePortfolioExposure(snapshot, quotes, positions);
+  const baselineValue = baselineExposure.marketValue;
+  const dayShifts = [0, 3, 7, 14, 21, 30];
+
+  return dayShifts.map((daysForward) => {
+    let portfolioValue = 0;
+
+    for (const position of positions) {
+      if (position.symbol === snapshot.underlying.symbol) {
+        portfolioValue += position.quantity * snapshot.underlying.spot;
+        continue;
+      }
+
+      const quote = quoteMap.get(position.symbol);
+      if (!quote || quote.impliedVol === null) {
+        continue;
+      }
+
+      const shockedTime = Math.max(
+        quote.timeToExpiryYears - daysForward / 365,
+        1 / 3650
+      );
+      const shockedPrice = blackScholesModel.price(
+        snapshot.underlying.spot,
+        quote.strike,
+        snapshot.riskFreeRate,
+        shockedTime,
+        quote.impliedVol,
+        quote.optionType
+      );
+
+      portfolioValue += position.quantity * OPTION_CONTRACT_MULTIPLIER * shockedPrice;
+    }
+
+    return {
+      daysForward,
       portfolioValue,
       portfolioPnl: portfolioValue - baselineValue,
     };

@@ -1,61 +1,80 @@
 # Options Risk Platform
 
-Static TypeScript options risk dashboard intended for GitHub Pages deployment.
+Options risk workbench delivered as a frontend + backend product.
 
-## Goals
+## Architecture
 
-- Show a daily options snapshot as a static page
-- Keep IV computation behind a pluggable interface
-- Start with Black-Scholes for implied volatility and Greeks
-- Update snapshot data daily with GitHub Actions
+- `frontend`:
+  Static React dashboard focused on visualization and decision support
+- `backend`:
+  Provider adapters, option-chain enrichment, and portfolio analysis
+- `docker-compose.yml`:
+  Bundles both services for end users
 
-## Current Scope
+## Product Model
 
-- Static one-page dashboard
-- Underlying summary
-- IV surface snapshot by expiry/strike
-- Chain-level Greeks table
-- Daily JSON snapshot generation
+The intended delivery model is:
 
-## Why This Is Structured This Way
+- users run the stack themselves
+- users provide their own API keys in backend configuration
+- users import their own position data
+- the platform provides visualization, risk decomposition, and analysis
 
-- `src/lib/bs.ts`
-  Black-Scholes implementation through a generic `IvModel` interface
-- `src/lib/enrich.ts`
-  Turns raw quotes into IV + Greeks enriched rows
-- `public/data/latest.json`
-  Static snapshot consumed by the app
-- `scripts/update-data.mjs`
-  Daily snapshot writer for local runs and GitHub Actions
+## Current Backend Responsibilities
 
-## Local Usage
+- provider selection
+- snapshot retrieval
+- IV / Greeks enrichment
+- portfolio risk aggregation
+- scenario analysis:
+  - spot shock
+  - volatility shock
+  - time decay shock
+- rule-based advisory output
+
+## Current Frontend Responsibilities
+
+- route-based dashboard UI
+- positions import
+- grouped exposure views
+- scenario charts
+- overview workflow page
+
+## Local Development
+
+Frontend:
 
 ```bash
+cd frontend
 pnpm install
-pnpm update-data
 pnpm dev
 ```
 
-## Build
+Backend:
 
 ```bash
-pnpm build
+cd backend
+node --watch src/server.mjs
 ```
 
-## Data Update Notes
+## Docker Compose
 
-The action currently tries to fetch the underlying spot from Yahoo Finance and then generates a synthetic option chain around that spot.
+```bash
+docker compose up --build
+```
 
-This is deliberate:
+Then open:
 
-- keeps the platform deployable without paid data
-- keeps the UI and risk plumbing testable
-- leaves a clean seam to replace the chain source later
+- frontend: `http://localhost:8080`
+- backend: `http://localhost:8787/api/health`
 
-You can later swap `scripts/update-data.mjs` to use:
+## Provider Notes
 
-- broker API snapshots
-- Polygon / Tradier / Alpaca / ThetaData
-- your own backend pipeline
+The backend currently ships with:
 
-without changing the frontend contract.
+- `mock`
+- `yahooSynthetic`
+
+`yahooSynthetic` fetches a live underlying spot and generates a synthetic option chain around it. This is useful for architecture validation, but it is not a production-grade chain source.
+
+The next step is to add real provider adapters that read user-supplied API keys from backend configuration.
