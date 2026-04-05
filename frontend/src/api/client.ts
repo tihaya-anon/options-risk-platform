@@ -5,12 +5,19 @@ import type {
 } from "../types";
 import {
   analyzePortfolio as analyzePortfolioGenerated,
+  getConfig as getConfigGenerated,
   getSnapshot as getSnapshotGenerated,
 } from "./generated/default/default";
 import type { AnalysisRequestAdvisorMode } from "./generated/model/analysisRequestAdvisorMode";
 import { setApiBaseUrl } from "./mutator";
 
 export const DEFAULT_API_BASE_URL = "http://localhost:8787/api";
+
+export async function fetchRuntimeConfig(apiBaseUrl: string) {
+  setApiBaseUrl(apiBaseUrl);
+  const response = await getConfigGenerated();
+  return response.data;
+}
 
 export async function fetchSnapshot(
   symbol: string,

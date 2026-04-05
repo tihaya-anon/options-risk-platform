@@ -1,14 +1,19 @@
 import type { ChangeEvent, FormEvent } from "react";
 import type { FrontendSettings } from "../../types";
 import type { I18nKey } from "../i18n";
+import { SelectField } from "./SelectField";
 
 export function SettingsSection({
   settings,
+  providers,
+  advisorModes,
   t,
   onSettingsChange,
   onSave,
 }: {
   settings: FrontendSettings;
+  providers: string[];
+  advisorModes: string[];
   t: (key: I18nKey) => string;
   onSettingsChange: (settings: FrontendSettings) => void;
   onSave: () => void;
@@ -54,18 +59,33 @@ export function SettingsSection({
         </label>
         <label className="toolbar-field">
           <span>{t("provider")}</span>
-          <input
-            className="settings-input"
+          <SelectField
             value={settings.provider}
-            onChange={handleChange("provider")}
+            onChange={(value) =>
+              onSettingsChange({ ...settings, provider: value })
+            }
+            options={providers.map((provider) => ({
+              value: provider,
+              label:
+                provider === "mock"
+                  ? t("providerMock")
+                  : provider === "yahooSynthetic"
+                    ? t("providerYahooSynthetic")
+                    : provider,
+            }))}
           />
         </label>
         <label className="toolbar-field">
           <span>{t("advisorMode")}</span>
-          <input
-            className="settings-input"
+          <SelectField
             value={settings.advisorMode}
-            onChange={handleChange("advisorMode")}
+            onChange={(value) =>
+              onSettingsChange({ ...settings, advisorMode: value })
+            }
+            options={advisorModes.map((mode) => ({
+              value: mode,
+              label: mode === "llm" ? t("advisorLlm") : t("advisorRules"),
+            }))}
           />
         </label>
         <button type="submit" className="button-like">

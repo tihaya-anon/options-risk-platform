@@ -16,6 +16,7 @@ import {
 } from "./preferences";
 import { useSnapshot } from "./hooks/useSnapshot";
 import { usePortfolioAnalysis } from "./hooks/usePortfolioAnalysis";
+import { useRuntimeConfig } from "./hooks/useRuntimeConfig";
 import { ChainSection } from "./components/ChainSection";
 import { GreeksSummarySection } from "./components/GreeksSummarySection";
 import { HeroSection } from "./components/HeroSection";
@@ -103,6 +104,7 @@ export function App() {
   };
 
   const t = useMemo(() => createTranslator(language), [language]);
+  const runtimeConfig = useRuntimeConfig(settings.apiBaseUrl);
   const { analysis } = usePortfolioAnalysis({
     snapshot,
     positionsInput,
@@ -169,6 +171,8 @@ export function App() {
               element={
                 <SettingsSection
                   settings={settings}
+                  providers={runtimeConfig?.providers ?? ["mock", "yahooSynthetic"]}
+                  advisorModes={runtimeConfig?.advisorModes ?? ["rules", "llm"]}
                   t={t}
                   onSettingsChange={setSettings}
                   onSave={() => setSettings({ ...settings })}
