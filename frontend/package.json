@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "api:generate": "orval --config ./orval.config.ts"
   },
   "devDependencies": {
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.7.0",
+    "msw": "^2.11.3",
+    "orval": "^7.13.0",
     "typescript": "^5.8.3",
     "vite": "^5.4.19"
   },

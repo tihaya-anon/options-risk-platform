@@ -1,0 +1,391 @@
+openapi: 3.1.0
+info:
+  title: Options Risk Platform API
+  version: 0.1.0
+  description: |
+    Backend API for the options risk platform.
+    The frontend should treat this contract as the canonical integration surface.
+
+servers:
+  - url: http://localhost:8787/api
+    description: Local backend
+
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health check
+      responses:
+        "200":
+          description: Service health
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, provider]
+                properties:
+                  ok:
+                    type: boolean
+                  provider:
+                    type: string
+
+  /config:
+    get:
+      operationId: getConfig
+      summary: Runtime config
+      responses:
+        "200":
+          description: Runtime config for frontend settings bootstrap
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - provider
+                  - defaultSymbol
+                  - llmAdvisorMode
+                  - providers
+                  - advisorModes
+                properties:
+                  provider:
+                    type: string
+                  defaultSymbol:
+                    type: string
+                  llmAdvisorMode:
+                    type: string
+                  providers:
+                    type: array
+                    items:
+                      type: string
+                  advisorModes:
+                    type: array
+                    items:
+                      type: string
+
+  /snapshot:
+    get:
+      operationId: getSnapshot
+      summary: Enriched option snapshot
+      parameters:
+        - in: query
+          name: symbol
+          required: false
+          schema:
+            type: string
+            default: SPY
+        - in: query
+          name: provider
+          required: false
+          schema:
+            type: string
+            default: mock
+      responses:
+        "200":
+          description: Enriched snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnrichedSnapshotFile"
+
+  /portfolio/analyze:
+    post:
+      operationId: analyzePortfolio
+      summary: Analyze portfolio positions against a snapshot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalysisRequest"
+      responses:
+        "200":
+          description: Portfolio analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResponse"
+
+components:
+  schemas:
+    OptionQuote:
+      type: object
+      required:
+        - symbol
+        - underlying
+        - optionType
+        - strike
+        - expiry
+        - bid
+        - ask
+        - last
+        - volume
+        - openInterest
+      properties:
+        symbol:
+          type: string
+        underlying:
+          type: string
+        optionType:
+          type: string
+          enum: [call, put]
+        strike:
+          type: number
+        expiry:
+          type: string
+          format: date
+        bid:
+          type: number
+        ask:
+          type: number
+        last:
+          type: number
+        volume:
+          type: integer
+        openInterest:
+          type: integer
+
+    EnrichedOptionQuote:
+      allOf:
+        - $ref: "#/components/schemas/OptionQuote"
+        - type: object
+          required:
+            - mid
+            - timeToExpiryYears
+            - impliedVol
+            - delta
+            - gamma
+            - vega
+            - theta
+          properties:
+            mid:
+              type: number
+            timeToExpiryYears:
+              type: number
+            impliedVol:
+              type: number
+              nullable: true
+            delta:
+              type: number
+              nullable: true
+            gamma:
+              type: number
+              nullable: true
+            vega:
+              type: number
+              nullable: true
+            theta:
+              type: number
+              nullable: true
+
+    UnderlyingSnapshot:
+      type: object
+      required: [symbol, spot, currency, timestamp]
+      properties:
+        symbol:
+          type: string
+        spot:
+          type: number
+        currency:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    EnrichedSnapshotFile:
+      type: object
+      required:
+        - source
+        - generatedAt
+        - riskFreeRate
+        - underlying
+        - quotes
+      properties:
+        source:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+        riskFreeRate:
+          type: number
+        underlying:
+          $ref: "#/components/schemas/UnderlyingSnapshot"
+        quotes:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnrichedOptionQuote"
+
+    ImportedPosition:
+      type: object
+      required: [symbol, quantity]
+      properties:
+        symbol:
+          type: string
+        quantity:
+          type: number
+
+    ParsedPositions:
+      type: object
+      required: [positions, errors]
+      properties:
+        positions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImportedPosition"
+        errors:
+          type: array
+          items:
+            type: string
+
+    PortfolioExposure:
+      type: object
+      required:
+        - netDelta
+        - netGamma
+        - netVega
+        - netTheta
+        - marketValue
+        - unmatchedSymbols
+      properties:
+        netDelta:
+          type: number
+        netGamma:
+          type: number
+        netVega:
+          type: number
+        netTheta:
+          type: number
+        marketValue:
+          type: number
+        unmatchedSymbols:
+          type: array
+          items:
+            type: string
+
+    SpotScenarioPoint:
+      type: object
+      required: [spot, spotChangePct, portfolioValue, portfolioPnl]
+      properties:
+        spot:
+          type: number
+        spotChangePct:
+          type: number
+        portfolioValue:
+          type: number
+        portfolioPnl:
+          type: number
+
+    VolScenarioPoint:
+      type: object
+      required: [volShift, portfolioValue, portfolioPnl]
+      properties:
+        volShift:
+          type: number
+        portfolioValue:
+          type: number
+        portfolioPnl:
+          type: number
+
+    TimeScenarioPoint:
+      type: object
+      required: [daysForward, portfolioValue, portfolioPnl]
+      properties:
+        daysForward:
+          type: integer
+        portfolioValue:
+          type: number
+        portfolioPnl:
+          type: number
+
+    GroupedExposure:
+      type: object
+      required:
+        - bucket
+        - quantity
+        - marketValue
+        - netDelta
+        - netGamma
+        - netVega
+        - netTheta
+      properties:
+        bucket:
+          type: string
+        quantity:
+          type: number
+        marketValue:
+          type: number
+        netDelta:
+          type: number
+        netGamma:
+          type: number
+        netVega:
+          type: number
+        netTheta:
+          type: number
+
+    AdvisorSuggestion:
+      type: object
+      required: [risk, action, source]
+      properties:
+        risk:
+          type: string
+        action:
+          type: string
+        source:
+          type: string
+
+    AnalysisRequest:
+      type: object
+      required: [snapshot, positionsInput]
+      properties:
+        snapshot:
+          $ref: "#/components/schemas/EnrichedSnapshotFile"
+        positionsInput:
+          type: string
+        groupByMode:
+          type: string
+          enum: [symbol, expiry, optionType, symbolExpiry, full]
+        advisorMode:
+          type: string
+          enum: [rules, llm]
+
+    AnalysisResponse:
+      type: object
+      required:
+        - parsedPositions
+        - exposure
+        - spotScenarios
+        - volScenarios
+        - timeScenarios
+        - groupedExposures
+        - advisor
+      properties:
+        parsedPositions:
+          $ref: "#/components/schemas/ParsedPositions"
+        exposure:
+          $ref: "#/components/schemas/PortfolioExposure"
+        spotScenarios:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpotScenarioPoint"
+        volScenarios:
+          type: array
+          items:
+            $ref: "#/components/schemas/VolScenarioPoint"
+        timeScenarios:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimeScenarioPoint"
+        groupedExposures:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupedExposure"
+        advisor:
+          type: object
+          required: [source, suggestions]
+          properties:
+            source:
+              type: string
+            suggestions:
+              type: array
+              items:
+                $ref: "#/components/schemas/AdvisorSuggestion"
