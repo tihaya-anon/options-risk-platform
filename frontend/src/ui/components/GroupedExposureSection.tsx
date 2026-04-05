@@ -82,7 +82,11 @@ export function GroupedExposureSection({
 
       <div className="grouped-exposure-grid">
         <article className="card grouped-exposure-card">
-          <EChart option={option} height={Math.max(260, groups.length * 56)} />
+          {groups.length === 0 ? (
+            <div className="empty-state">No chart data available.</div>
+          ) : (
+            <EChart option={option} height={Math.max(260, groups.length * 56)} />
+          )}
         </article>
         {groups.map((group) => (
           <article key={group.bucket} className="card grouped-exposure-card">

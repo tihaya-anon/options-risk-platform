@@ -32,10 +32,23 @@ export function usePortfolioAnalysis(input: {
       advisorMode: input.advisorMode,
     })
       .then((result) => {
-        if (isActive) setAnalysis(result);
+        if (isActive) {
+          if (import.meta.env.DEV) {
+            console.info("[ui] analysis loaded", {
+              groupedExposures: result.groupedExposures.length,
+              spotScenarios: result.spotScenarios.length,
+              volScenarios: result.volScenarios.length,
+              timeScenarios: result.timeScenarios.length,
+            });
+          }
+          setAnalysis(result);
+        }
       })
       .catch((err: unknown) => {
         if (isActive) {
+          if (import.meta.env.DEV) {
+            console.error("[ui] analysis load failed", err);
+          }
           setError(err instanceof Error ? err.message : "Unknown error");
         }
       });

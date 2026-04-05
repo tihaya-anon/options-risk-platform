@@ -87,7 +87,11 @@ export function TermStructureSection({
         </div>
       </div>
       <article className="surface-card card">
-        <EChart option={option} height={340} />
+        {rows.length === 0 ? (
+          <div className="empty-state">No chart data available.</div>
+        ) : (
+          <EChart option={option} height={340} />
+        )}
       </article>
     </section>
   );

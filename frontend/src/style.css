@@ -580,6 +580,10 @@ input {
   color: var(--muted);
 }
 
+.status-panel {
+  min-height: 180px;
+}
+
 .chart-loading {
   min-height: 220px;
   display: grid;

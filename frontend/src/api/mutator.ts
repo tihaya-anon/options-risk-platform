@@ -13,5 +13,11 @@ export async function customFetch<T>(
   if (!response.ok) {
     throw new Error(`Request failed with status ${response.status}`);
   }
-  return (await response.json()) as T;
+  const data = await response.json();
+
+  return {
+    data,
+    status: response.status,
+    headers: response.headers,
+  } as T;
 }

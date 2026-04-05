@@ -31,6 +31,15 @@ export function EChart({
   useEffect(() => {
     if (!containerRef.current) return;
 
+    if (import.meta.env.DEV) {
+      const seriesCount = Array.isArray(option.series)
+        ? option.series.length
+        : option.series
+          ? 1
+          : 0;
+      console.info("[chart] init", { height, seriesCount });
+    }
+
     const chart = init(containerRef.current);
     chart.setOption(option);
 
