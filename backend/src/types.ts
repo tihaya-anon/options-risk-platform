@@ -107,6 +107,7 @@ export interface AnalysisRequest {
   snapshot: EnrichedSnapshotFile;
   positionsInput: string;
   groupByMode?: GroupByMode;
+  advisorMode?: string;
 }
 
 export interface AnalysisResponse {

@@ -71,7 +71,11 @@ export function App() {
   const [settings, setSettings] = useState<FrontendSettings>(detectFrontendSettings);
   const [positionsInput, setPositionsInput] =
     useState<string>(DEFAULT_POSITIONS_INPUT);
-  const { snapshot } = useSnapshot(settings.symbol, settings.apiBaseUrl);
+  const { snapshot } = useSnapshot(
+    settings.symbol,
+    settings.provider,
+    settings.apiBaseUrl
+  );
 
   useEffect(() => {
     localStorage.setItem("orp_language", language);
@@ -89,6 +93,8 @@ export function App() {
   useEffect(() => {
     localStorage.setItem("orp_api_base_url", settings.apiBaseUrl);
     localStorage.setItem("orp_symbol", settings.symbol);
+    localStorage.setItem("orp_provider", settings.provider);
+    localStorage.setItem("orp_advisor_mode", settings.advisorMode);
   }, [settings]);
 
   const handleFileUpload = async (file: File) => {
@@ -102,6 +108,7 @@ export function App() {
     positionsInput,
     groupByMode,
     apiBaseUrl: settings.apiBaseUrl,
+    advisorMode: settings.advisorMode,
   });
   const enrichedQuotes = snapshot?.quotes ?? [];
   const parsedPositions = analysis?.parsedPositions;

@@ -52,6 +52,22 @@ export function SettingsSection({
             onChange={handleChange("symbol")}
           />
         </label>
+        <label className="toolbar-field">
+          <span>{t("provider")}</span>
+          <input
+            className="settings-input"
+            value={settings.provider}
+            onChange={handleChange("provider")}
+          />
+        </label>
+        <label className="toolbar-field">
+          <span>{t("advisorMode")}</span>
+          <input
+            className="settings-input"
+            value={settings.advisorMode}
+            onChange={handleChange("advisorMode")}
+          />
+        </label>
         <button type="submit" className="button-like">
           {t("saveSettings")}
         </button>

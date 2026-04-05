@@ -24,9 +24,14 @@ export function detectFrontendSettings(): FrontendSettings {
   const savedApiBaseUrl =
     localStorage.getItem("orp_api_base_url") ?? DEFAULT_API_BASE_URL;
   const savedSymbol = localStorage.getItem("orp_symbol") ?? "SPY";
+  const savedProvider = localStorage.getItem("orp_provider") ?? "mock";
+  const savedAdvisorMode =
+    localStorage.getItem("orp_advisor_mode") ?? "rules";
 
   return {
     apiBaseUrl: savedApiBaseUrl,
     symbol: savedSymbol,
+    provider: savedProvider,
+    advisorMode: savedAdvisorMode,
   };
 }

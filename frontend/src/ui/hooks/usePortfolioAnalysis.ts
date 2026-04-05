@@ -11,6 +11,7 @@ export function usePortfolioAnalysis(input: {
   positionsInput: string;
   groupByMode: GroupByMode;
   apiBaseUrl: string;
+  advisorMode: string;
 }) {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +29,7 @@ export function usePortfolioAnalysis(input: {
       positionsInput: input.positionsInput,
       groupByMode: input.groupByMode,
       apiBaseUrl: input.apiBaseUrl,
+      advisorMode: input.advisorMode,
     })
       .then((result) => {
         if (isActive) setAnalysis(result);
@@ -41,7 +43,13 @@ export function usePortfolioAnalysis(input: {
     return () => {
       isActive = false;
     };
-  }, [input.apiBaseUrl, input.groupByMode, input.positionsInput, input.snapshot]);
+  }, [
+    input.advisorMode,
+    input.apiBaseUrl,
+    input.groupByMode,
+    input.positionsInput,
+    input.snapshot,
+  ]);
 
   return { analysis, error };
 }

@@ -6,7 +6,6 @@ import { getProvider } from "./providers/providerRegistry.js";
 import type { AnalysisRequest } from "./types.js";
 
 const config = loadConfig();
-const provider = getProvider(config.provider);
 
 function sendJson(
   res: any,
@@ -46,21 +45,25 @@ const server = http.createServer(async (req: any, res: any) => {
 
   try {
     if (req.method === "GET" && url.pathname === "/api/health") {
-      sendJson(res, 200, { ok: true, provider: provider.name });
+      sendJson(res, 200, { ok: true, provider: config.provider });
       return;
     }
 
     if (req.method === "GET" && url.pathname === "/api/config") {
       sendJson(res, 200, {
-        provider: provider.name,
+        provider: config.provider,
         defaultSymbol: config.defaultSymbol,
         llmAdvisorMode: config.llmAdvisorMode,
+        providers: ["mock", "yahooSynthetic"],
+        advisorModes: ["rules", "llm"],
       });
       return;
     }
 
     if (req.method === "GET" && url.pathname === "/api/snapshot") {
       const symbol = url.searchParams.get("symbol") ?? config.defaultSymbol;
+      const providerName = url.searchParams.get("provider") ?? config.provider;
+      const provider = getProvider(providerName);
       const rawSnapshot = await provider.getSnapshot({
         symbol,
         riskFreeRate: config.riskFreeRate,
@@ -89,6 +92,6 @@ const server = http.createServer(async (req: any, res: any) => {
 
 server.listen(config.port, () => {
   console.log(
-    `Options risk backend listening on http://0.0.0.0:${config.port} using provider ${provider.name}`
+    `Options risk backend listening on http://0.0.0.0:${config.port} using provider ${config.provider}`
   );
 });

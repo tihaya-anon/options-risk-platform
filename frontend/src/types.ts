@@ -128,6 +128,8 @@ export interface AnalysisResponse {
 export interface FrontendSettings {
   apiBaseUrl: string;
   symbol: string;
+  provider: string;
+  advisorMode: string;
 }
 
 export interface IvModel {

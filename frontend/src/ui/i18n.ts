@@ -19,6 +19,8 @@ export type I18nKey =
   | "settingsDesc"
   | "apiBaseUrl"
   | "symbol"
+  | "provider"
+  | "advisorMode"
   | "saveSettings"
   | "overviewTitle"
   | "overviewDesc"
@@ -87,7 +89,11 @@ export type I18nKey =
   | "timeScenarioTitle"
   | "timeScenarioDesc"
   | "daysForward"
-  | "worstTimeScenario";
+  | "worstTimeScenario"
+  | "providerMock"
+  | "providerYahooSynthetic"
+  | "advisorRules"
+  | "advisorLlm";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -111,6 +117,8 @@ const translations: Record<Language, Record<I18nKey, string>> = {
       "Configure where the frontend requests data from, and which default underlying to analyze.",
     apiBaseUrl: "API Base URL",
     symbol: "Symbol",
+    provider: "Provider",
+    advisorMode: "Advisor mode",
     saveSettings: "Save settings",
     overviewTitle: "Overview",
     overviewDesc:
@@ -190,6 +198,10 @@ const translations: Record<Language, Record<I18nKey, string>> = {
       "Reprice the imported portfolio after moving time forward while keeping spot and implied volatility fixed.",
     daysForward: "Days forward",
     worstTimeScenario: "Worst Time Scenario",
+    providerMock: "Mock provider",
+    providerYahooSynthetic: "Yahoo spot + synthetic chain",
+    advisorRules: "Rules only",
+    advisorLlm: "LLM interface",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -212,6 +224,8 @@ const translations: Record<Language, Record<I18nKey, string>> = {
       "配置前端请求数据的 API 地址，以及默认分析的标的代码。",
     apiBaseUrl: "API 基础地址",
     symbol: "标的代码",
+    provider: "数据提供方",
+    advisorMode: "建议引擎模式",
     saveSettings: "保存设置",
     overviewTitle: "总览",
     overviewDesc:
@@ -287,6 +301,10 @@ const translations: Record<Language, Record<I18nKey, string>> = {
       "在保持标的价格和隐含波动率不变的前提下，把时间向前推进后重新定价组合。",
     daysForward: "向前推进天数",
     worstTimeScenario: "最差时间场景",
+    providerMock: "Mock 提供方",
+    providerYahooSynthetic: "Yahoo 现价 + 合成期权链",
+    advisorRules: "仅规则",
+    advisorLlm: "LLM 接口",
   },
 };
 

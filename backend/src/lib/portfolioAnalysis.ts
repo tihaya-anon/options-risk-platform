@@ -1,4 +1,5 @@
 import { optionPrice } from "./blackScholes.js";
+import { buildAdvisor } from "../advisors/advisorRegistry.js";
 import type {
   AnalysisRequest,
   AnalysisResponse,
@@ -341,9 +342,10 @@ export function analyzePortfolio(payload: AnalysisRequest): AnalysisResponse {
     volScenarios: calculateVolScenario(payload.snapshot, parsed.positions),
     timeScenarios: calculateTimeScenario(payload.snapshot, parsed.positions),
     groupedExposures,
-    advisor: {
-      source: "rules",
-      suggestions: buildRuleBasedAdvice(exposure, groupedExposures),
-    },
+    advisor: buildAdvisor(
+      payload.advisorMode ?? "rules",
+      exposure,
+      groupedExposures
+    ),
   };
 }

@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { fetchSnapshot } from "../../api/client";
 import type { EnrichedSnapshotFile } from "../../types";
 
-export function useSnapshot(symbol: string, apiBaseUrl: string) {
+export function useSnapshot(
+  symbol: string,
+  provider: string,
+  apiBaseUrl: string
+) {
   const [snapshot, setSnapshot] = useState<EnrichedSnapshotFile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isActive = true;
 
-    fetchSnapshot(symbol, apiBaseUrl)
+    fetchSnapshot(symbol, provider, apiBaseUrl)
       .then((data) => {
         if (isActive) setSnapshot(data);
       })
@@ -22,7 +26,7 @@ export function useSnapshot(symbol: string, apiBaseUrl: string) {
     return () => {
       isActive = false;
     };
-  }, [apiBaseUrl, symbol]);
+  }, [apiBaseUrl, provider, symbol]);
 
   return { snapshot, error };
 }
