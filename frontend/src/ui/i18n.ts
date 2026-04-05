@@ -49,6 +49,9 @@ export type I18nKey =
   | "contractSelector"
   | "chainTitle"
   | "chainDesc"
+  | "chainView"
+  | "chainViewCards"
+  | "chainViewTable"
   | "strike"
   | "mid"
   | "delta"
@@ -207,6 +210,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     chainTitle: "Chain Cards",
     chainDesc:
       "Compact cards for scanning strikes, IV, Greeks, and open interest without falling back to a spreadsheet grid.",
+    chainView: "View",
+    chainViewCards: "Cards",
+    chainViewTable: "Compare table",
     strike: "Strike",
     mid: "Mid",
     delta: "Delta",
@@ -361,6 +367,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     contractSelector: "合约",
     chainTitle: "期权链卡片视图",
     chainDesc: "用紧凑卡片浏览行权价、IV、Greeks 和持仓兴趣度，避免退回到传统表格思维。",
+    chainView: "视图",
+    chainViewCards: "卡片",
+    chainViewTable: "对比表",
     strike: "行权价",
     mid: "中间价",
     delta: "Delta",

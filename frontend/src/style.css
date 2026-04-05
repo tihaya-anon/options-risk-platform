@@ -899,6 +899,21 @@ input {
   letter-spacing: 0.08em;
 }
 
+.chain-table thead th {
+  position: sticky;
+  top: 0;
+  background: color-mix(in srgb, var(--paper) 98%, var(--bg) 2%);
+  z-index: 1;
+}
+
+.chain-row-clickable {
+  cursor: pointer;
+}
+
+.chain-row-clickable:hover {
+  background: color-mix(in srgb, var(--paper) 90%, var(--bg) 10%);
+}
+
 .risk-list {
   display: grid;
   gap: 12px;

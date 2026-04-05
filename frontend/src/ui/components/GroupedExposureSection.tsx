@@ -51,12 +51,14 @@ export function GroupedExposureSection({
       {
         name: t("portfolioVega"),
         type: "bar",
-        data: groups.map((group) => group.netVega),
+        data: groups.map((group) => ({
+          value: group.netVega,
+          itemStyle: {
+            color: group.netVega >= 0 ? "#a44716" : "#2563eb",
+            borderRadius: group.netVega < 0 ? [6, 0, 0, 6] : [0, 6, 6, 0],
+          },
+        })),
         itemStyle: {
-          color: (params: { value?: unknown }) =>
-            typeof params.value === "number" && params.value >= 0
-              ? "#a44716"
-              : "#2563eb",
           borderRadius: [0, 6, 6, 0],
         },
       },
