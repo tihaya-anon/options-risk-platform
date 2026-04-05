@@ -15,6 +15,8 @@ export type I18nKey =
   | "dark"
   | "english"
   | "chinese"
+  | "overviewTitle"
+  | "overviewDesc"
   | "greeksSummaryTitle"
   | "greeksSummaryDesc"
   | "netDelta"
@@ -73,7 +75,10 @@ export type I18nKey =
   | "uploadCsv"
   | "volScenarioTitle"
   | "volScenarioDesc"
-  | "volChange";
+  | "volChange"
+  | "worstSpotScenario"
+  | "worstVolScenario"
+  | "topRiskBucket";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -92,6 +97,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dark: "Dark",
     english: "English",
     chinese: "中文",
+    overviewTitle: "Overview",
+    overviewDesc:
+      "A compact landing page for the most important current risk signals before you drill into detail pages.",
     greeksSummaryTitle: "Greeks Risk Snapshot",
     greeksSummaryDesc:
       "Quote-level aggregation to show the platform shape. Real portfolio mode would aggregate actual positions.",
@@ -159,6 +167,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     volScenarioDesc:
       "Reprice the imported portfolio under parallel implied-volatility shifts while keeping spot and time-to-expiry fixed.",
     volChange: "Vol change",
+    worstSpotScenario: "Worst Spot Scenario",
+    worstVolScenario: "Worst Vol Scenario",
+    topRiskBucket: "Top Risk Bucket",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -176,6 +187,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dark: "夜间",
     english: "English",
     chinese: "中文",
+    overviewTitle: "总览",
+    overviewDesc:
+      "打开平台后先看到最关键的风险摘要，再决定是否继续深入到细分页面。",
     greeksSummaryTitle: "Greeks 风险快照",
     greeksSummaryDesc: "当前先做链级别聚合，用于展示平台形态。真实组合模式应聚合实际持仓。",
     netDelta: "净 Delta",
@@ -239,6 +253,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     volScenarioDesc:
       "在保持标的价格和剩余期限不变的前提下，对隐含波动率做平行移动并重定价组合。",
     volChange: "波动率变动",
+    worstSpotScenario: "最差 Spot 场景",
+    worstVolScenario: "最差波动率场景",
+    topRiskBucket: "最高风险分组",
   },
 };
 

@@ -117,7 +117,7 @@ textarea {
 }
 
 .subtle,
-.toolbar-field span,
+.utility-field span,
 .quote-stats span,
 .chart-text,
 .chart-axis-label,
@@ -129,44 +129,32 @@ textarea {
   color: var(--muted);
 }
 
-.hero-panel {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.utility-dock {
+  display: flex;
+  align-items: center;
   gap: 8px;
-}
-
-.toolbar {
-  grid-column: 1 / -1;
-  padding: 8px 10px;
+  padding: 6px 8px;
   position: relative;
   z-index: 300;
   overflow: visible;
-  border-radius: 18px;
 }
 
-.toolbar-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.toolbar-span-2 {
-  grid-column: 1 / -1;
-}
-
-.toolbar-field {
+.utility-field {
   display: grid;
   gap: 2px;
   position: relative;
   z-index: 1;
 }
 
-.toolbar-field:has(.select-field.open) {
+.utility-field:has(.select-field.open) {
   z-index: 6000;
 }
 
-.grouped-select {
-  min-width: 240px;
+.utility-field span {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .sidebar {
@@ -334,7 +322,8 @@ textarea {
 .term-grid,
 .positions-layout,
 .scenario-layout,
-.grouped-exposure-grid {
+.grouped-exposure-grid,
+.overview-grid {
   display: grid;
   gap: 12px;
 }
@@ -357,6 +346,10 @@ textarea {
 
 .grouped-exposure-grid {
   grid-template-columns: 1fr;
+}
+
+.overview-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .greek-bar-head {
@@ -542,6 +535,17 @@ textarea {
   padding: 14px;
 }
 
+.overview-card {
+  padding: 14px;
+}
+
+.overview-card strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
 .grouped-stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -624,18 +628,11 @@ textarea {
   }
 
   .hero {
-    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 
-  .hero-panel {
-    grid-template-columns: 1fr;
-  }
-
-  .toolbar-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .toolbar-span-2 {
-    grid-column: auto;
+  .utility-dock {
+    width: 100%;
+    flex-wrap: wrap;
   }
 }

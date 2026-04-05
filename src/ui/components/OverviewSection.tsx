@@ -1,0 +1,93 @@
+import type { OptionSnapshotFile } from "../../types";
+import type { I18nKey } from "../i18n";
+import type {
+  GroupedExposure,
+  PortfolioExposure,
+  ScenarioPoint,
+  VolScenarioPoint,
+} from "../positions";
+
+function getWorstScenario<T extends { portfolioPnl: number }>(items: T[]): T | null {
+  if (items.length === 0) return null;
+  return items.reduce((worst, current) =>
+    current.portfolioPnl < worst.portfolioPnl ? current : worst
+  );
+}
+
+export function OverviewSection({
+  snapshot,
+  exposure,
+  spotScenarios,
+  volScenarios,
+  groupedExposures,
+  t,
+}: {
+  snapshot: OptionSnapshotFile;
+  exposure: PortfolioExposure;
+  spotScenarios: ScenarioPoint[];
+  volScenarios: VolScenarioPoint[];
+  groupedExposures: GroupedExposure[];
+  t: (key: I18nKey) => string;
+}) {
+  const worstSpot = getWorstScenario(spotScenarios);
+  const worstVol = getWorstScenario(volScenarios);
+  const topRiskBucket = groupedExposures[0] ?? null;
+
+  const cards = [
+    {
+      label: t("underlying"),
+      value: `${snapshot.underlying.symbol} ${snapshot.underlying.spot.toFixed(2)}`,
+    },
+    {
+      label: t("notional"),
+      value: exposure.marketValue.toFixed(2),
+    },
+    {
+      label: t("portfolioDelta"),
+      value: exposure.netDelta.toFixed(2),
+    },
+    {
+      label: t("portfolioVega"),
+      value: exposure.netVega.toFixed(2),
+    },
+    {
+      label: t("worstSpotScenario"),
+      value: worstSpot
+        ? `${(worstSpot.spotChangePct * 100).toFixed(0)}% / ${worstSpot.portfolioPnl.toFixed(2)}`
+        : t("none"),
+    },
+    {
+      label: t("worstVolScenario"),
+      value: worstVol
+        ? `${(worstVol.volShift * 100).toFixed(0)}% / ${worstVol.portfolioPnl.toFixed(2)}`
+        : t("none"),
+    },
+    {
+      label: t("topRiskBucket"),
+      value: topRiskBucket ? topRiskBucket.bucket : t("none"),
+    },
+    {
+      label: t("snapshot"),
+      value: new Date(snapshot.generatedAt).toLocaleString(),
+    },
+  ];
+
+  return (
+    <section className="panel card">
+      <div className="panel-head">
+        <div>
+          <h2>{t("overviewTitle")}</h2>
+          <p>{t("overviewDesc")}</p>
+        </div>
+      </div>
+      <div className="overview-grid">
+        {cards.map((card) => (
+          <article key={card.label} className="card overview-card">
+            <span>{card.label}</span>
+            <strong>{card.value}</strong>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
