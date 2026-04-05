@@ -16,6 +16,7 @@ import {
 } from "./preferences";
 import { useSnapshot } from "./hooks/useSnapshot";
 import { usePortfolioAnalysis } from "./hooks/usePortfolioAnalysis";
+import { useConnectionHealth } from "./hooks/useConnectionHealth";
 import { useRuntimeConfig } from "./hooks/useRuntimeConfig";
 import { ChainSection } from "./components/ChainSection";
 import { GreeksSummarySection } from "./components/GreeksSummarySection";
@@ -106,6 +107,7 @@ export function App() {
 
   const t = useMemo(() => createTranslator(language), [language]);
   const runtimeConfig = useRuntimeConfig(settings.apiBaseUrl);
+  const { health, error: healthError } = useConnectionHealth(settings.apiBaseUrl);
   const { analysis, error: analysisError } = usePortfolioAnalysis({
     snapshot,
     positionsInput,
@@ -175,6 +177,8 @@ export function App() {
                 settings={settings}
                 providers={runtimeConfig?.providers ?? ["mock", "yahooSynthetic"]}
                 advisorModes={runtimeConfig?.advisorModes ?? ["rules", "llm"]}
+                connectionStatus={health && !healthError ? "connected" : "degraded"}
+                connectionProvider={health?.provider ?? settings.provider}
                 t={t}
                 onSettingsChange={setSettings}
                 onSave={() => setSettings({ ...settings })}

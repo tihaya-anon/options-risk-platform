@@ -93,7 +93,16 @@ export type I18nKey =
   | "providerMock"
   | "providerYahooSynthetic"
   | "advisorRules"
-  | "advisorLlm";
+  | "advisorLlm"
+  | "connectionStatus"
+  | "statusConnected"
+  | "statusDegraded"
+  | "providerCapabilities"
+  | "providerCapabilitiesDesc"
+  | "capabilitySnapshot"
+  | "capabilityGreeks"
+  | "capabilityScenarios"
+  | "capabilityGroupedRisk";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -202,6 +211,16 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     providerYahooSynthetic: "Yahoo spot + synthetic chain",
     advisorRules: "Rules only",
     advisorLlm: "LLM interface",
+    connectionStatus: "Connection status",
+    statusConnected: "Connected",
+    statusDegraded: "Degraded",
+    providerCapabilities: "Provider capabilities",
+    providerCapabilitiesDesc:
+      "Current backend path can fetch snapshots and run portfolio analytics.",
+    capabilitySnapshot: "Snapshot retrieval",
+    capabilityGreeks: "Greeks enrichment",
+    capabilityScenarios: "Scenario analysis",
+    capabilityGroupedRisk: "Grouped risk breakdown",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -305,6 +324,15 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     providerYahooSynthetic: "Yahoo 现价 + 合成期权链",
     advisorRules: "仅规则",
     advisorLlm: "LLM 接口",
+    connectionStatus: "连接状态",
+    statusConnected: "已连接",
+    statusDegraded: "连接降级",
+    providerCapabilities: "提供方能力",
+    providerCapabilitiesDesc: "当前后端链路可获取快照，并执行组合风险分析。",
+    capabilitySnapshot: "快照拉取",
+    capabilityGreeks: "Greeks 富化",
+    capabilityScenarios: "场景分析",
+    capabilityGroupedRisk: "分组风险拆解",
   },
 };
 

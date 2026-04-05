@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export interface SelectOption<T extends string> {
   value: T;
@@ -16,11 +17,20 @@ export function SelectField<T extends string>({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [menuStyle, setMenuStyle] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
-      if (!containerRef.current) return;
-      if (!containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const clickedTrigger = containerRef.current?.contains(target);
+      const clickedMenu = menuRef.current?.contains(target);
+
+      if (!clickedTrigger && !clickedMenu) {
         setIsOpen(false);
       }
     }
@@ -30,6 +40,17 @@ export function SelectField<T extends string>({
       document.removeEventListener("mousedown", handlePointerDown);
     };
   }, []);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    setMenuStyle({
+      top: rect.bottom + 8,
+      left: rect.left,
+      width: rect.width,
+    });
+  }, [isOpen, options.length, value]);
 
   const selected = options.find((option) => option.value === value) ?? options[0];
 
@@ -46,23 +67,36 @@ export function SelectField<T extends string>({
         <i className={`select-chevron ${isOpen ? "open" : ""}`} />
       </button>
 
-      {isOpen ? (
-        <div className="select-menu" role="listbox">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={`select-option ${option.value === value ? "active" : ""}`}
-              onClick={() => {
-                onChange(option.value);
-                setIsOpen(false);
+      {isOpen && menuStyle
+        ? createPortal(
+            <div
+              className="select-menu select-menu-portal"
+              ref={menuRef}
+              role="listbox"
+              style={{
+                position: "fixed",
+                top: menuStyle.top,
+                left: menuStyle.left,
+                width: menuStyle.width,
               }}
             >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      ) : null}
+              {options.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`select-option ${option.value === value ? "active" : ""}`}
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 }
