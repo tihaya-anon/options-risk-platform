@@ -233,16 +233,18 @@ export function App() {
       <SidebarNav groups={navGroups} />
 
       <main className="dashboard-content">
-        <HeroSection
-          language={language}
-          themeMode={themeMode}
-          palette={palette}
-          accentColor={paletteColors.accent}
-          t={t}
-          onLanguageChange={setLanguage}
-          onThemeChange={setThemeMode}
-          onPaletteChange={setPalette}
-        />
+        <div className="dashboard-header">
+          <HeroSection
+            language={language}
+            themeMode={themeMode}
+            palette={palette}
+            accentColor={paletteColors.accent}
+            t={t}
+            onLanguageChange={setLanguage}
+            onThemeChange={setThemeMode}
+            onPaletteChange={setPalette}
+          />
+        </div>
 
         <div className="dashboard-main custom-scrollbar">
           <Routes>

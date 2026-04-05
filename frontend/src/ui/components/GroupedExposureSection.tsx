@@ -2,8 +2,10 @@ import type { I18nKey } from "../i18n";
 import type { EChartsOption } from "echarts";
 import type { ChartTheme } from "../chartTheme";
 import { buildBaseChartOption } from "../chartOptions";
+import { formatNumber } from "../format";
 import type { GroupByMode, GroupedExposure } from "../positions";
 import { EChart } from "./EChart";
+import { GreekMetricCard } from "./GreekMetricCard";
 import { PanelSection } from "./PanelSection";
 import { SelectField } from "./SelectField";
 
@@ -99,10 +101,12 @@ export function GroupedExposureSection({
             <div className="grouped-stats">
               <div><span>{t("quantity")}</span><strong>{group.quantity}</strong></div>
               <div><span>{t("marketValue")}</span><strong>{group.marketValue.toFixed(2)}</strong></div>
-              <div><span>{t("portfolioDelta")}</span><strong>{group.netDelta.toFixed(2)}</strong></div>
-              <div><span>{t("portfolioGamma")}</span><strong>{group.netGamma.toFixed(2)}</strong></div>
-              <div><span>{t("portfolioVega")}</span><strong>{group.netVega.toFixed(2)}</strong></div>
-              <div><span>{t("portfolioTheta")}</span><strong>{group.netTheta.toFixed(2)}</strong></div>
+            </div>
+            <div className="greek-mini-grid">
+              <GreekMetricCard greek="delta" value={formatNumber(group.netDelta, 2)} t={t} />
+              <GreekMetricCard greek="gamma" value={formatNumber(group.netGamma, 2)} t={t} />
+              <GreekMetricCard greek="vega" value={formatNumber(group.netVega, 2)} t={t} />
+              <GreekMetricCard greek="theta" value={formatNumber(group.netTheta, 2)} t={t} />
             </div>
           </article>
         ))}

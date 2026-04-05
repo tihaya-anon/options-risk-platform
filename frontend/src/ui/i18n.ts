@@ -52,9 +52,13 @@ export type I18nKey =
   | "strike"
   | "mid"
   | "delta"
+  | "deltaName"
   | "gamma"
+  | "gammaName"
   | "vega"
+  | "vegaName"
   | "theta"
+  | "thetaName"
   | "oi"
   | "loading"
   | "failedLoad"
@@ -206,9 +210,13 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     strike: "Strike",
     mid: "Mid",
     delta: "Delta",
+    deltaName: "delta",
     gamma: "Gamma",
+    gammaName: "gamma",
     vega: "Vega",
+    vegaName: "vega",
     theta: "Theta",
+    thetaName: "theta",
     oi: "OI",
     loading: "Loading option snapshot...",
     failedLoad: "Failed to load option snapshot",
@@ -356,9 +364,13 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     strike: "行权价",
     mid: "中间价",
     delta: "Delta",
+    deltaName: "delta",
     gamma: "Gamma",
+    gammaName: "gamma",
     vega: "Vega",
+    vegaName: "vega",
     theta: "Theta",
+    thetaName: "theta",
     oi: "持仓量",
     loading: "正在加载期权快照...",
     failedLoad: "期权快照加载失败",

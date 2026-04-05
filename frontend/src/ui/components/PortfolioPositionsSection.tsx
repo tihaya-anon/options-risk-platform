@@ -31,13 +31,6 @@ export function PortfolioPositionsSection({
     event.target.value = "";
   };
 
-  const metrics = [
-    { label: t("portfolioDelta"), value: exposure.netDelta, color: palette.up },
-    { label: t("portfolioGamma"), value: exposure.netGamma, color: palette.neutral },
-    { label: t("portfolioVega"), value: exposure.netVega, color: palette.down },
-    { label: t("portfolioTheta"), value: exposure.netTheta, color: palette.accent },
-  ];
-
   return (
     <PanelSection
       title={t("positionsTitle")}
@@ -64,25 +57,22 @@ export function PortfolioPositionsSection({
         </article>
 
         <article className="card positions-summary">
-          <div className="metrics-grid">
-            {metrics.map((metric) => (
-              <article key={metric.label} className="greek-bar-card card">
-                <div className="greek-bar-head">
-                  <span>{metric.label}</span>
-                  <strong>{metric.value.toFixed(2)}</strong>
-                </div>
-                <div className="greek-track">
-                  <div className="greek-fill" style={{ width: "100%", background: metric.color }} />
-                </div>
-              </article>
-            ))}
+          <div className="overview-grid positions-overview-grid">
+            <article className="card overview-card">
+              <span>{t("notional")}</span>
+              <strong>{exposure.marketValue.toFixed(2)}</strong>
+            </article>
+            <article className="card overview-card">
+              <span>{t("unmatchedSymbols")}</span>
+              <strong>{exposure.unmatchedSymbols.length}</strong>
+            </article>
+            <article className="card overview-card">
+              <span>{t("parseErrors")}</span>
+              <strong>{parseErrors.length}</strong>
+            </article>
           </div>
 
           <div className="positions-meta">
-            <div className="meta-row">
-              <span>{t("notional")}</span>
-              <strong>{exposure.marketValue.toFixed(2)}</strong>
-            </div>
             <div className="meta-block">
               <span>{t("unmatchedSymbols")}</span>
               <strong>

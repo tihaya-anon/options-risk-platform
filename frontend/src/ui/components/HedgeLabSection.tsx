@@ -41,16 +41,34 @@ export function HedgeLabSection({
           {hedgeLab.proposals.map((proposal) => (
             <article key={proposal.id} className="card grouped-exposure-card">
               <div className="meta-block">
-                <span>{proposal.hedgeType}</span>
                 <strong>{proposal.label}</strong>
               </div>
               <p className="subtle">{proposal.summary}</p>
               <div className="grouped-stats">
-                <div><span>{t("portfolioDelta")}</span><strong>{proposal.residualExposure.delta.toFixed(2)}</strong></div>
-                <div><span>{t("netExposure")}</span><strong>{proposal.residualExposure.netExposure.toFixed(2)}</strong></div>
-                <div><span>{t("grossExposure")}</span><strong>{proposal.residualExposure.grossExposure.toFixed(2)}</strong></div>
-                <div><span>{t("hedgeCost")}</span><strong>{(proposal.estimatedCost ?? 0).toFixed(2)}</strong></div>
-                <div><span>{t("hedgeInstrument")}</span><strong>{proposal.instrument ?? t("none")}</strong></div>
+                <div>
+                  <span>{t("portfolioDelta")}</span>
+                  <strong>{proposal.residualExposure.delta.toFixed(2)}</strong>
+                </div>
+                <div>
+                  <span>{t("netExposure")}</span>
+                  <strong>
+                    {proposal.residualExposure.netExposure.toFixed(2)}
+                  </strong>
+                </div>
+                <div>
+                  <span>{t("grossExposure")}</span>
+                  <strong>
+                    {proposal.residualExposure.grossExposure.toFixed(2)}
+                  </strong>
+                </div>
+                <div>
+                  <span>{t("hedgeCost")}</span>
+                  <strong>{(proposal.estimatedCost ?? 0).toFixed(2)}</strong>
+                </div>
+                <div>
+                  <span>{t("hedgeInstrument")}</span>
+                  <strong>{proposal.instrument ?? t("none")}</strong>
+                </div>
               </div>
             </article>
           ))}

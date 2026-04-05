@@ -1,8 +1,10 @@
 import type { EChartsOption } from "echarts";
 import type { EnrichedOptionQuote } from "../../types";
 import type { ChartTheme } from "../chartTheme";
+import { buildBaseChartOption, buildCategoryAxis, buildValueAxis } from "../chartOptions";
 import { formatNumber, formatPercent } from "../format";
 import type { I18nKey } from "../i18n";
+import { GreekMetricCard } from "./GreekMetricCard";
 import { PanelSection } from "./PanelSection";
 import { SelectField } from "./SelectField";
 import { EChart } from "./EChart";
@@ -38,46 +40,44 @@ export function OptionRiskProfileSection({
   t: (key: I18nKey) => string;
   onSelectSymbol: (value: string) => void;
 }) {
-  const sortedRows = rows
-    .slice()
-    .sort(
-      (left, right) =>
-        left.expiry.localeCompare(right.expiry) ||
-        left.strike - right.strike ||
-        left.optionType.localeCompare(right.optionType),
-    );
-
+  const sortedRows = rows.slice().sort(
+    (left, right) =>
+      left.expiry.localeCompare(right.expiry) ||
+      left.optionType.localeCompare(right.optionType) ||
+      left.strike - right.strike,
+  );
+  const expiries = [...new Set(sortedRows.map((row) => row.expiry))];
+  const [firstRow] = sortedRows;
   const selectedRow =
-    sortedRows.find((row) => row.symbol === selectedSymbol) ?? sortedRows[0] ?? null;
+    sortedRows.find((row) => row.symbol === selectedSymbol) ?? firstRow ?? null;
+  const selectedExpiry = selectedRow?.expiry ?? expiries[0] ?? "";
+  const expiryRows = sortedRows.filter((row) => row.expiry === selectedExpiry);
+  const optionTypes = [...new Set(expiryRows.map((row) => row.optionType))];
+  const selectedOptionType = selectedRow?.optionType ?? optionTypes[0] ?? "call";
+  const typeRows = expiryRows.filter((row) => row.optionType === selectedOptionType);
+  const strikeOptions = typeRows.map((row) => row.strike.toFixed(0));
 
   const scenarioPoints = selectedRow ? buildScenarioSeries(selectedRow) : [];
 
   const option: EChartsOption = {
-    backgroundColor: "transparent",
-    animation: false,
-    grid: { top: 24, right: 18, bottom: 34, left: 52 },
+    ...buildBaseChartOption({
+      chartTheme,
+      grid: { top: 24, right: 18, bottom: 34, left: 52 },
+    }),
     tooltip: {
-      trigger: "axis",
+      ...buildBaseChartOption({ chartTheme }).tooltip,
       valueFormatter: (value: unknown) =>
         typeof value === "number" ? value.toFixed(2) : String(value ?? ""),
     },
-    xAxis: {
-      type: "category",
+    xAxis: buildCategoryAxis({
       data: scenarioPoints.map((point) => `${(point.shock * 100).toFixed(0)}%`),
+      chartTheme,
       name: t("spotChange"),
-      nameLocation: "middle",
-      nameGap: 28,
-      nameTextStyle: { color: chartTheme.subtleTextColor },
-      axisLabel: { color: chartTheme.subtleTextColor },
-      axisLine: { lineStyle: { color: chartTheme.gridLineColor } },
-    },
-    yAxis: {
-      type: "value",
+    }),
+    yAxis: buildValueAxis({
+      chartTheme,
       name: t("portfolioPnl"),
-      nameTextStyle: { color: chartTheme.subtleTextColor },
-      axisLabel: { color: chartTheme.subtleTextColor },
-      splitLine: { lineStyle: { color: chartTheme.gridLineColor } },
-    },
+    }),
     series: [
       {
         name: t("portfolioPnl"),
@@ -86,9 +86,17 @@ export function OptionRiskProfileSection({
         data: scenarioPoints.map((point) => point.pnl),
         lineStyle: { color: accentColor, width: 3 },
         itemStyle: { color: accentColor },
+        showSymbol: true,
       },
     ],
   };
+
+  const greekCards = [
+    { symbol: "Δ", name: t("deltaName"), value: formatNumber(selectedRow?.delta ?? null, 3) },
+    { symbol: "Γ", name: t("gammaName"), value: formatNumber(selectedRow?.gamma ?? null, 4) },
+    { symbol: "V", name: t("vegaName"), value: formatNumber(selectedRow?.vega ?? null, 3) },
+    { symbol: "Θ", name: t("thetaName"), value: formatNumber(selectedRow?.theta ?? null, 3) },
+  ];
 
   return (
     <PanelSection
@@ -96,17 +104,50 @@ export function OptionRiskProfileSection({
       description={t("optionRiskProfileDesc")}
       bodyClassName="risk-map-panel-content"
       actions={
-        <label className="field-stack grouped-select">
-          <span>{t("contractSelector")}</span>
-          <SelectField
-            value={selectedRow?.symbol ?? ""}
-            onChange={onSelectSymbol}
-            options={sortedRows.map((row) => ({
-              value: row.symbol,
-              label: `${row.expiry} | ${row.optionType.toUpperCase()} | ${row.strike.toFixed(0)}`,
-            }))}
-          />
-        </label>
+        <div className="profile-filters">
+          <label className="field-stack grouped-select">
+            <span>{t("groupByExpiry")}</span>
+            <SelectField
+              value={selectedExpiry}
+              onChange={(expiry) => {
+                const nextRow = sortedRows.find((row) => row.expiry === expiry);
+                if (nextRow) onSelectSymbol(nextRow.symbol);
+              }}
+              options={expiries.map((expiry) => ({
+                value: expiry,
+                label: expiry,
+              }))}
+            />
+          </label>
+          <label className="field-stack grouped-select">
+            <span>{t("groupByOptionType")}</span>
+            <SelectField
+              value={selectedOptionType}
+              onChange={(optionType) => {
+                const nextRow = expiryRows.find((row) => row.optionType === optionType);
+                if (nextRow) onSelectSymbol(nextRow.symbol);
+              }}
+              options={optionTypes.map((optionType) => ({
+                value: optionType,
+                label: optionType.toUpperCase(),
+              }))}
+            />
+          </label>
+          <label className="field-stack grouped-select">
+            <span>{t("strike")}</span>
+            <SelectField
+              value={selectedRow?.strike.toFixed(0) ?? ""}
+              onChange={(strikeValue) => {
+                const nextRow = typeRows.find((row) => row.strike.toFixed(0) === strikeValue);
+                if (nextRow) onSelectSymbol(nextRow.symbol);
+              }}
+              options={strikeOptions.map((strike) => ({
+                value: strike,
+                label: strike,
+              }))}
+            />
+          </label>
+        </div>
       }
     >
       {!selectedRow ? (
@@ -133,30 +174,22 @@ export function OptionRiskProfileSection({
           </div>
 
           <div className="metrics-grid">
-            <article className="greek-bar-card card">
-              <div className="greek-bar-head">
-                <span>{t("delta")}</span>
-                <strong>{formatNumber(selectedRow.delta, 3)}</strong>
-              </div>
-            </article>
-            <article className="greek-bar-card card">
-              <div className="greek-bar-head">
-                <span>{t("gamma")}</span>
-                <strong>{formatNumber(selectedRow.gamma, 4)}</strong>
-              </div>
-            </article>
-            <article className="greek-bar-card card">
-              <div className="greek-bar-head">
-                <span>{t("vega")}</span>
-                <strong>{formatNumber(selectedRow.vega, 3)}</strong>
-              </div>
-            </article>
-            <article className="greek-bar-card card">
-              <div className="greek-bar-head">
-                <span>{t("theta")}</span>
-                <strong>{formatNumber(selectedRow.theta, 3)}</strong>
-              </div>
-            </article>
+            {greekCards.map((greek) => (
+              <GreekMetricCard
+                key={greek.symbol}
+                greek={
+                  greek.symbol === "Δ"
+                    ? "delta"
+                    : greek.symbol === "Γ"
+                      ? "gamma"
+                      : greek.symbol === "V"
+                        ? "vega"
+                        : "theta"
+                }
+                value={greek.value}
+                t={t}
+              />
+            ))}
           </div>
 
           <article className="surface-card card">

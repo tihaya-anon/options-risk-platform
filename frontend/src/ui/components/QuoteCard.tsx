@@ -1,6 +1,7 @@
 import type { EnrichedOptionQuote } from "../../types";
 import { formatNumber, formatPercent } from "../format";
 import type { I18nKey } from "../i18n";
+import { GreekMetricCard } from "./GreekMetricCard";
 
 export function QuoteCard({
   row,
@@ -41,12 +42,42 @@ export function QuoteCard({
         {t("mid")} {row.mid.toFixed(2)}
       </p>
       <div className="quote-stats">
-        <div><span>{row.optionType === "call" ? t("callIv") : t("putIv")}</span><strong>{formatPercent(row.impliedVol)}</strong></div>
-        <div><span>{t("delta")}</span><strong>{formatNumber(row.delta, 3)}</strong></div>
-        <div><span>{t("gamma")}</span><strong>{formatNumber(row.gamma, 4)}</strong></div>
-        <div><span>{t("vega")}</span><strong>{formatNumber(row.vega, 3)}</strong></div>
-        <div><span>{t("theta")}</span><strong>{formatNumber(row.theta, 3)}</strong></div>
-        <div><span>{t("oi")}</span><strong>{row.openInterest}</strong></div>
+        <div>
+          <span>{row.optionType === "call" ? t("callIv") : t("putIv")}</span>
+          <strong>{formatPercent(row.impliedVol)}</strong>
+        </div>
+        <div>
+          <span>{t("oi")}</span>
+          <strong>{row.openInterest}</strong>
+        </div>
+        <div className="quote-greek-cell">
+          <GreekMetricCard
+            greek="delta"
+            value={formatNumber(row.delta, 3)}
+            t={t}
+          />
+        </div>
+        <div className="quote-greek-cell">
+          <GreekMetricCard
+            greek="gamma"
+            value={formatNumber(row.gamma, 4)}
+            t={t}
+          />
+        </div>
+        <div className="quote-greek-cell">
+          <GreekMetricCard
+            greek="vega"
+            value={formatNumber(row.vega, 3)}
+            t={t}
+          />
+        </div>
+        <div className="quote-greek-cell">
+          <GreekMetricCard
+            greek="theta"
+            value={formatNumber(row.theta, 3)}
+            t={t}
+          />
+        </div>
       </div>
     </article>
   );

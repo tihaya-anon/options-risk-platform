@@ -91,7 +91,10 @@ input {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
-  padding-right: 6px;
+}
+
+.dashboard-header {
+  padding-right: 10px;
 }
 
 .card {
@@ -180,11 +183,14 @@ input {
 .utility-dock {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
-  padding: 6px 8px;
+  padding: 4px 6px;
+  min-height: 42px;
   position: relative;
   z-index: 300;
   overflow: visible;
+  border-radius: 16px;
 }
 
 .field-stack {
@@ -206,7 +212,8 @@ input {
 }
 
 .field-stack.compact span {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
 }
 
 .sidebar {
@@ -393,7 +400,7 @@ input {
   min-height: 0;
   height: 100%;
   overflow: auto;
-  padding-right: 0;
+  padding-right: 10px;
   scrollbar-gutter: stable;
 }
 
@@ -473,6 +480,30 @@ input {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 12px;
+  align-items: start;
+}
+
+.greek-identity {
+  display: grid;
+  gap: 2px;
+}
+
+.greek-symbol {
+  font-family: "Times New Roman", "Georgia", serif;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.greek-name {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.greek-card-head {
+  min-height: 54px;
 }
 
 .greek-track {
@@ -583,6 +614,24 @@ input {
   gap: 10px;
 }
 
+.quote-greek-cell .greek-bar-card {
+  padding: 8px 10px;
+  border-radius: 14px;
+}
+
+.quote-greek-cell .greek-bar-head {
+  margin-bottom: 0;
+  align-items: center;
+}
+
+.quote-greek-cell .greek-symbol {
+  font-size: 1.2rem;
+}
+
+.quote-greek-cell .greek-name {
+  font-size: 0.62rem;
+}
+
 .quote-stats strong {
   display: block;
   margin-top: 4px;
@@ -601,6 +650,10 @@ input {
 .positions-editor,
 .positions-summary {
   padding: 14px;
+}
+
+.positions-overview-grid {
+  margin-bottom: 14px;
 }
 
 .positions-textarea {
@@ -769,6 +822,30 @@ input {
   margin-top: 14px;
 }
 
+.greek-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.greek-mini-grid .greek-bar-card {
+  padding: 10px 12px;
+  border-radius: 16px;
+}
+
+.greek-mini-grid .greek-bar-head {
+  margin-bottom: 0;
+}
+
+.greek-mini-grid .greek-symbol {
+  font-size: 1.35rem;
+}
+
+.greek-mini-grid .greek-name {
+  font-size: 0.64rem;
+}
+
 .grouped-stats strong {
   display: block;
   margin-top: 4px;
@@ -825,6 +902,12 @@ input {
 .risk-list {
   display: grid;
   gap: 12px;
+}
+
+.profile-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 @media (min-width: 860px) {
