@@ -8,11 +8,13 @@ export function ChainSection({
   upColor,
   downColor,
   t,
+  onSelectSymbol,
 }: {
   rows: EnrichedOptionQuote[];
   upColor: string;
   downColor: string;
   t: (key: I18nKey) => string;
+  onSelectSymbol?: (symbol: string) => void;
 }) {
   const sortedRows = rows
     .slice()
@@ -32,6 +34,7 @@ export function ChainSection({
             row={row}
             t={t}
             accentColor={row.optionType === "call" ? upColor : downColor}
+            onSelect={onSelectSymbol}
           />
         ))}
       </div>

@@ -4,6 +4,7 @@ export interface ChartTheme {
   textColor: string;
   subtleTextColor: string;
   gridLineColor: string;
+  surfaceColor: string;
 }
 
 export function getChartTheme(themeMode: ThemeMode): ChartTheme {
@@ -12,6 +13,7 @@ export function getChartTheme(themeMode: ThemeMode): ChartTheme {
       textColor: "#edf2f7",
       subtleTextColor: "#9eb0c2",
       gridLineColor: "rgba(190, 208, 224, 0.14)",
+      surfaceColor: "rgba(22, 29, 37, 0.98)",
     };
   }
 
@@ -19,5 +21,6 @@ export function getChartTheme(themeMode: ThemeMode): ChartTheme {
     textColor: "#1f1812",
     subtleTextColor: "#6b5b4d",
     gridLineColor: "rgba(62, 43, 28, 0.14)",
+    surfaceColor: "rgba(255, 251, 246, 0.98)",
   };
 }

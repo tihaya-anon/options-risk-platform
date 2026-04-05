@@ -1,9 +1,17 @@
 import http from "node:http";
 import { loadConfig } from "./config.js";
+import { buildRiskMap, parseBook } from "./lib/bookWorkbench.js";
 import { enrichSnapshot } from "./lib/enrichSnapshot.js";
+import { compareStrategies, createHedgeProposals } from "./lib/hedgeLab.js";
 import { analyzePortfolio } from "./lib/portfolioAnalysis.js";
 import { getProvider, listProviders } from "./providers/providerRegistry.js";
-import type { AnalysisRequest } from "./types.js";
+import type {
+  AnalysisRequest,
+  BookParseRequest,
+  HedgeLabRequest,
+  RiskMapRequest,
+  StrategyCompareRequest,
+} from "./types.js";
 
 const config = loadConfig();
 
@@ -81,6 +89,46 @@ const server = http.createServer(async (req: any, res: any) => {
         return;
       }
       sendJson(res, 200, analyzePortfolio(payload));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/book/parse") {
+      const payload = (await readJsonBody(req)) as BookParseRequest;
+      if (!payload.positionsInput) {
+        sendJson(res, 400, { error: "Missing positionsInput payload" });
+        return;
+      }
+      sendJson(res, 200, parseBook(payload));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/risk-map") {
+      const payload = (await readJsonBody(req)) as RiskMapRequest;
+      if (!payload.book) {
+        sendJson(res, 400, { error: "Missing book payload" });
+        return;
+      }
+      sendJson(res, 200, buildRiskMap(payload.book));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/hedge-lab/proposals") {
+      const payload = (await readJsonBody(req)) as HedgeLabRequest;
+      if (!payload.book) {
+        sendJson(res, 400, { error: "Missing book payload" });
+        return;
+      }
+      sendJson(res, 200, createHedgeProposals(payload));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/strategy-compare") {
+      const payload = (await readJsonBody(req)) as StrategyCompareRequest;
+      if (!payload.baselineExposure || !payload.proposals) {
+        sendJson(res, 400, { error: "Missing strategy comparison payload" });
+        return;
+      }
+      sendJson(res, 200, compareStrategies(payload));
       return;
     }
 

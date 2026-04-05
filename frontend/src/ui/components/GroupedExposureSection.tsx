@@ -1,6 +1,7 @@
 import type { I18nKey } from "../i18n";
 import type { EChartsOption } from "echarts";
 import type { ChartTheme } from "../chartTheme";
+import { buildBaseChartOption } from "../chartOptions";
 import type { GroupByMode, GroupedExposure } from "../positions";
 import { EChart } from "./EChart";
 import { PanelSection } from "./PanelSection";
@@ -20,17 +21,19 @@ export function GroupedExposureSection({
   onGroupByModeChange: (mode: GroupByMode) => void;
 }) {
   const option: EChartsOption = {
-    backgroundColor: "transparent",
-    animation: false,
-    grid: { top: 16, right: 18, bottom: 24, left: 120 },
+    ...buildBaseChartOption({
+      chartTheme,
+      grid: { top: 16, right: 18, bottom: 24, left: 120 },
+    }),
     tooltip: {
-      trigger: "axis",
+      ...buildBaseChartOption({ chartTheme }).tooltip,
       axisPointer: { type: "shadow" },
     },
     xAxis: {
       type: "value",
       axisLabel: { color: chartTheme.subtleTextColor },
       splitLine: { lineStyle: { color: chartTheme.gridLineColor } },
+      axisLine: { lineStyle: { color: chartTheme.gridLineColor } },
     },
     yAxis: {
       type: "category",

@@ -10,10 +10,18 @@ The frontend should treat this contract as the canonical integration surface.
 import type {
   AnalysisRequest,
   AnalysisResponse,
+  BookParseRequest,
+  BookSnapshot,
   EnrichedSnapshotFile,
   GetConfig200,
   GetHealth200,
-  GetSnapshotParams
+  GetSnapshotParams,
+  HedgeLabRequest,
+  HedgeProposalResponse,
+  RiskMap,
+  RiskMapRequest,
+  StrategyCompareRequest,
+  StrategyComparison
 } from '.././model';
 
 import { customFetch } from '../../mutator';
@@ -162,6 +170,150 @@ export const analyzePortfolio = async (analysisRequest: AnalysisRequest, options
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       analysisRequest,)
+  }
+);}
+
+
+/**
+ * @summary Parse a multi-asset book into normalized positions
+ */
+export type parseBookResponse200 = {
+  data: BookSnapshot
+  status: 200
+}
+    
+export type parseBookResponseSuccess = (parseBookResponse200) & {
+  headers: Headers;
+};
+;
+
+export type parseBookResponse = (parseBookResponseSuccess)
+
+export const getParseBookUrl = () => {
+
+
+  
+
+  return `/book/parse`
+}
+
+export const parseBook = async (bookParseRequest: BookParseRequest, options?: RequestInit): Promise<parseBookResponse> => {
+  
+  return customFetch<parseBookResponse>(getParseBookUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      bookParseRequest,)
+  }
+);}
+
+
+/**
+ * @summary Build a portfolio-level risk map from a normalized book
+ */
+export type createRiskMapResponse200 = {
+  data: RiskMap
+  status: 200
+}
+    
+export type createRiskMapResponseSuccess = (createRiskMapResponse200) & {
+  headers: Headers;
+};
+;
+
+export type createRiskMapResponse = (createRiskMapResponseSuccess)
+
+export const getCreateRiskMapUrl = () => {
+
+
+  
+
+  return `/risk-map`
+}
+
+export const createRiskMap = async (riskMapRequest: RiskMapRequest, options?: RequestInit): Promise<createRiskMapResponse> => {
+  
+  return customFetch<createRiskMapResponse>(getCreateRiskMapUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      riskMapRequest,)
+  }
+);}
+
+
+/**
+ * @summary Generate hedge proposals for a normalized book
+ */
+export type createHedgeProposalsResponse200 = {
+  data: HedgeProposalResponse
+  status: 200
+}
+    
+export type createHedgeProposalsResponseSuccess = (createHedgeProposalsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type createHedgeProposalsResponse = (createHedgeProposalsResponseSuccess)
+
+export const getCreateHedgeProposalsUrl = () => {
+
+
+  
+
+  return `/hedge-lab/proposals`
+}
+
+export const createHedgeProposals = async (hedgeLabRequest: HedgeLabRequest, options?: RequestInit): Promise<createHedgeProposalsResponse> => {
+  
+  return customFetch<createHedgeProposalsResponse>(getCreateHedgeProposalsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      hedgeLabRequest,)
+  }
+);}
+
+
+/**
+ * @summary Compare baseline and hedge proposals side by side
+ */
+export type compareStrategiesResponse200 = {
+  data: StrategyComparison
+  status: 200
+}
+    
+export type compareStrategiesResponseSuccess = (compareStrategiesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type compareStrategiesResponse = (compareStrategiesResponseSuccess)
+
+export const getCompareStrategiesUrl = () => {
+
+
+  
+
+  return `/strategy-compare`
+}
+
+export const compareStrategies = async (strategyCompareRequest: StrategyCompareRequest, options?: RequestInit): Promise<compareStrategiesResponse> => {
+  
+  return customFetch<compareStrategiesResponse>(getCompareStrategiesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      strategyCompareRequest,)
   }
 );}
 

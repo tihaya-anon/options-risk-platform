@@ -17,6 +17,14 @@ export type I18nKey =
   | "chinese"
   | "settingsTitle"
   | "settingsDesc"
+  | "currentBookTitle"
+  | "currentBookDesc"
+  | "riskMapTitle"
+  | "riskMapDesc"
+  | "hedgeLabTitle"
+  | "hedgeLabDesc"
+  | "strategyCompareTitle"
+  | "strategyCompareDesc"
   | "apiBaseUrl"
   | "symbol"
   | "provider"
@@ -36,6 +44,9 @@ export type I18nKey =
   | "putIv"
   | "skewTitle"
   | "skewDesc"
+  | "optionRiskProfileTitle"
+  | "optionRiskProfileDesc"
+  | "contractSelector"
   | "chainTitle"
   | "chainDesc"
   | "strike"
@@ -109,7 +120,26 @@ export type I18nKey =
   | "providerNotes"
   | "apiKeyPlaceholder"
   | "apiKeyRequired"
-  | "apiKeyOptional";
+  | "apiKeyOptional"
+  | "grossExposure"
+  | "netExposure"
+  | "instrumentType"
+  | "markPrice"
+  | "topRisksTitle"
+  | "navBook"
+  | "navRisk"
+  | "navHedge"
+  | "navSurface"
+  | "hedgeCost"
+  | "hedgeInstrument"
+  | "strategyLabel"
+  | "upsideRetention"
+  | "downsideProtection"
+  | "carryTheta"
+  | "hedgeTarget"
+  | "hedgeTargetDelta"
+  | "hedgeTargetBeta"
+  | "hedgeTargetTail";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -131,6 +161,18 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     settingsTitle: "Settings",
     settingsDesc:
       "Configure where the frontend requests data from, and which default underlying to analyze.",
+    currentBookTitle: "Current Book",
+    currentBookDesc:
+      "Normalize the current holdings into a portfolio book before comparing hedge overlays.",
+    riskMapTitle: "Risk Map",
+    riskMapDesc:
+      "Summarize concentration, directional exposure, and top risk flags at the portfolio level.",
+    hedgeLabTitle: "Hedge Lab",
+    hedgeLabDesc:
+      "Compare simple hedge overlays before committing to execution.",
+    strategyCompareTitle: "Strategy Compare",
+    strategyCompareDesc:
+      "Review baseline and hedge candidates side by side across cost and residual exposure.",
     apiBaseUrl: "API Base URL",
     symbol: "Symbol",
     provider: "Provider",
@@ -154,6 +196,10 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     skewTitle: "Skew by Expiry",
     skewDesc:
       "Strike versus implied volatility for each expiry. This is closer to how traders actually read the chain.",
+    optionRiskProfileTitle: "Option Risk Profile",
+    optionRiskProfileDesc:
+      "Inspect one contract at a time to see how its Greeks and simple PnL sensitivity behave together.",
+    contractSelector: "Contract",
     chainTitle: "Chain Cards",
     chainDesc:
       "Compact cards for scanning strikes, IV, Greeks, and open interest without falling back to a spreadsheet grid.",
@@ -235,6 +281,25 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     apiKeyPlaceholder: "API key placeholder",
     apiKeyRequired: "This provider will require an API key.",
     apiKeyOptional: "No API key required for the current provider.",
+    grossExposure: "Gross Exposure",
+    netExposure: "Net Exposure",
+    instrumentType: "Instrument",
+    markPrice: "Mark Price",
+    topRisksTitle: "Top Risks",
+    navBook: "Book",
+    navRisk: "Risk",
+    navHedge: "Hedge",
+    navSurface: "Surface",
+    hedgeCost: "Hedge Cost",
+    hedgeInstrument: "Instrument",
+    strategyLabel: "Strategy",
+    upsideRetention: "Upside Retention",
+    downsideProtection: "Downside Protection",
+    carryTheta: "Carry / Theta",
+    hedgeTarget: "Target",
+    hedgeTargetDelta: "Neutralize delta",
+    hedgeTargetBeta: "Reduce beta",
+    hedgeTargetTail: "Tail protection",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
@@ -255,6 +320,14 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     settingsTitle: "设置",
     settingsDesc:
       "配置前端请求数据的 API 地址，以及默认分析的标的代码。",
+    currentBookTitle: "当前持仓簿",
+    currentBookDesc: "先把当前持仓标准化成组合持仓簿，再去比较不同对冲方案。",
+    riskMapTitle: "风险地图",
+    riskMapDesc: "从组合层总结集中度、方向暴露和主要风险提示。",
+    hedgeLabTitle: "对冲实验室",
+    hedgeLabDesc: "在执行前比较最简单的对冲覆盖方案。",
+    strategyCompareTitle: "策略比较",
+    strategyCompareDesc: "并排查看基准方案和对冲候选方案的成本与剩余风险。",
     apiBaseUrl: "API 基础地址",
     symbol: "标的代码",
     provider: "数据提供方",
@@ -275,6 +348,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     putIv: "Put IV",
     skewTitle: "按到期日查看 Skew",
     skewDesc: "横轴是行权价，纵轴是隐含波动率。这更接近交易者阅读期权链的真实方式。",
+    optionRiskProfileTitle: "期权风险剖面",
+    optionRiskProfileDesc: "单独查看某一张合约，把 Greeks 和简单 PnL 敏感度放在一起看。",
+    contractSelector: "合约",
     chainTitle: "期权链卡片视图",
     chainDesc: "用紧凑卡片浏览行权价、IV、Greeks 和持仓兴趣度，避免退回到传统表格思维。",
     strike: "行权价",
@@ -354,6 +430,25 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     apiKeyPlaceholder: "API Key 占位",
     apiKeyRequired: "该提供方未来需要 API Key。",
     apiKeyOptional: "当前提供方不需要 API Key。",
+    grossExposure: "总暴露",
+    netExposure: "净暴露",
+    instrumentType: "工具类型",
+    markPrice: "标记价格",
+    topRisksTitle: "主要风险",
+    navBook: "持仓簿",
+    navRisk: "风险",
+    navHedge: "对冲",
+    navSurface: "曲面",
+    hedgeCost: "对冲成本",
+    hedgeInstrument: "对冲工具",
+    strategyLabel: "方案",
+    upsideRetention: "上涨保留",
+    downsideProtection: "下跌保护",
+    carryTheta: "持有成本 / Theta",
+    hedgeTarget: "目标",
+    hedgeTargetDelta: "中和 Delta",
+    hedgeTargetBeta: "压低 Beta",
+    hedgeTargetTail: "尾部保护",
   },
 };
 

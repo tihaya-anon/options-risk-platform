@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { getChartTheme } from "./chartTheme";
 import {
   paletteTokens,
@@ -19,14 +19,23 @@ import { usePortfolioAnalysis } from "./hooks/usePortfolioAnalysis";
 import { useConnectionHealth } from "./hooks/useConnectionHealth";
 import { useRuntimeConfig } from "./hooks/useRuntimeConfig";
 import { ChainSection } from "./components/ChainSection";
+import { CurrentBookSection } from "./components/CurrentBookSection";
 import { GreeksSummarySection } from "./components/GreeksSummarySection";
+import { HedgeLabSection } from "./components/HedgeLabSection";
 import { HeroSection } from "./components/HeroSection";
+import { OptionRiskProfileSection } from "./components/OptionRiskProfileSection";
 import { OverviewSection } from "./components/OverviewSection";
 import { PortfolioPositionsSection } from "./components/PortfolioPositionsSection";
+import { RiskMapSection } from "./components/RiskMapSection";
 import { SettingsSection } from "./components/SettingsSection";
 import { SidebarNav } from "./components/SidebarNav";
 import { StatusPanel } from "./components/StatusPanel";
+import { StrategyCompareSection } from "./components/StrategyCompareSection";
 import type { FrontendSettings, GroupByMode } from "../types";
+import { useBookSnapshot } from "./hooks/useBookSnapshot";
+import { useHedgeLab } from "./hooks/useHedgeLab";
+import { useRiskMap } from "./hooks/useRiskMap";
+import { useStrategyComparison } from "./hooks/useStrategyComparison";
 
 const DEFAULT_POSITIONS_INPUT =
   "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1";
@@ -67,13 +76,16 @@ function ChartSectionFallback() {
 }
 
 export function App() {
+  const navigate = useNavigate();
   const [language, setLanguage] = useState<Language>(detectLanguage);
   const [themeMode, setThemeMode] = useState<ThemeMode>(detectTheme);
   const [palette, setPalette] = useState<Palette>(detectPalette);
   const [groupByMode, setGroupByMode] = useState<GroupByMode>("full");
+  const [hedgeTarget, setHedgeTarget] = useState("neutralize-delta");
   const [settings, setSettings] = useState<FrontendSettings>(detectFrontendSettings);
   const [positionsInput, setPositionsInput] =
     useState<string>(DEFAULT_POSITIONS_INPUT);
+  const [selectedContractSymbol, setSelectedContractSymbol] = useState("");
   const { snapshot, error: snapshotError } = useSnapshot(
     settings.symbol,
     settings.provider,
@@ -113,6 +125,25 @@ export function App() {
     isChecking: isConnectionChecking,
     testConnection,
   } = useConnectionHealth(settings.apiBaseUrl);
+  const { book, error: bookError } = useBookSnapshot({
+    positionsInput,
+    defaultSymbol: settings.symbol,
+    snapshot,
+    apiBaseUrl: settings.apiBaseUrl,
+  });
+  const { riskMap, error: riskMapError } = useRiskMap({
+    book,
+    apiBaseUrl: settings.apiBaseUrl,
+  });
+  const { hedgeLab, error: hedgeLabError } = useHedgeLab({
+    book,
+    apiBaseUrl: settings.apiBaseUrl,
+    target: hedgeTarget,
+  });
+  const { comparison, error: comparisonError } = useStrategyComparison({
+    hedgeLab,
+    apiBaseUrl: settings.apiBaseUrl,
+  });
   const { analysis, error: analysisError } = usePortfolioAnalysis({
     snapshot,
     positionsInput,
@@ -136,30 +167,70 @@ export function App() {
   const portfolioTimeScenario = analysis?.timeScenarios ?? [];
   const groupedExposures = analysis?.groupedExposures ?? [];
 
+  useEffect(() => {
+    if (!selectedContractSymbol) {
+      const firstOption = enrichedQuotes.find((quote) => quote.optionType === "call" || quote.optionType === "put");
+      if (firstOption) {
+        setSelectedContractSymbol(firstOption.symbol);
+      }
+    }
+  }, [enrichedQuotes, selectedContractSymbol]);
+
   const paletteColors = paletteTokens[palette];
   const chartTheme = useMemo(() => getChartTheme(themeMode), [themeMode]);
   const statusMessage =
-    snapshotError ?? analysisError ?? (snapshot ? null : t("loading"));
-  const navItems = useMemo(
+    snapshotError ??
+    analysisError ??
+    bookError ??
+    riskMapError ??
+    hedgeLabError ??
+    comparisonError ??
+    (snapshot ? null : t("loading"));
+  const navGroups = useMemo(
     () => [
-      { path: "/overview", label: t("overviewTitle") },
-      { path: "/settings", label: t("settingsTitle") },
-      { path: "/positions", label: t("positionsTitle") },
-      { path: "/spot-scenario", label: t("scenarioTitle") },
-      { path: "/time-scenario", label: t("timeScenarioTitle") },
-      { path: "/vol-scenario", label: t("volScenarioTitle") },
-      { path: "/grouped-exposure", label: t("groupedExposureTitle") },
-      { path: "/greeks-summary", label: t("greeksSummaryTitle") },
-      { path: "/term-structure", label: t("termTitle") },
-      { path: "/skew", label: t("skewTitle") },
-      { path: "/chain", label: t("chainTitle") },
+      {
+        title: t("navBook"),
+        items: [
+          { path: "/overview", label: t("overviewTitle") },
+          { path: "/current-book", label: t("currentBookTitle") },
+          { path: "/positions", label: t("positionsTitle") },
+          { path: "/settings", label: t("settingsTitle") },
+        ],
+      },
+      {
+        title: t("navRisk"),
+        items: [
+          { path: "/risk-map", label: t("riskMapTitle") },
+          { path: "/greeks-summary", label: t("greeksSummaryTitle") },
+          { path: "/grouped-exposure", label: t("groupedExposureTitle") },
+          { path: "/spot-scenario", label: t("scenarioTitle") },
+          { path: "/vol-scenario", label: t("volScenarioTitle") },
+          { path: "/time-scenario", label: t("timeScenarioTitle") },
+        ],
+      },
+      {
+        title: t("navHedge"),
+        items: [
+          { path: "/hedge-lab", label: t("hedgeLabTitle") },
+          { path: "/strategy-compare", label: t("strategyCompareTitle") },
+        ],
+      },
+      {
+        title: t("navSurface"),
+        items: [
+          { path: "/term-structure", label: t("termTitle") },
+          { path: "/skew", label: t("skewTitle") },
+          { path: "/option-risk-profile", label: t("optionRiskProfileTitle") },
+          { path: "/chain", label: t("chainTitle") },
+        ],
+      },
     ],
     [t]
   );
 
   return (
     <div className="page-shell dashboard-layout">
-      <SidebarNav items={navItems} />
+      <SidebarNav groups={navGroups} />
 
       <main className="dashboard-content">
         <HeroSection
@@ -176,6 +247,42 @@ export function App() {
         <div className="dashboard-main custom-scrollbar">
           <Routes>
             <Route path="/" element={<Navigate to="/overview" replace />} />
+            <Route
+              path="/current-book"
+              element={<CurrentBookSection book={book} t={t} />}
+            />
+            <Route
+              path="/risk-map"
+              element={<RiskMapSection riskMap={riskMap} t={t} />}
+            />
+            <Route
+              path="/hedge-lab"
+              element={
+                <HedgeLabSection
+                  hedgeLab={hedgeLab}
+                  hedgeTarget={hedgeTarget}
+                  t={t}
+                  onTargetChange={setHedgeTarget}
+                />
+              }
+            />
+            <Route
+              path="/strategy-compare"
+              element={<StrategyCompareSection comparison={comparison} t={t} />}
+            />
+            <Route
+              path="/option-risk-profile"
+              element={
+                <OptionRiskProfileSection
+                  rows={enrichedQuotes}
+                  selectedSymbol={selectedContractSymbol}
+                  chartTheme={chartTheme}
+                  accentColor={paletteColors.accent}
+                  t={t}
+                  onSelectSymbol={setSelectedContractSymbol}
+                />
+              }
+            />
             <Route
               path="/settings"
               element={
@@ -332,6 +439,10 @@ export function App() {
                   upColor={paletteColors.up}
                   downColor={paletteColors.down}
                   t={t}
+                  onSelectSymbol={(symbol) => {
+                    setSelectedContractSymbol(symbol);
+                    navigate("/option-risk-profile");
+                  }}
                 />
               }
             />

@@ -6,13 +6,28 @@ export function QuoteCard({
   row,
   t,
   accentColor,
+  onSelect,
 }: {
   row: EnrichedOptionQuote;
   t: (key: I18nKey) => string;
   accentColor: string;
+  onSelect?: (symbol: string) => void;
 }) {
   return (
-    <article className="quote-card card" style={{ borderLeftColor: accentColor }}>
+    <article
+      className={`quote-card card${onSelect ? " quote-card-clickable" : ""}`}
+      style={{ borderLeftColor: accentColor }}
+      onClick={() => onSelect?.(row.symbol)}
+      onKeyDown={(event) => {
+        if (!onSelect) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect(row.symbol);
+        }
+      }}
+      role={onSelect ? "button" : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+    >
       <div className="quote-top">
         <span className="pill" style={{ color: accentColor }}>
           {row.optionType === "call" ? t("call") : t("put")}

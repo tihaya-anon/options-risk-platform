@@ -90,6 +90,110 @@ export interface GroupedExposure {
   netTheta: number;
 }
 
+export interface Position {
+  instrumentType: "equity" | "future" | "option" | "cash";
+  symbol: string;
+  underlying?: string | null;
+  quantity: number;
+  multiplier: number;
+  markPrice: number;
+  expiry?: string | null;
+  strike?: number | null;
+  optionType?: OptionRight | null;
+  currency?: string | null;
+  delta?: number | null;
+  gamma?: number | null;
+  vega?: number | null;
+  theta?: number | null;
+  beta?: number | null;
+}
+
+export interface BookSnapshot {
+  asOf: string;
+  positions: Position[];
+  parsingErrors: string[];
+}
+
+export interface ExposureSummary {
+  marketValue: number;
+  grossExposure: number;
+  netExposure: number;
+  delta: number;
+  gamma: number;
+  vega: number;
+  theta: number;
+  beta: number;
+}
+
+export interface RiskItem {
+  category: string;
+  severity: "low" | "medium" | "high";
+  summary: string;
+  details?: string | null;
+}
+
+export interface RiskMap {
+  exposure: ExposureSummary;
+  topRisks: RiskItem[];
+  concentrationBySymbol: GroupedExposure[];
+  concentrationByExpiry: GroupedExposure[];
+}
+
+export interface BookParseRequest {
+  positionsInput: string;
+  defaultSymbol?: string | null;
+  snapshot?: EnrichedSnapshotFile;
+}
+
+export interface RiskMapRequest {
+  book: BookSnapshot;
+}
+
+export type HedgeType = "none" | "futuresOverlay" | "protectivePut" | "collar" | "custom";
+
+export interface HedgeProposal {
+  id: string;
+  hedgeType: HedgeType;
+  label: string;
+  summary: string;
+  instrument?: string | null;
+  hedgeRatio?: number | null;
+  estimatedCost?: number | null;
+  residualExposure: ExposureSummary;
+  notes?: string[];
+}
+
+export interface HedgeLabRequest {
+  book: BookSnapshot;
+  allowedHedgeTypes?: HedgeType[];
+  target?: string | null;
+}
+
+export interface HedgeProposalResponse {
+  baselineExposure: ExposureSummary;
+  proposals: HedgeProposal[];
+}
+
+export interface StrategyComparisonRow {
+  proposalId: string;
+  label: string;
+  estimatedCost: number;
+  residualExposure: ExposureSummary;
+  upsideRetention?: number | null;
+  downsideProtection?: number | null;
+  carryTheta?: number | null;
+}
+
+export interface StrategyCompareRequest {
+  baselineExposure: ExposureSummary;
+  proposals: HedgeProposal[];
+}
+
+export interface StrategyComparison {
+  baselineExposure: ExposureSummary;
+  rows: StrategyComparisonRow[];
+}
+
 export type GroupByMode =
   | "symbol"
   | "expiry"

@@ -110,8 +110,353 @@ paths:
               schema:
                 $ref: "#/components/schemas/AnalysisResponse"
 
+  /book/parse:
+    post:
+      operationId: parseBook
+      summary: Parse a multi-asset book into normalized positions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookParseRequest"
+      responses:
+        "200":
+          description: Parsed book snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookSnapshot"
+
+  /risk-map:
+    post:
+      operationId: createRiskMap
+      summary: Build a portfolio-level risk map from a normalized book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RiskMapRequest"
+      responses:
+        "200":
+          description: Portfolio risk map
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskMap"
+
+  /hedge-lab/proposals:
+    post:
+      operationId: createHedgeProposals
+      summary: Generate hedge proposals for a normalized book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HedgeLabRequest"
+      responses:
+        "200":
+          description: Candidate hedge proposals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HedgeProposalResponse"
+
+  /strategy-compare:
+    post:
+      operationId: compareStrategies
+      summary: Compare baseline and hedge proposals side by side
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StrategyCompareRequest"
+      responses:
+        "200":
+          description: Strategy comparison table
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StrategyComparison"
+
 components:
   schemas:
+    InstrumentType:
+      type: string
+      enum: [equity, future, option, cash]
+
+    HedgeType:
+      type: string
+      enum: [none, futuresOverlay, protectivePut, collar, custom]
+
+    Position:
+      type: object
+      required:
+        - instrumentType
+        - symbol
+        - quantity
+        - multiplier
+        - markPrice
+      properties:
+        instrumentType:
+          $ref: "#/components/schemas/InstrumentType"
+        symbol:
+          type: string
+        underlying:
+          type: string
+          nullable: true
+        quantity:
+          type: number
+        multiplier:
+          type: number
+        markPrice:
+          type: number
+        expiry:
+          type: string
+          format: date
+          nullable: true
+        strike:
+          type: number
+          nullable: true
+        optionType:
+          type: string
+          enum: [call, put]
+          nullable: true
+        currency:
+          type: string
+          nullable: true
+        delta:
+          type: number
+          nullable: true
+        gamma:
+          type: number
+          nullable: true
+        vega:
+          type: number
+          nullable: true
+        theta:
+          type: number
+          nullable: true
+        beta:
+          type: number
+          nullable: true
+
+    BookSnapshot:
+      type: object
+      required:
+        - positions
+        - parsingErrors
+        - asOf
+      properties:
+        asOf:
+          type: string
+          format: date-time
+        positions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Position"
+        parsingErrors:
+          type: array
+          items:
+            type: string
+
+    ExposureSummary:
+      type: object
+      required:
+        - marketValue
+        - grossExposure
+        - netExposure
+        - delta
+        - gamma
+        - vega
+        - theta
+        - beta
+      properties:
+        marketValue:
+          type: number
+        grossExposure:
+          type: number
+        netExposure:
+          type: number
+        delta:
+          type: number
+        gamma:
+          type: number
+        vega:
+          type: number
+        theta:
+          type: number
+        beta:
+          type: number
+
+    RiskItem:
+      type: object
+      required: [category, severity, summary]
+      properties:
+        category:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high]
+        summary:
+          type: string
+        details:
+          type: string
+          nullable: true
+
+    RiskMap:
+      type: object
+      required:
+        - exposure
+        - topRisks
+        - concentrationBySymbol
+        - concentrationByExpiry
+      properties:
+        exposure:
+          $ref: "#/components/schemas/ExposureSummary"
+        topRisks:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskItem"
+        concentrationBySymbol:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupedExposure"
+        concentrationByExpiry:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupedExposure"
+
+    HedgeProposal:
+      type: object
+      required:
+        - id
+        - hedgeType
+        - label
+        - summary
+        - residualExposure
+      properties:
+        id:
+          type: string
+        hedgeType:
+          $ref: "#/components/schemas/HedgeType"
+        label:
+          type: string
+        summary:
+          type: string
+        instrument:
+          type: string
+          nullable: true
+        hedgeRatio:
+          type: number
+          nullable: true
+        estimatedCost:
+          type: number
+          nullable: true
+        residualExposure:
+          $ref: "#/components/schemas/ExposureSummary"
+        notes:
+          type: array
+          items:
+            type: string
+
+    StrategyComparisonRow:
+      type: object
+      required:
+        - proposalId
+        - label
+        - estimatedCost
+        - residualExposure
+      properties:
+        proposalId:
+          type: string
+        label:
+          type: string
+        estimatedCost:
+          type: number
+        residualExposure:
+          $ref: "#/components/schemas/ExposureSummary"
+        upsideRetention:
+          type: number
+          nullable: true
+        downsideProtection:
+          type: number
+          nullable: true
+        carryTheta:
+          type: number
+          nullable: true
+
+    StrategyComparison:
+      type: object
+      required:
+        - baselineExposure
+        - rows
+      properties:
+        baselineExposure:
+          $ref: "#/components/schemas/ExposureSummary"
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/StrategyComparisonRow"
+
+    BookParseRequest:
+      type: object
+      required: [positionsInput]
+      properties:
+        positionsInput:
+          type: string
+        defaultSymbol:
+          type: string
+          nullable: true
+        snapshot:
+          $ref: "#/components/schemas/EnrichedSnapshotFile"
+
+    RiskMapRequest:
+      type: object
+      required: [book]
+      properties:
+        book:
+          $ref: "#/components/schemas/BookSnapshot"
+
+    HedgeLabRequest:
+      type: object
+      required: [book]
+      properties:
+        book:
+          $ref: "#/components/schemas/BookSnapshot"
+        allowedHedgeTypes:
+          type: array
+          items:
+            $ref: "#/components/schemas/HedgeType"
+        target:
+          type: string
+          nullable: true
+
+    HedgeProposalResponse:
+      type: object
+      required: [baselineExposure, proposals]
+      properties:
+        baselineExposure:
+          $ref: "#/components/schemas/ExposureSummary"
+        proposals:
+          type: array
+          items:
+            $ref: "#/components/schemas/HedgeProposal"
+
+    StrategyCompareRequest:
+      type: object
+      required: [baselineExposure, proposals]
+      properties:
+        baselineExposure:
+          $ref: "#/components/schemas/ExposureSummary"
+        proposals:
+          type: array
+          items:
+            $ref: "#/components/schemas/HedgeProposal"
+
     ProviderMetadata:
       type: object
       required:

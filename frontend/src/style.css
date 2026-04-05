@@ -91,6 +91,7 @@ input {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
+  padding-right: 6px;
 }
 
 .card {
@@ -225,6 +226,23 @@ input {
   display: grid;
   gap: 4px;
   margin-bottom: 14px;
+}
+
+.sidebar-group {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.sidebar-group:first-of-type {
+  margin-top: 0;
+}
+
+.sidebar-group-title {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .sidebar-kicker {
@@ -375,7 +393,7 @@ input {
   min-height: 0;
   height: 100%;
   overflow: auto;
-  padding-right: 6px;
+  padding-right: 0;
   scrollbar-gutter: stable;
 }
 
@@ -523,6 +541,15 @@ input {
 
 .quote-card {
   border-left: 4px solid transparent;
+}
+
+.quote-card-clickable {
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.quote-card-clickable:hover {
+  background: color-mix(in srgb, var(--paper) 92%, var(--bg) 8%);
 }
 
 .pill {
@@ -763,6 +790,41 @@ input {
   display: grid;
   place-items: center;
   color: var(--muted);
+}
+
+.book-panel-content,
+.risk-map-panel-content {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.book-table-wrap {
+  overflow: auto;
+}
+
+.book-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.book-table th,
+.book-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.book-table th {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.risk-list {
+  display: grid;
+  gap: 12px;
 }
 
 @media (min-width: 860px) {

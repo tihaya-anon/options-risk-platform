@@ -20,11 +20,19 @@ import type {
   RequestHandlerOptions
 } from 'msw';
 
+import {
+  HedgeType,
+  InstrumentType
+} from '.././model';
 import type {
   AnalysisResponse,
+  BookSnapshot,
   EnrichedSnapshotFile,
   GetConfig200,
-  GetHealth200
+  GetHealth200,
+  HedgeProposalResponse,
+  RiskMap,
+  StrategyComparison
 } from '.././model';
 
 
@@ -35,6 +43,14 @@ export const getGetConfigResponseMock = (overrideResponse: Partial< GetConfig200
 export const getGetSnapshotResponseMock = (overrideResponse: Partial< EnrichedSnapshotFile > = {}): EnrichedSnapshotFile => ({source: faker.string.alpha({length: {min: 10, max: 20}}), generatedAt: `${faker.date.past().toISOString().split('.')[0]}Z`, riskFreeRate: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), underlying: {symbol: faker.string.alpha({length: {min: 10, max: 20}}), spot: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), currency: faker.string.alpha({length: {min: 10, max: 20}}), timestamp: `${faker.date.past().toISOString().split('.')[0]}Z`}, quotes: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({...{symbol: faker.string.alpha({length: {min: 10, max: 20}}), underlying: faker.string.alpha({length: {min: 10, max: 20}}), optionType: faker.helpers.arrayElement(['call','put'] as const), strike: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), expiry: faker.date.past().toISOString().split('T')[0], bid: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), ask: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), last: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), volume: faker.number.int({min: undefined, max: undefined}), openInterest: faker.number.int({min: undefined, max: undefined})},...{mid: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), timeToExpiryYears: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), impliedVol: faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), delta: faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), gamma: faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), vega: faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), theta: faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null])},})), ...overrideResponse})
 
 export const getAnalyzePortfolioResponseMock = (overrideResponse: Partial< AnalysisResponse > = {}): AnalysisResponse => ({parsedPositions: {positions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({symbol: faker.string.alpha({length: {min: 10, max: 20}}), quantity: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})})), errors: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha({length: {min: 10, max: 20}})))}, exposure: {netDelta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netGamma: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netVega: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netTheta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), marketValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), unmatchedSymbols: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha({length: {min: 10, max: 20}})))}, spotScenarios: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({spot: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), spotChangePct: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), portfolioValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), portfolioPnl: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})})), volScenarios: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({volShift: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), portfolioValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), portfolioPnl: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})})), timeScenarios: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({daysForward: faker.number.int({min: undefined, max: undefined}), portfolioValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), portfolioPnl: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})})), groupedExposures: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({bucket: faker.string.alpha({length: {min: 10, max: 20}}), quantity: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), marketValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netDelta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netGamma: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netVega: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netTheta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})})), advisor: {source: faker.string.alpha({length: {min: 10, max: 20}}), suggestions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({risk: faker.string.alpha({length: {min: 10, max: 20}}), action: faker.string.alpha({length: {min: 10, max: 20}}), source: faker.string.alpha({length: {min: 10, max: 20}})}))}, ...overrideResponse})
+
+export const getParseBookResponseMock = (overrideResponse: Partial< BookSnapshot > = {}): BookSnapshot => ({asOf: `${faker.date.past().toISOString().split('.')[0]}Z`, positions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({instrumentType: faker.helpers.arrayElement(Object.values(InstrumentType)), symbol: faker.string.alpha({length: {min: 10, max: 20}}), underlying: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), quantity: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), multiplier: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), markPrice: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), expiry: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.date.past().toISOString().split('T')[0], null]), undefined]), strike: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined]), optionType: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.helpers.arrayElement(['call','put'] as const), null]), undefined]), currency: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), delta: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined]), gamma: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined]), vega: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined]), theta: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined]), beta: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined])})), parsingErrors: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha({length: {min: 10, max: 20}}))), ...overrideResponse})
+
+export const getCreateRiskMapResponseMock = (overrideResponse: Partial< RiskMap > = {}): RiskMap => ({exposure: {marketValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), grossExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), delta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), gamma: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), vega: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), theta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), beta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})}, topRisks: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({category: faker.string.alpha({length: {min: 10, max: 20}}), severity: faker.helpers.arrayElement(['low','medium','high'] as const), summary: faker.string.alpha({length: {min: 10, max: 20}}), details: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined])})), concentrationBySymbol: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({bucket: faker.string.alpha({length: {min: 10, max: 20}}), quantity: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), marketValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netDelta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netGamma: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netVega: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netTheta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})})), concentrationByExpiry: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({bucket: faker.string.alpha({length: {min: 10, max: 20}}), quantity: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), marketValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netDelta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netGamma: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netVega: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netTheta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})})), ...overrideResponse})
+
+export const getCreateHedgeProposalsResponseMock = (overrideResponse: Partial< HedgeProposalResponse > = {}): HedgeProposalResponse => ({baselineExposure: {marketValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), grossExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), delta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), gamma: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), vega: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), theta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), beta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})}, proposals: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.string.alpha({length: {min: 10, max: 20}}), hedgeType: faker.helpers.arrayElement(Object.values(HedgeType)), label: faker.string.alpha({length: {min: 10, max: 20}}), summary: faker.string.alpha({length: {min: 10, max: 20}}), instrument: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.string.alpha({length: {min: 10, max: 20}}), null]), undefined]), hedgeRatio: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined]), estimatedCost: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined]), residualExposure: {marketValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), grossExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), delta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), gamma: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), vega: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), theta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), beta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})}, notes: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.string.alpha({length: {min: 10, max: 20}}))), undefined])})), ...overrideResponse})
+
+export const getCompareStrategiesResponseMock = (overrideResponse: Partial< StrategyComparison > = {}): StrategyComparison => ({baselineExposure: {marketValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), grossExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), delta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), gamma: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), vega: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), theta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), beta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})}, rows: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({proposalId: faker.string.alpha({length: {min: 10, max: 20}}), label: faker.string.alpha({length: {min: 10, max: 20}}), estimatedCost: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), residualExposure: {marketValue: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), grossExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), netExposure: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), delta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), gamma: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), vega: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), theta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), beta: faker.number.float({min: undefined, max: undefined, fractionDigits: 2})}, upsideRetention: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined]), downsideProtection: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined]), carryTheta: faker.helpers.arrayElement([faker.helpers.arrayElement([faker.number.float({min: undefined, max: undefined, fractionDigits: 2}), null]), undefined])})), ...overrideResponse})
 
 
 export const getGetHealthMockHandler = (overrideResponse?: GetHealth200 | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<GetHealth200> | GetHealth200), options?: RequestHandlerOptions) => {
@@ -84,9 +100,61 @@ export const getAnalyzePortfolioMockHandler = (overrideResponse?: AnalysisRespon
       })
   }, options)
 }
+
+export const getParseBookMockHandler = (overrideResponse?: BookSnapshot | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<BookSnapshot> | BookSnapshot), options?: RequestHandlerOptions) => {
+  return http.post('*/book/parse', async (info) => {await delay(150);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getParseBookResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getCreateRiskMapMockHandler = (overrideResponse?: RiskMap | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<RiskMap> | RiskMap), options?: RequestHandlerOptions) => {
+  return http.post('*/risk-map', async (info) => {await delay(150);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getCreateRiskMapResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getCreateHedgeProposalsMockHandler = (overrideResponse?: HedgeProposalResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<HedgeProposalResponse> | HedgeProposalResponse), options?: RequestHandlerOptions) => {
+  return http.post('*/hedge-lab/proposals', async (info) => {await delay(150);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getCreateHedgeProposalsResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
+
+export const getCompareStrategiesMockHandler = (overrideResponse?: StrategyComparison | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<StrategyComparison> | StrategyComparison), options?: RequestHandlerOptions) => {
+  return http.post('*/strategy-compare', async (info) => {await delay(150);
+  
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined
+    ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse)
+    : getCompareStrategiesResponseMock()),
+      { status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+  }, options)
+}
 export const getDefaultMock = () => [
   getGetHealthMockHandler(),
   getGetConfigMockHandler(),
   getGetSnapshotMockHandler(),
-  getAnalyzePortfolioMockHandler()
+  getAnalyzePortfolioMockHandler(),
+  getParseBookMockHandler(),
+  getCreateRiskMapMockHandler(),
+  getCreateHedgeProposalsMockHandler(),
+  getCompareStrategiesMockHandler()
 ]
