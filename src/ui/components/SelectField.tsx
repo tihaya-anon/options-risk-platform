@@ -34,7 +34,7 @@ export function SelectField<T extends string>({
   const selected = options.find((option) => option.value === value) ?? options[0];
 
   return (
-    <div className="select-field" ref={containerRef}>
+    <div className={`select-field ${isOpen ? "open" : ""}`} ref={containerRef}>
       <button
         type="button"
         className="select-trigger"
