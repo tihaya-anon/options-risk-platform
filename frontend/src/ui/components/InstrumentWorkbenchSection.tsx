@@ -47,6 +47,39 @@ export function InstrumentWorkbenchSection({
 
       <div className="dashboard-split-grid">
         <article className="card dashboard-column-card">
+          <div className="meta-block">
+            <span>{t("instrumentInterpretationTitle")}</span>
+            <strong>{focusUnderlying || rows[0]?.underlying || t("none")}</strong>
+          </div>
+          <p className="subtle">{t("instrumentInterpretationBody")}</p>
+          <ul className="compact-list">
+            <li>{t("instrumentInterpretationChain")}</li>
+            <li>{t("instrumentInterpretationProfile")}</li>
+            <li>{t("instrumentInterpretationSurface")}</li>
+          </ul>
+        </article>
+
+        <article className="card dashboard-column-card">
+          <div className="meta-block">
+            <span>{t("instrumentDecisionTitle")}</span>
+            <strong>{selectedRow?.symbol ?? t("none")}</strong>
+          </div>
+          <p className="subtle">{t("instrumentDecisionBody")}</p>
+          <div className="grouped-stats">
+            <div>
+              <span>{t("quoteCount")}</span>
+              <strong>{rows.length}</strong>
+            </div>
+            <div>
+              <span>{t("contractSelector")}</span>
+              <strong>{selectedRow?.strike?.toFixed(2) ?? t("none")}</strong>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div className="dashboard-split-grid">
+        <article className="card dashboard-column-card">
           <div className="dashboard-section-head">
             <div className="meta-block">
               <span>{t("dashboardInstrumentFocusTitle")}</span>

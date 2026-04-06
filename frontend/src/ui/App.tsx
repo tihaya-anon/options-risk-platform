@@ -424,6 +424,11 @@ export function App() {
                 <DataWorkspaceSection
                   isStaticMode={isStaticMode}
                   staticDataset={staticDatasetInfo}
+                  settings={settings}
+                  connectionStatus={health && !healthError ? "connected" : "degraded"}
+                  positionsCount={parsedPositions?.positions.length ?? 0}
+                  parseErrorCount={parsedPositions?.errors.length ?? 0}
+                  unmatchedCount={portfolioExposure.unmatchedSymbols.length}
                   t={t}
                 />
               }

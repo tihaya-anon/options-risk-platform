@@ -52,6 +52,47 @@ export function HedgeDecisionSection({
 
           <div className="dashboard-split-grid">
             <article className="card dashboard-column-card">
+              <div className="meta-block">
+                <span>{t("hedgeInterpretationTitle")}</span>
+                <strong>
+                  {topProposals[0]
+                    ? translateHedgeLabel(language, topProposals[0].label)
+                    : t("none")}
+                </strong>
+              </div>
+              <p className="subtle">{t("hedgeInterpretationBody")}</p>
+              <ul className="compact-list">
+                <li>{t("hedgeInterpretationLinear")}</li>
+                <li>{t("hedgeInterpretationConvex")}</li>
+                <li>{t("hedgeInterpretationCarry")}</li>
+              </ul>
+            </article>
+
+            <article className="card dashboard-column-card">
+              <div className="meta-block">
+                <span>{t("hedgeDecisionTitle")}</span>
+                <strong>{t("hedgeDecisionHeadline")}</strong>
+              </div>
+              <p className="subtle">{t("hedgeDecisionBody")}</p>
+              <div className="grouped-stats">
+                <div>
+                  <span>{t("hedgeCost")}</span>
+                  <strong>{topProposals[0] ? (topProposals[0].estimatedCost ?? 0).toFixed(2) : t("none")}</strong>
+                </div>
+                <div>
+                  <span>{t("downsideProtection")}</span>
+                  <strong>
+                    {topComparisons[0]
+                      ? `${((topComparisons[0].downsideProtection ?? 0) * 100).toFixed(0)}%`
+                      : t("none")}
+                  </strong>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div className="dashboard-split-grid">
+            <article className="card dashboard-column-card">
               <div className="dashboard-section-head">
                 <div className="meta-block">
                   <span>{t("dashboardHedgeIdeasTitle")}</span>

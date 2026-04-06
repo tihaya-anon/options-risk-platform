@@ -182,6 +182,39 @@ export function OverviewSection({
 
         <div className="dashboard-split-grid">
           <article className="card dashboard-column-card">
+            <div className="meta-block">
+              <span>{t("dashboardInterpretationTitle")}</span>
+              <strong>{t("dashboardInterpretationHeadline")}</strong>
+            </div>
+            <p className="subtle">{t("dashboardInterpretationBody")}</p>
+            <div className="grouped-stats">
+              <div>
+                <span>{t("topConcentration")}</span>
+                <strong>{topRiskBucket?.bucket ?? t("none")}</strong>
+              </div>
+              <div>
+                <span>{t("recommendedAction")}</span>
+                <strong>{dashboardAction}</strong>
+              </div>
+            </div>
+          </article>
+
+          <article className="card dashboard-column-card">
+            <div className="meta-block">
+              <span>{t("dashboardDrilldownTitle")}</span>
+              <strong>{t("dashboardDrilldownHeadline")}</strong>
+            </div>
+            <p className="subtle">{t("dashboardDrilldownBody")}</p>
+            <ul className="compact-list">
+              <li>{t("dashboardDrilldownRisk")}</li>
+              <li>{t("dashboardDrilldownHedge")}</li>
+              <li>{t("dashboardDrilldownInstrument")}</li>
+            </ul>
+          </article>
+        </div>
+
+        <div className="dashboard-split-grid">
+          <article className="card dashboard-column-card">
             <div className="dashboard-section-head">
               <div className="meta-block">
                 <span>{t("dashboardTopRisksTitle")}</span>

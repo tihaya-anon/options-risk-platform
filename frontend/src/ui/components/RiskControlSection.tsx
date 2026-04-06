@@ -77,6 +77,39 @@ export function RiskControlSection({
 
           <div className="dashboard-split-grid">
             <article className="card dashboard-column-card">
+              <div className="meta-block">
+                <span>{t("riskInterpretationTitle")}</span>
+                <strong>{topRisks[0] ? translateBackendMessage(language, topRisks[0].summary) : t("none")}</strong>
+              </div>
+              <p className="subtle">{t("riskInterpretationBody")}</p>
+              <ul className="compact-list">
+                <li>{t("riskInterpretationDirectional")}</li>
+                <li>{t("riskInterpretationConcentration")}</li>
+                <li>{t("riskInterpretationScenario")}</li>
+              </ul>
+            </article>
+
+            <article className="card dashboard-column-card">
+              <div className="meta-block">
+                <span>{t("riskDecisionTitle")}</span>
+                <strong>{t("riskDecisionHeadline")}</strong>
+              </div>
+              <p className="subtle">{t("riskDecisionBody")}</p>
+              <div className="grouped-stats">
+                <div>
+                  <span>{t("worstSpotScenario")}</span>
+                  <strong>{worstSpot ? worstSpot.portfolioPnl.toFixed(2) : t("none")}</strong>
+                </div>
+                <div>
+                  <span>{t("topConcentration")}</span>
+                  <strong>{topBuckets[0]?.bucket ?? t("none")}</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div className="dashboard-split-grid">
+            <article className="card dashboard-column-card">
               <div className="dashboard-section-head">
                 <div className="meta-block">
                   <span>{t("dashboardTopRisksTitle")}</span>
