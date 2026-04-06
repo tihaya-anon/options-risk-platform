@@ -40,6 +40,38 @@ export function groupByExpiry(
   return grouped;
 }
 
+export function groupByUnderlyingAndExpiry(
+  rows: EnrichedOptionQuote[]
+): Map<string, { underlying: string; expiry: string; rows: EnrichedOptionQuote[] }> {
+  const grouped = new Map<
+    string,
+    { underlying: string; expiry: string; rows: EnrichedOptionQuote[] }
+  >();
+
+  for (const row of rows) {
+    const key = `${row.underlying} | ${row.expiry}`;
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        underlying: row.underlying,
+        expiry: row.expiry,
+        rows: [],
+      });
+    }
+    grouped.get(key)!.rows.push(row);
+  }
+
+  return new Map(
+    [...grouped.entries()].sort((left, right) => {
+      const [, leftValue] = left;
+      const [, rightValue] = right;
+      return (
+        leftValue.underlying.localeCompare(rightValue.underlying) ||
+        leftValue.expiry.localeCompare(rightValue.expiry)
+      );
+    }),
+  );
+}
+
 export function calculateRiskSummary(rows: EnrichedOptionQuote[]) {
   return rows.reduce(
     (acc, row) => {

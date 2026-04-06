@@ -24,6 +24,34 @@ export function GroupedExposureSection({
   chartTheme: ChartTheme;
   onGroupByModeChange: (mode: GroupByMode) => void;
 }) {
+  const displayGroups = groups.slice().sort((left, right) => {
+    const splitLeft = left.bucket.split(" | ");
+    const splitRight = right.bucket.split(" | ");
+
+    if (groupByMode === "symbol") {
+      return splitLeft[0].localeCompare(splitRight[0]);
+    }
+    if (groupByMode === "expiry") {
+      return splitLeft[0].localeCompare(splitRight[0]);
+    }
+    if (groupByMode === "optionType") {
+      const order = { underlying: 0, call: 1, put: 2 };
+      return (order[splitLeft[0] as keyof typeof order] ?? 9) - (order[splitRight[0] as keyof typeof order] ?? 9);
+    }
+    if (groupByMode === "symbolExpiry") {
+      return (
+        (splitLeft[0] ?? "").localeCompare(splitRight[0] ?? "") ||
+        (splitLeft[1] ?? "").localeCompare(splitRight[1] ?? "")
+      );
+    }
+
+    return (
+      (splitLeft[0] ?? "").localeCompare(splitRight[0] ?? "") ||
+      (splitLeft[1] ?? "").localeCompare(splitRight[1] ?? "") ||
+      (splitLeft[2] ?? "").localeCompare(splitRight[2] ?? "")
+    );
+  });
+
   const option: EChartsOption = {
     ...buildBaseChartOption({
       chartTheme,
@@ -41,7 +69,7 @@ export function GroupedExposureSection({
     },
     yAxis: {
       type: "category",
-      data: groups.map((group) => group.bucket),
+      data: displayGroups.map((group) => group.bucket),
       axisLabel: {
         color: chartTheme.subtleTextColor,
         width: 160,
@@ -53,7 +81,7 @@ export function GroupedExposureSection({
       {
         name: t("portfolioVega"),
         type: "bar",
-        data: groups.map((group) => ({
+        data: displayGroups.map((group) => ({
           value: group.netVega,
           itemStyle: {
             color: group.netVega >= 0 ? "#a44716" : "#2563eb",
@@ -96,7 +124,7 @@ export function GroupedExposureSection({
             <EChart option={option} height={Math.max(260, groups.length * 56)} />
           )}
         </article>
-        {groups.map((group) => (
+        {displayGroups.map((group) => (
           <article
             key={group.bucket}
             className={`card grouped-exposure-card${selectedBucket === group.bucket ? " is-selected" : ""}`}

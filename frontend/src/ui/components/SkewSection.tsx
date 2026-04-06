@@ -1,6 +1,6 @@
 import type { EnrichedOptionQuote } from "../../types";
 import type { ChartTheme } from "../chartTheme";
-import { groupByExpiry } from "../format";
+import { groupByUnderlyingAndExpiry } from "../format";
 import type { I18nKey } from "../i18n";
 import { SkewCard } from "./SkewCard";
 
@@ -17,7 +17,7 @@ export function SkewSection({
   chartTheme: ChartTheme;
   t: (key: I18nKey) => string;
 }) {
-  const grouped = groupByExpiry(rows);
+  const grouped = groupByUnderlyingAndExpiry(rows);
 
   return (
     <section className="panel card">
@@ -28,11 +28,12 @@ export function SkewSection({
         </div>
       </div>
       <div className="surface-grid">
-        {[...grouped.entries()].map(([expiry, expiryRows]) => (
+        {[...grouped.entries()].map(([key, group]) => (
           <SkewCard
-            key={expiry}
-            expiry={expiry}
-            rows={expiryRows}
+            key={key}
+            expiry={group.expiry}
+            underlying={group.underlying}
+            rows={group.rows}
             upColor={upColor}
             downColor={downColor}
             chartTheme={chartTheme}
