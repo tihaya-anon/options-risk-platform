@@ -25,6 +25,8 @@
 - [x] 前后端分离架构
 - [x] OpenAPI 契约与 Orval 生成链
 - [x] MSW mock 开发链
+- [x] 固定侧边栏 + 固定顶部工具条 + 主区内滚的 panel 布局
+- [x] 统一 `PanelSection` 外壳与滚动容器
 - [x] `Overview`
 - [x] `Current Book`
 - [x] `Risk Map`
@@ -32,6 +34,10 @@
 - [x] `Strategy Compare` 最小版
 - [x] `Surface` 分组下的 `Term Structure / Skew / Chain / Option Risk Profile`
 - [x] `Provider Connection` 基础页面
+- [x] `Chain -> Option Risk Profile` 联动
+- [x] `Chain` 双视图、排序与 sticky table header
+- [x] 统一 Greeks 视觉组件与主要页面接入
+- [x] `Option Risk Profile` 分层筛选
 
 ## 近期功能
 
@@ -50,11 +56,13 @@
 
 - [ ] 在前端 `Provider Connection` 页展示连接测试结果面板
 
-- [ ] 根据 provider metadata 展示更明确的能力边界
-  - [ ] 是否需要 API key
-  - [ ] 是否支持真实期权链
-  - [ ] 是否支持 Greeks
-  - [ ] 是否支持场景分析
+- [x] 根据 provider metadata 展示更明确的能力边界
+  - [x] 是否需要 API key
+  - [x] 是否支持真实期权链
+  - [x] 是否支持 Greeks
+  - [x] 是否支持场景分析
+  - [x] provider 说明与 notes
+  - [x] API key 占位输入
 
 ### Hedge Lab
 
@@ -128,7 +136,7 @@
   - [x] `Hedge`
   - [x] `Surface`
 
-- [ ] 增加更清晰的当前路径提示
+- [x] 增加更清晰的当前路径提示
 - [ ] 增加折叠态设计
 
 ### Greeks 展示规则
@@ -137,7 +145,14 @@
 - [x] 单合约和组合层共享同一套视觉语言
 - [x] 希腊字母主视觉 + 英文小号说明
 
-- [ ] 清查剩余页面，确认没有遗漏的旧样式
+- [x] 主要页面接入统一 Greeks 视觉
+  - [x] `Greeks Summary`
+  - [x] `Option Risk Profile`
+  - [x] `Current Book`
+  - [x] `Risk Map`
+  - [x] `Grouped Exposure`
+  - [x] `Quote / Chain`
+- [ ] 清查剩余边角信息，确认没有遗漏的旧样式
 
 ### Chain / Surface
 
@@ -147,8 +162,18 @@
 
 - [x] cards 视图基础排序
 - [x] table 视图全字段排序
+- [x] sticky table header
+- [x] 卡片/表格行点击联动到 `Option Risk Profile`
 
 - [ ] 考虑是否加入“固定列”或“更多列可配置”
+
+### Panel / 滚动体验
+
+- [x] 页面不依赖浏览器原生滚动
+- [x] 左侧 sidebar 外壳固定、内部滚动
+- [x] 主区 panel 外壳固定、内部滚动
+- [x] 自定义滚动条样式
+- [ ] 继续校正 header 与主区的精确对齐
 
 ## LLM 悬浮助手
 
@@ -189,6 +214,14 @@
 - [ ] 5. 全局 page context 基础设施
 - [ ] 6. LLM 悬浮球 UI
 - [ ] 7. 真实 LLM 接入
+
+## 当前前端进展摘要
+
+- [x] 已从“单标的期权面板”迈到“组合风险与对冲决策工作台”的信息架构
+- [x] 已形成 `Current Book -> Risk Map -> Hedge Lab -> Strategy Compare -> Surface` 主路径
+- [x] 单合约层与组合层已经开始明确分层
+- [x] mock 开发链可以在无后端情况下演示主要页面
+- [ ] 下一阶段重点转向：provider 实测、hedge 决策解释、LLM 页面上下文基础设施
 
 ## 暂不做
 
