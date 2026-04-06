@@ -7,16 +7,18 @@ export function QuoteCard({
   row,
   t,
   accentColor,
+  isSelected = false,
   onSelect,
 }: {
   row: EnrichedOptionQuote;
   t: (key: I18nKey) => string;
   accentColor: string;
+  isSelected?: boolean;
   onSelect?: (symbol: string) => void;
 }) {
   return (
     <article
-      className={`quote-card card${onSelect ? " quote-card-clickable" : ""}`}
+      className={`quote-card card${onSelect ? " quote-card-clickable" : ""}${isSelected ? " is-selected" : ""}`}
       style={{ borderLeftColor: accentColor }}
       onClick={() => onSelect?.(row.symbol)}
       onKeyDown={(event) => {

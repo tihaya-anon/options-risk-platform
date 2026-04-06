@@ -9,10 +9,13 @@ The frontend should treat this contract as the canonical integration surface.
  */
 import type { BookSnapshot } from './bookSnapshot';
 import type { HedgeType } from './hedgeType';
+import type { HedgeLabRequestHedgeUniverse } from './hedgeLabRequestHedgeUniverse';
 
 export interface HedgeLabRequest {
   book: BookSnapshot;
   allowedHedgeTypes?: HedgeType[];
   /** @nullable */
   target?: string | null;
+  /** @nullable */
+  hedgeUniverse?: HedgeLabRequestHedgeUniverse;
 }

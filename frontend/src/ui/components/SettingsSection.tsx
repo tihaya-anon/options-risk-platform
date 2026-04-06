@@ -4,6 +4,7 @@ import type { ProviderMetadata } from "../../api/generated/model/providerMetadat
 import type { I18nKey } from "../i18n";
 import { PanelSection } from "./PanelSection";
 import { SelectField } from "./SelectField";
+import type { StaticDatasetInfo } from "../../lib/staticWorkbench";
 
 export function SettingsSection({
   settings,
@@ -14,6 +15,8 @@ export function SettingsSection({
   connectionProvider,
   connectionError,
   isConnectionChecking,
+  isStaticMode,
+  staticDataset,
   t,
   onSettingsChange,
   onSave,
@@ -27,6 +30,8 @@ export function SettingsSection({
   connectionProvider: string;
   connectionError: string | null;
   isConnectionChecking: boolean;
+  isStaticMode: boolean;
+  staticDataset: StaticDatasetInfo | null;
   t: (key: I18nKey) => string;
   onSettingsChange: (settings: FrontendSettings) => void;
   onSave: () => void;
@@ -52,7 +57,8 @@ export function SettingsSection({
   return (
     <PanelSection
       title={t("settingsTitle")}
-      description={t("settingsDesc")}
+      description={t("dataWorkspaceDesc")}
+      className="data-panel"
       bodyClassName="settings-panel-content"
     >
       <div className="settings-layout">
@@ -69,6 +75,10 @@ export function SettingsSection({
           </div>
           <div className="settings-detail-list">
             <div>
+              <span>{t("modeTitle")}</span>
+              <strong>{isStaticMode ? t("modeStaticDaily") : t("modeLiveBackend")}</strong>
+            </div>
+            <div>
               <span>{t("provider")}</span>
               <strong>{connectionProvider}</strong>
             </div>
@@ -77,10 +87,12 @@ export function SettingsSection({
               <strong>{settings.focusUnderlying || t("autoDetect")}</strong>
             </div>
             <div>
-              <span>{t("advisorMode")}</span>
-              <strong>
-                {settings.advisorMode === "llm" ? t("advisorLlm") : t("advisorRules")}
-              </strong>
+              <span>{t("asOfTitle")}</span>
+              <strong>{staticDataset?.asOf ?? t("none")}</strong>
+            </div>
+            <div>
+              <span>{t("defaultSymbolTitle")}</span>
+              <strong>{staticDataset?.defaultSymbol ?? t("none")}</strong>
             </div>
           </div>
           {connectionError ? (
@@ -123,6 +135,14 @@ export function SettingsSection({
           <div className="provider-note">
             <span>{t("providerNotes")}</span>
             <strong>{selectedProvider?.notes ?? t("providerCapabilitiesDesc")}</strong>
+          </div>
+          <div className="provider-note">
+            <span>{t("universeTitle")}</span>
+            <strong>{staticDataset?.symbols.join(", ") ?? t("none")}</strong>
+          </div>
+          <div className="provider-note">
+            <span>{t("symbolCountTitle")}</span>
+            <strong>{staticDataset?.symbols.length ?? 0}</strong>
           </div>
           <label className="field-stack">
             <span>{t("apiKeyPlaceholder")}</span>

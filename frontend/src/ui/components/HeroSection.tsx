@@ -7,6 +7,7 @@ export function HeroSection({
   themeMode,
   palette,
   accentColor,
+  title,
   t,
   onLanguageChange,
   onThemeChange,
@@ -16,6 +17,7 @@ export function HeroSection({
   themeMode: ThemeMode;
   palette: Palette;
   accentColor: string;
+  title: string;
   t: (key: I18nKey) => string;
   onLanguageChange: (language: Language) => void;
   onThemeChange: (theme: ThemeMode) => void;
@@ -24,10 +26,12 @@ export function HeroSection({
   return (
     <section className="hero card">
       <div className="hero-identity">
-        <p className="eyebrow" style={{ color: accentColor }}>
-          {t("appEyebrow")}
-        </p>
-        <strong className="hero-titleline">SPY Options Risk Dashboard</strong>
+        <div className="hero-brand">
+          <p className="eyebrow" style={{ color: accentColor }}>
+            {t("appEyebrow")}
+          </p>
+          <strong className="hero-titleline">{title}</strong>
+        </div>
       </div>
 
       <div className="utility-dock card">

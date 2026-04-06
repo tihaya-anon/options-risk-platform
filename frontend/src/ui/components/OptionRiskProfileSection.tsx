@@ -8,6 +8,7 @@ import { GreekMetricCard } from "./GreekMetricCard";
 import { PanelSection } from "./PanelSection";
 import { SelectField } from "./SelectField";
 import { EChart } from "./EChart";
+import { Link } from "react-router-dom";
 
 function buildScenarioSeries(row: EnrichedOptionQuote) {
   const baseDelta = row.delta ?? 0;
@@ -147,6 +148,9 @@ export function OptionRiskProfileSection({
               }))}
             />
           </label>
+          <Link className="button-like dashboard-link" to="/chain">
+            {t("dashboardOpenChain")}
+          </Link>
         </div>
       }
     >

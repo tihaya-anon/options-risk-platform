@@ -1,9 +1,10 @@
 import {
-  analyzeMockPortfolio,
   buildMockBook,
   buildMockRiskMap,
   buildMockSnapshot,
+  buildMockUniverseSnapshots,
 } from "./fixtures";
+import { buildStaticAnalysis, buildStaticBook } from "../lib/staticWorkbench";
 import {
   getCompareStrategiesMockHandler,
   getCreateHedgeProposalsMockHandler,
@@ -26,26 +27,26 @@ export const handlers = [
     logHandledRequest("GET /health");
     return {
       ok: true,
-      provider: "mock",
+      provider: "mock-cn",
     };
   }),
   getGetConfigMockHandler(() => {
     const config = {
       provider: "mock",
-      defaultSymbol: "SPY",
+      defaultSymbol: "510050",
       llmAdvisorMode: "disabled",
       providers: ["mock", "yahooSynthetic"],
       advisorModes: ["rules", "llm"],
       providerMetadata: [
         {
           id: "mock",
-          label: "Mock provider",
+          label: "Mock CN options provider",
           requiresApiKey: false,
           supportsSnapshots: true,
           supportsOptionChain: true,
           supportsGreeks: true,
           supportsScenarios: true,
-          notes: "Deterministic local snapshot for UI development and demo flows.",
+          notes: "Deterministic mainland ETF options snapshot for UI development and mock portfolio flows.",
         },
         {
           id: "yahooSynthetic",
@@ -64,7 +65,7 @@ export const handlers = [
   }),
   getGetSnapshotMockHandler((info) => {
     const url = new URL(info.request.url);
-    const symbol = url.searchParams.get("symbol") ?? "SPY";
+    const symbol = url.searchParams.get("symbol") ?? "510050";
     const provider = url.searchParams.get("provider") ?? "mock";
     const snapshot = buildMockSnapshot(symbol, provider);
     logHandledRequest("GET /snapshot", {
@@ -87,8 +88,9 @@ export const handlers = [
       advisorMode: string;
     };
 
-    const result = analyzeMockPortfolio({
+    const result = buildStaticAnalysis({
       snapshot: body.snapshot,
+      universeSnapshots: buildMockUniverseSnapshots(),
       positionsInput: body.positionsInput,
       groupByMode: body.groupByMode,
       advisorMode: body.advisorMode,
@@ -110,10 +112,11 @@ export const handlers = [
       snapshot?: ReturnType<typeof buildMockSnapshot>;
     };
 
-    const book = buildMockBook({
+    const book = buildStaticBook({
       positionsInput: body.positionsInput,
       defaultSymbol: body.defaultSymbol,
       snapshot: body.snapshot,
+      universeSnapshots: buildMockUniverseSnapshots(),
     });
     logHandledRequest("POST /book/parse", {
       positions: book.positions.length,

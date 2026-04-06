@@ -1,0 +1,24 @@
+{
+  "asOf": "2026-04-03T16:29:06+08:00",
+  "generatedAt": "2026-04-06T08:51:18.966Z",
+  "provider": "cn-public-sse-sina",
+  "defaultSymbol": "510050",
+  "symbols": [
+    {
+      "symbol": "510050",
+      "path": "/data/latest/510050.json",
+      "generatedAt": "2026-04-03T16:29:06+08:00"
+    },
+    {
+      "symbol": "510300",
+      "path": "/data/latest/510300.json",
+      "generatedAt": "2026-04-03T16:29:06+08:00"
+    },
+    {
+      "symbol": "510500",
+      "path": "/data/latest/510500.json",
+      "generatedAt": "2026-04-03T16:29:06+08:00"
+    }
+  ],
+  "failedSymbols": []
+}

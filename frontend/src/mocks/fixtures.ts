@@ -22,8 +22,43 @@ import {
 } from "../ui/positions";
 
 const DEFAULT_GENERATED_AT = "2026-04-05T08:00:00Z";
-const DEFAULT_RISK_FREE_RATE = 0.045;
-const DEFAULT_SPOT = 538.2;
+const DEFAULT_RISK_FREE_RATE = 0.015;
+const MOCK_UNDERLYING_CONFIG: Record<
+  string,
+  {
+    spot: number;
+    currency: string;
+    contractMultiplier: number;
+    expiries: string[];
+    strikes: number[];
+    putSkew: number;
+  }
+> = {
+  "510050": {
+    spot: 2.926,
+    currency: "CNY",
+    contractMultiplier: 10000,
+    expiries: ["2026-04-22", "2026-05-27", "2026-06-24"],
+    strikes: [2.65, 2.7, 2.75, 2.8, 2.85, 2.9, 2.95],
+    putSkew: 0.02,
+  },
+  "510300": {
+    spot: 4.454,
+    currency: "CNY",
+    contractMultiplier: 10000,
+    expiries: ["2026-04-22", "2026-05-27", "2026-06-24"],
+    strikes: [4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7],
+    putSkew: 0.018,
+  },
+  "510500": {
+    spot: 7.603,
+    currency: "CNY",
+    contractMultiplier: 10000,
+    expiries: ["2026-04-22", "2026-05-27", "2026-06-24"],
+    strikes: [7.0, 7.2, 7.4, 7.6, 7.8, 8.0, 8.2],
+    putSkew: 0.022,
+  },
+};
 
 function formatOptionSymbol(
   underlying: string,
@@ -31,6 +66,12 @@ function formatOptionSymbol(
   optionType: OptionRight,
   strike: number
 ) {
+  if (/^\d+$/.test(underlying)) {
+    const yymm = expiry.slice(2, 7).replace("-", "");
+    const right = optionType === "call" ? "C" : "P";
+    const encodedStrike = Math.round(strike * 1000).toString().padStart(5, "0");
+    return `${underlying}${right}${yymm}M${encodedStrike}`;
+  }
   const compactExpiry = expiry.slice(2).replace(/-/g, "");
   const right = optionType === "call" ? "C" : "P";
   const encodedStrike = Math.round(strike * 1000).toString().padStart(8, "0");
@@ -44,7 +85,8 @@ function buildOptionQuote(
   strike: number,
   optionType: OptionRight,
   volatility: number,
-  riskFreeRate: number
+  riskFreeRate: number,
+  contractMultiplier: number,
 ): OptionQuote {
   const generatedAt = DEFAULT_GENERATED_AT;
   const expiryDate = new Date(`${expiry}T20:00:00Z`);
@@ -69,6 +111,7 @@ function buildOptionQuote(
     optionType,
     strike,
     expiry,
+    contractMultiplier,
     bid: Math.max(mid - spread / 2, 0.01),
     ask: Math.max(mid + spread / 2, 0.02),
     last: mid,
@@ -79,18 +122,16 @@ function buildOptionQuote(
 
 export function buildMockSnapshot(symbol: string, provider: string): EnrichedSnapshotFile {
   const normalizedSymbol = symbol.toUpperCase();
-  const spot = normalizedSymbol === "QQQ" ? 471.3 : DEFAULT_SPOT;
-  const expiries = ["2026-04-17", "2026-05-15", "2026-06-19"];
-  const strikes =
-    normalizedSymbol === "QQQ"
-      ? [430, 450, 470, 490, 510]
-      : [500, 525, 540, 560, 580];
+  const config = MOCK_UNDERLYING_CONFIG[normalizedSymbol] ?? MOCK_UNDERLYING_CONFIG["510050"];
+  const spot = config.spot;
+  const expiries = config.expiries;
+  const strikes = config.strikes;
 
   const quotes: OptionQuote[] = [];
   for (const expiry of expiries) {
     for (const strike of strikes) {
       const moneyness = Math.abs(strike - spot) / spot;
-      const volBase = 0.19 + moneyness * 0.35;
+      const volBase = 0.16 + moneyness * 0.3;
       quotes.push(
         buildOptionQuote(
           normalizedSymbol,
@@ -99,7 +140,8 @@ export function buildMockSnapshot(symbol: string, provider: string): EnrichedSna
           strike,
           "call",
           volBase,
-          DEFAULT_RISK_FREE_RATE
+          DEFAULT_RISK_FREE_RATE,
+          config.contractMultiplier,
         )
       );
       quotes.push(
@@ -109,8 +151,9 @@ export function buildMockSnapshot(symbol: string, provider: string): EnrichedSna
           expiry,
           strike,
           "put",
-          volBase + 0.025,
-          DEFAULT_RISK_FREE_RATE
+          volBase + config.putSkew,
+          DEFAULT_RISK_FREE_RATE,
+          config.contractMultiplier,
         )
       );
     }
@@ -123,7 +166,7 @@ export function buildMockSnapshot(symbol: string, provider: string): EnrichedSna
     underlying: {
       symbol: normalizedSymbol,
       spot,
-      currency: "USD",
+      currency: config.currency,
       timestamp: DEFAULT_GENERATED_AT,
     },
     quotes,
@@ -133,6 +176,10 @@ export function buildMockSnapshot(symbol: string, provider: string): EnrichedSna
     ...snapshot,
     quotes: enrichSnapshot(snapshot),
   };
+}
+
+export function buildMockUniverseSnapshots() {
+  return ["510050", "510300", "510500"].map((symbol) => buildMockSnapshot(symbol, "mock"));
 }
 
 export function analyzeMockPortfolio(input: {
@@ -254,16 +301,16 @@ export function buildMockBook(input: {
         symbol,
         underlying: quote.underlying,
         quantity: position.quantity,
-        multiplier: 100,
+        multiplier: quote.contractMultiplier ?? 100,
         markPrice: quote.mid,
         expiry: quote.expiry,
         strike: quote.strike,
         optionType: quote.optionType,
         currency: input.snapshot?.underlying.currency,
-        delta: (quote.delta ?? 0) * position.quantity * 100,
-        gamma: (quote.gamma ?? 0) * position.quantity * 100,
-        vega: (quote.vega ?? 0) * position.quantity * 100,
-        theta: (quote.theta ?? 0) * position.quantity * 100,
+        delta: (quote.delta ?? 0) * position.quantity * (quote.contractMultiplier ?? 100),
+        gamma: (quote.gamma ?? 0) * position.quantity * (quote.contractMultiplier ?? 100),
+        vega: (quote.vega ?? 0) * position.quantity * (quote.contractMultiplier ?? 100),
+        theta: (quote.theta ?? 0) * position.quantity * (quote.contractMultiplier ?? 100),
         beta: quote.delta ?? 0,
       };
     }
@@ -335,8 +382,10 @@ export function buildMockRiskMap(book: BookSnapshot): RiskMap {
     },
   );
 
+  const referenceSpot =
+    book.positions.find((position) => position.instrumentType === "equity")?.markPrice ?? 3;
   exposure.beta =
-    exposure.grossExposure === 0 ? 0 : (exposure.delta * DEFAULT_SPOT) / exposure.grossExposure;
+    exposure.grossExposure === 0 ? 0 : (exposure.delta * referenceSpot) / exposure.grossExposure;
 
   const symbolBuckets = Array.from(
     new Set(book.positions.map((position) => position.underlying ?? position.symbol)),

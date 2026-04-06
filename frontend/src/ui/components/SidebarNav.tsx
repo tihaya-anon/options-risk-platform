@@ -8,18 +8,29 @@ export interface SidebarNavItem {
 export interface SidebarNavGroup {
   title: string;
   items: SidebarNavItem[];
+  tone?: "default" | "muted";
 }
 
-export function SidebarNav({ groups }: { groups: SidebarNavGroup[] }) {
+export function SidebarNav({
+  groups,
+  kicker,
+}: {
+  groups: SidebarNavGroup[];
+  kicker: string;
+}) {
   return (
     <aside className="sidebar card">
       <div className="sidebar-inner custom-scrollbar">
-        <div className="sidebar-head">
-          <span className="sidebar-kicker">Options Risk</span>
-          <strong className="sidebar-title">Workbench</strong>
-        </div>
+        {kicker && (
+          <div className="sidebar-head">
+            <span className="sidebar-kicker">{kicker}</span>
+          </div>
+        )}
         {groups.map((group) => (
-          <div key={group.title} className="sidebar-group">
+          <div
+            key={group.title}
+            className={`sidebar-group${group.tone === "muted" ? " muted" : ""}`}
+          >
             <span className="sidebar-group-title">{group.title}</span>
             <nav className="sidebar-nav" aria-label={group.title}>
               {group.items.map((item) => (

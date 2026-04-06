@@ -3,6 +3,10 @@ import type { EnrichedOptionQuote, OptionSnapshotFile } from "../types";
 
 const OPTION_CONTRACT_MULTIPLIER = 100;
 
+function getContractMultiplier(multiplier?: number) {
+  return multiplier && Number.isFinite(multiplier) ? multiplier : OPTION_CONTRACT_MULTIPLIER;
+}
+
 export interface ImportedPosition {
   symbol: string;
   quantity: number;
@@ -111,7 +115,7 @@ export function aggregatePortfolioExposure(
       continue;
     }
 
-    const contractScale = position.quantity * OPTION_CONTRACT_MULTIPLIER;
+    const contractScale = position.quantity * getContractMultiplier(quote.contractMultiplier);
     netDelta += (quote.delta ?? 0) * contractScale;
     netGamma += (quote.gamma ?? 0) * contractScale;
     netVega += (quote.vega ?? 0) * contractScale;
@@ -162,7 +166,7 @@ export function calculatePortfolioScenario(
         quote.impliedVol,
         quote.optionType
       );
-      portfolioValue += position.quantity * OPTION_CONTRACT_MULTIPLIER * price;
+      portfolioValue += position.quantity * getContractMultiplier(quote.contractMultiplier) * price;
     }
 
     return {
@@ -208,7 +212,8 @@ export function calculatePortfolioVolScenario(
         quote.optionType
       );
 
-      portfolioValue += position.quantity * OPTION_CONTRACT_MULTIPLIER * shockedPrice;
+      portfolioValue +=
+        position.quantity * getContractMultiplier(quote.contractMultiplier) * shockedPrice;
     }
 
     return {
@@ -256,7 +261,8 @@ export function calculatePortfolioTimeScenario(
         quote.optionType
       );
 
-      portfolioValue += position.quantity * OPTION_CONTRACT_MULTIPLIER * shockedPrice;
+      portfolioValue +=
+        position.quantity * getContractMultiplier(quote.contractMultiplier) * shockedPrice;
     }
 
     return {
@@ -335,7 +341,7 @@ export function calculateGroupedExposures(
       continue;
     }
 
-    const contractScale = position.quantity * OPTION_CONTRACT_MULTIPLIER;
+    const contractScale = position.quantity * getContractMultiplier(quote.contractMultiplier);
     existing.marketValue += quote.mid * contractScale;
     existing.netDelta += (quote.delta ?? 0) * contractScale;
     existing.netGamma += (quote.gamma ?? 0) * contractScale;

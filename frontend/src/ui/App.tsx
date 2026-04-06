@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { getChartTheme } from "./chartTheme";
 import {
   paletteTokens,
@@ -18,27 +18,34 @@ import { useSnapshot } from "./hooks/useSnapshot";
 import { usePortfolioAnalysis } from "./hooks/usePortfolioAnalysis";
 import { useConnectionHealth } from "./hooks/useConnectionHealth";
 import { useRuntimeConfig } from "./hooks/useRuntimeConfig";
+import { useStaticDatasetInfo } from "./hooks/useStaticDatasetInfo";
 import { ChainSection } from "./components/ChainSection";
 import { CurrentBookSection } from "./components/CurrentBookSection";
-import { GreeksSummarySection } from "./components/GreeksSummarySection";
+import { DataWorkspaceSection } from "./components/DataWorkspaceSection";
+import { HedgeDecisionSection } from "./components/HedgeDecisionSection";
 import { HedgeLabSection } from "./components/HedgeLabSection";
 import { HeroSection } from "./components/HeroSection";
+import { InstrumentWorkbenchSection } from "./components/InstrumentWorkbenchSection";
 import { OptionRiskProfileSection } from "./components/OptionRiskProfileSection";
 import { OverviewSection } from "./components/OverviewSection";
 import { PortfolioPositionsSection } from "./components/PortfolioPositionsSection";
+import { RiskControlSection } from "./components/RiskControlSection";
 import { RiskMapSection } from "./components/RiskMapSection";
 import { SettingsSection } from "./components/SettingsSection";
 import { SidebarNav } from "./components/SidebarNav";
+import type { SidebarNavGroup } from "./components/SidebarNav";
 import { StatusPanel } from "./components/StatusPanel";
 import { StrategyCompareSection } from "./components/StrategyCompareSection";
 import type { FrontendSettings, GroupByMode } from "../types";
+import type { HedgeUniverse } from "../api/generated/model/hedgeUniverse";
 import { useBookSnapshot } from "./hooks/useBookSnapshot";
 import { useHedgeLab } from "./hooks/useHedgeLab";
 import { useRiskMap } from "./hooks/useRiskMap";
 import { useStrategyComparison } from "./hooks/useStrategyComparison";
+import { isStaticDemoMode } from "../lib/staticWorkbench";
 
 const DEFAULT_POSITIONS_INPUT =
-  "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1";
+  "510050,20000\n510300,10000\n510500,5000\n510050C2604M02800,-2\n510050P2604M02800,3\n510300P2604M04400,2";
 
 const LazyGroupedExposureSection = lazy(() =>
   import("./components/GroupedExposureSection").then((module) => ({
@@ -77,16 +84,60 @@ function ChartSectionFallback() {
 
 export function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [language, setLanguage] = useState<Language>(detectLanguage);
   const [themeMode, setThemeMode] = useState<ThemeMode>(detectTheme);
   const [palette, setPalette] = useState<Palette>(detectPalette);
   const [groupByMode, setGroupByMode] = useState<GroupByMode>("full");
   const [hedgeTarget, setHedgeTarget] = useState("neutralize-delta");
+  const [hedgeUniverse, setHedgeUniverse] = useState<HedgeUniverse>("futuresAndOptions");
+  const [chainViewMode, setChainViewMode] = useState<"cards" | "table">(
+    () => (localStorage.getItem("orp_chain_view") as "cards" | "table") ?? "cards",
+  );
+  const [chainCardSortKey, setChainCardSortKey] = useState<
+    "expiry" | "strike" | "iv" | "oi" | "mid" | "delta" | "gamma" | "vega" | "theta" | "optionType"
+  >(
+    () =>
+      (localStorage.getItem("orp_chain_card_sort_key") as
+        | "expiry"
+        | "strike"
+        | "iv"
+        | "oi"
+        | "mid"
+        | "delta"
+        | "gamma"
+        | "vega"
+        | "theta"
+        | "optionType") ?? "expiry",
+  );
+  const [chainCardSortDirection, setChainCardSortDirection] = useState<"asc" | "desc">(
+    () => (localStorage.getItem("orp_chain_card_sort_direction") as "asc" | "desc") ?? "asc",
+  );
+  const [chainTableSortKey, setChainTableSortKey] = useState<
+    "expiry" | "strike" | "iv" | "oi" | "mid" | "delta" | "gamma" | "vega" | "theta" | "optionType"
+  >(() =>
+    (localStorage.getItem("orp_chain_table_sort_key") as
+      | "expiry"
+      | "strike"
+      | "iv"
+      | "oi"
+      | "mid"
+      | "delta"
+      | "gamma"
+      | "vega"
+      | "theta"
+      | "optionType") ?? "expiry",
+  );
+  const [chainTableSortDirection, setChainTableSortDirection] = useState<"asc" | "desc">(
+    () => (localStorage.getItem("orp_chain_table_sort_direction") as "asc" | "desc") ?? "asc",
+  );
   const [settings, setSettings] = useState<FrontendSettings>(detectFrontendSettings);
   const [positionsInput, setPositionsInput] =
     useState<string>(DEFAULT_POSITIONS_INPUT);
-  const [selectedContractSymbol, setSelectedContractSymbol] = useState("");
-  const surfaceUnderlying = settings.focusUnderlying.trim() || "SPY";
+  const [selectedContractSymbol, setSelectedContractSymbol] = useState(
+    () => localStorage.getItem("orp_selected_contract_symbol") ?? "",
+  );
+  const surfaceUnderlying = settings.focusUnderlying.trim();
   const { snapshot, error: snapshotError } = useSnapshot(
     surfaceUnderlying,
     settings.provider,
@@ -107,6 +158,26 @@ export function App() {
   }, [palette]);
 
   useEffect(() => {
+    localStorage.setItem("orp_chain_view", chainViewMode);
+  }, [chainViewMode]);
+
+  useEffect(() => {
+    localStorage.setItem("orp_chain_card_sort_key", chainCardSortKey);
+    localStorage.setItem("orp_chain_card_sort_direction", chainCardSortDirection);
+    localStorage.setItem("orp_chain_table_sort_key", chainTableSortKey);
+    localStorage.setItem("orp_chain_table_sort_direction", chainTableSortDirection);
+  }, [
+    chainCardSortDirection,
+    chainCardSortKey,
+    chainTableSortDirection,
+    chainTableSortKey,
+  ]);
+
+  useEffect(() => {
+    localStorage.setItem("orp_selected_contract_symbol", selectedContractSymbol);
+  }, [selectedContractSymbol]);
+
+  useEffect(() => {
     localStorage.setItem("orp_api_base_url", settings.apiBaseUrl);
     localStorage.setItem("orp_focus_underlying", settings.focusUnderlying);
     localStorage.setItem("orp_provider", settings.provider);
@@ -119,7 +190,14 @@ export function App() {
   };
 
   const t = useMemo(() => createTranslator(language), [language]);
+  const isStaticMode = isStaticDemoMode(settings.apiBaseUrl);
   const runtimeConfig = useRuntimeConfig(settings.apiBaseUrl);
+  const staticDatasetInfo = useStaticDatasetInfo(settings.apiBaseUrl);
+  const surfaceContextUnderlying =
+    settings.focusUnderlying.trim() ||
+    staticDatasetInfo?.defaultSymbol ||
+    snapshot?.underlying.symbol ||
+    "";
   const {
     health,
     error: healthError,
@@ -128,7 +206,7 @@ export function App() {
   } = useConnectionHealth(settings.apiBaseUrl);
   const { book, error: bookError } = useBookSnapshot({
     positionsInput,
-    defaultSymbol: settings.focusUnderlying.trim() || undefined,
+    defaultSymbol: surfaceContextUnderlying || undefined,
     snapshot,
     apiBaseUrl: settings.apiBaseUrl,
   });
@@ -140,6 +218,7 @@ export function App() {
     book,
     apiBaseUrl: settings.apiBaseUrl,
     target: hedgeTarget,
+    hedgeUniverse,
   });
   const { comparison, error: comparisonError } = useStrategyComparison({
     hedgeLab,
@@ -167,6 +246,10 @@ export function App() {
   const portfolioVolScenario = analysis?.volScenarios ?? [];
   const portfolioTimeScenario = analysis?.timeScenarios ?? [];
   const groupedExposures = analysis?.groupedExposures ?? [];
+  const routeParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const selectedBucket = routeParams.get("bucket") ?? "";
+  const selectedProposalId = routeParams.get("proposal") ?? "";
+  const routeSymbol = routeParams.get("symbol") ?? "";
 
   useEffect(() => {
     if (!selectedContractSymbol) {
@@ -176,6 +259,12 @@ export function App() {
       }
     }
   }, [enrichedQuotes, selectedContractSymbol]);
+
+  useEffect(() => {
+    if (routeSymbol && routeSymbol !== selectedContractSymbol) {
+      setSelectedContractSymbol(routeSymbol);
+    }
+  }, [routeSymbol, selectedContractSymbol]);
 
   const paletteColors = paletteTokens[palette];
   const chartTheme = useMemo(() => getChartTheme(themeMode), [themeMode]);
@@ -187,22 +276,20 @@ export function App() {
     hedgeLabError ??
     comparisonError ??
     (snapshot ? null : t("loading"));
-  const navGroups = useMemo(
+  const navGroups = useMemo<SidebarNavGroup[]>(
     () => [
       {
-        title: t("navBook"),
+        title: t("navDashboard"),
         items: [
-          { path: "/overview", label: t("overviewTitle") },
+          { path: "/dashboard", label: t("overviewTitle") },
           { path: "/current-book", label: t("currentBookTitle") },
-          { path: "/positions", label: t("positionsTitle") },
-          { path: "/settings", label: t("settingsTitle") },
         ],
       },
       {
         title: t("navRisk"),
         items: [
+          { path: "/risks", label: t("riskControlTitle") },
           { path: "/risk-map", label: t("riskMapTitle") },
-          { path: "/greeks-summary", label: t("greeksSummaryTitle") },
           { path: "/grouped-exposure", label: t("groupedExposureTitle") },
           { path: "/spot-scenario", label: t("scenarioTitle") },
           { path: "/vol-scenario", label: t("volScenarioTitle") },
@@ -212,17 +299,28 @@ export function App() {
       {
         title: t("navHedge"),
         items: [
+          { path: "/hedges", label: t("hedgeDecisionTitle") },
           { path: "/hedge-lab", label: t("hedgeLabTitle") },
           { path: "/strategy-compare", label: t("strategyCompareTitle") },
         ],
       },
       {
-        title: t("navSurface"),
+        title: t("navInstruments"),
         items: [
-          { path: "/term-structure", label: t("termTitle") },
-          { path: "/skew", label: t("skewTitle") },
+          { path: "/instruments", label: t("instrumentWorkbenchTitle") },
           { path: "/option-risk-profile", label: t("optionRiskProfileTitle") },
           { path: "/chain", label: t("chainTitle") },
+          { path: "/term-structure", label: t("termTitle") },
+          { path: "/skew", label: t("skewTitle") },
+        ],
+      },
+      {
+        title: t("navData"),
+        tone: "muted",
+        items: [
+          { path: "/data", label: t("dataWorkspaceTitle") },
+          { path: "/positions", label: t("positionsTitle") },
+          { path: "/settings", label: t("settingsTitle") },
         ],
       },
     ],
@@ -231,7 +329,10 @@ export function App() {
 
   return (
     <div className="page-shell dashboard-layout">
-      <SidebarNav groups={navGroups} />
+      <SidebarNav
+        groups={navGroups}
+        kicker=""
+      />
 
       <main className="dashboard-content">
         <div className="dashboard-header">
@@ -240,6 +341,7 @@ export function App() {
             themeMode={themeMode}
             palette={palette}
             accentColor={paletteColors.accent}
+            title={t("controlTowerTitle")}
             t={t}
             onLanguageChange={setLanguage}
             onThemeChange={setThemeMode}
@@ -249,14 +351,40 @@ export function App() {
 
         <div className="dashboard-main custom-scrollbar">
           <Routes>
-            <Route path="/" element={<Navigate to="/overview" replace />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/overview" element={<Navigate to="/dashboard" replace />} />
             <Route
               path="/current-book"
               element={<CurrentBookSection book={book} t={t} />}
             />
             <Route
+              path="/risks"
+              element={
+                <RiskControlSection
+                  riskMap={riskMap}
+                  groupedExposures={groupedExposures}
+                  spotScenarios={portfolioScenario}
+                  volScenarios={portfolioVolScenario}
+                  timeScenarios={portfolioTimeScenario}
+                  language={language}
+                  t={t}
+                />
+              }
+            />
+            <Route
               path="/risk-map"
-              element={<RiskMapSection riskMap={riskMap} t={t} />}
+              element={<RiskMapSection riskMap={riskMap} language={language} t={t} />}
+            />
+            <Route
+              path="/hedges"
+              element={
+                <HedgeDecisionSection
+                  hedgeLab={hedgeLab}
+                  comparison={comparison}
+                  language={language}
+                  t={t}
+                />
+              }
             />
             <Route
               path="/hedge-lab"
@@ -264,14 +392,33 @@ export function App() {
                 <HedgeLabSection
                   hedgeLab={hedgeLab}
                   hedgeTarget={hedgeTarget}
+                  hedgeUniverse={hedgeUniverse}
                   t={t}
                   onTargetChange={setHedgeTarget}
+                  onUniverseChange={setHedgeUniverse}
                 />
               }
             />
             <Route
               path="/strategy-compare"
-              element={<StrategyCompareSection comparison={comparison} t={t} />}
+              element={
+                <StrategyCompareSection
+                  comparison={comparison}
+                  selectedProposalId={selectedProposalId}
+                  t={t}
+                />
+              }
+            />
+            <Route
+              path="/instruments"
+              element={
+                <InstrumentWorkbenchSection
+                  rows={enrichedQuotes}
+                  focusUnderlying={surfaceContextUnderlying}
+                  selectedSymbol={selectedContractSymbol}
+                  t={t}
+                />
+              }
             />
             <Route
               path="/option-risk-profile"
@@ -287,6 +434,21 @@ export function App() {
               }
             />
             <Route
+              path="/data"
+              element={
+                <DataWorkspaceSection
+                  isStaticMode={isStaticMode}
+                  staticDataset={staticDatasetInfo}
+                  settings={settings}
+                  connectionStatus={health && !healthError ? "connected" : "degraded"}
+                  positionsCount={parsedPositions?.positions.length ?? 0}
+                  parseErrorCount={parsedPositions?.errors.length ?? 0}
+                  unmatchedCount={portfolioExposure.unmatchedSymbols.length}
+                  t={t}
+                />
+              }
+            />
+            <Route
               path="/settings"
               element={
                 <SettingsSection
@@ -298,6 +460,8 @@ export function App() {
                   connectionProvider={health?.provider ?? settings.provider}
                   connectionError={healthError}
                   isConnectionChecking={isConnectionChecking}
+                  isStaticMode={isStaticMode}
+                  staticDataset={staticDatasetInfo}
                   t={t}
                   onSettingsChange={setSettings}
                   onSave={() => setSettings({ ...settings })}
@@ -306,7 +470,7 @@ export function App() {
               }
             />
             <Route
-              path="/overview"
+              path="/dashboard"
               element={
                 !snapshot ? (
                   <StatusPanel
@@ -321,6 +485,10 @@ export function App() {
                     timeScenarios={portfolioTimeScenario}
                     volScenarios={portfolioVolScenario}
                     groupedExposures={groupedExposures}
+                    riskMap={riskMap}
+                    hedgeLab={hedgeLab}
+                    focusUnderlying={surfaceContextUnderlying}
+                    language={language}
                     t={t}
                   />
                 )
@@ -389,21 +557,12 @@ export function App() {
                   <LazyGroupedExposureSection
                     groups={groupedExposures}
                     groupByMode={groupByMode}
+                    selectedBucket={selectedBucket}
                     t={t}
                     chartTheme={chartTheme}
                     onGroupByModeChange={setGroupByMode}
                   />
                 </Suspense>
-              }
-            />
-            <Route
-              path="/greeks-summary"
-              element={
-                <GreeksSummarySection
-                  summary={riskSummary}
-                  palette={paletteColors}
-                  t={t}
-                />
               }
             />
             <Route
@@ -441,7 +600,18 @@ export function App() {
                   rows={enrichedQuotes}
                   upColor={paletteColors.up}
                   downColor={paletteColors.down}
+                  selectedSymbol={selectedContractSymbol}
+                  viewMode={chainViewMode}
+                  cardSortKey={chainCardSortKey}
+                  cardSortDirection={chainCardSortDirection}
+                  tableSortKey={chainTableSortKey}
+                  tableSortDirection={chainTableSortDirection}
                   t={t}
+                  onViewModeChange={setChainViewMode}
+                  onCardSortKeyChange={setChainCardSortKey}
+                  onCardSortDirectionChange={setChainCardSortDirection}
+                  onTableSortKeyChange={setChainTableSortKey}
+                  onTableSortDirectionChange={setChainTableSortDirection}
                   onSelectSymbol={(symbol) => {
                     setSelectedContractSymbol(symbol);
                     navigate("/option-risk-profile");

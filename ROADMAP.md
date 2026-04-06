@@ -20,6 +20,20 @@
 4. `Strategy Compare`
 5. `Surface / Option Risk Profile`
 
+## 当前产品策略
+
+当前优先级已经调整为：
+
+1. 先做 `pure frontend + GitHub Actions daily snapshots` 的可用宣传版
+2. 再做 `optional backend live mode` 作为增强能力
+
+这意味着：
+
+- 默认体验应当不依赖在线后端
+- 用户持仓导入与解析应尽量在前端完成
+- 组合风险聚合优先基于每日快照中预计算好的 Greeks 做线性叠加
+- 后端主要承担实时抓取、重计算、更高精度模型和未来 LLM / copilot 能力
+
 ## 当前状态
 
 - [x] 前后端分离架构
@@ -40,6 +54,32 @@
 - [x] `Option Risk Profile` 分层筛选
 
 ## 近期功能
+
+### Static Daily Demo
+
+- [ ] 新增 `daily snapshot pipeline`
+  - [ ] 通过 GitHub Actions 每日抓取 top universe
+  - [ ] 产出 `latest manifest`
+  - [ ] 按 symbol 产出静态 snapshot JSON
+
+- [ ] 在 daily pipeline 中预计算 Greeks
+  - [ ] delta
+  - [ ] gamma
+  - [ ] vega
+  - [ ] theta
+
+- [ ] 前端本地完成持仓簿解析
+  - [ ] CSV / 文本导入
+  - [ ] instrument normalization
+  - [ ] 合约匹配与 unmatched 提示
+
+- [ ] 前端基于静态快照做组合风险计算
+  - [ ] 通过已知 Greeks 做线性叠加
+  - [ ] 生成 current book / risk map / hedge lab / strategy compare 所需结果
+
+- [ ] 页面明确展示数据时效
+  - [ ] `as of previous close`
+  - [ ] delayed data disclaimer
 
 ### Provider Connection
 
@@ -121,7 +161,7 @@
 
 ### 下一步
 
-- [ ] 让 `book/parse` 支持更明确的 instrument type 输入格式
+- [ ] 让前端 `book parse` 支持更明确的 instrument type 输入格式
 - [ ] 让 `risk-map` 输出更丰富的 concentration / factor 风险摘要
 - [x] 让 `hedge-lab` 输出更丰富的 rationale 字段
 - [x] 让 `strategy-compare` 输出 explanation 字段
@@ -207,13 +247,14 @@
 
 ## 推荐实现顺序
 
-- [x] 1. `provider-aware connection test`
-- [x] 2. `hedge universe controls`
-- [x] 3. `strategy compare explanation layer`
+- [ ] 1. `daily snapshot pipeline + manifest`
+- [ ] 2. 前端本地 `book parse + matching`
+- [ ] 3. 前端基于预计算 Greeks 做组合聚合
 - [ ] 4. `option risk profile` 更真实的场景分析
-- [ ] 5. 全局 page context 基础设施
-- [ ] 6. LLM 悬浮球 UI
-- [ ] 7. 真实 LLM 接入
+- [ ] 5. `optional backend live mode` 收敛职责边界
+- [ ] 6. 全局 page context 基础设施
+- [ ] 7. LLM 悬浮球 UI
+- [ ] 8. 真实 LLM 接入
 
 ## 当前前端进展摘要
 
@@ -228,6 +269,8 @@
 - [ ] broker execution / 下单路由
 - [ ] 实时流式行情
 - [ ] 复杂期权策略编辑器
+- [ ] 让宣传版依赖在线后端
+- [ ] 让用户持仓在宣传版中上传到服务端
 - [ ] 超出以下范围的广义多资产支持：
   - [ ] equities
   - [ ] futures overlays

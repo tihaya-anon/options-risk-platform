@@ -34,7 +34,8 @@ export function PortfolioPositionsSection({
   return (
     <PanelSection
       title={t("positionsTitle")}
-      description={t("positionsDesc")}
+      description={t("dataWorkspaceDesc")}
+      className="data-panel"
       bodyClassName="positions-panel-content"
     >
       <div className="positions-layout">
