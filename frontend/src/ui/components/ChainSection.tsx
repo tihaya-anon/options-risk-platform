@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { EnrichedOptionQuote } from "../../types";
 import type { I18nKey } from "../i18n";
 import { PanelSection } from "./PanelSection";
@@ -76,21 +75,37 @@ export function ChainSection({
   rows,
   upColor,
   downColor,
+  selectedSymbol,
+  viewMode,
+  cardSortKey,
+  cardSortDirection,
+  tableSortKey,
+  tableSortDirection,
   t,
+  onViewModeChange,
+  onCardSortKeyChange,
+  onCardSortDirectionChange,
+  onTableSortKeyChange,
+  onTableSortDirectionChange,
   onSelectSymbol,
 }: {
   rows: EnrichedOptionQuote[];
   upColor: string;
   downColor: string;
+  selectedSymbol: string;
+  viewMode: "cards" | "table";
+  cardSortKey: ChainSortKey;
+  cardSortDirection: SortDirection;
+  tableSortKey: ChainSortKey;
+  tableSortDirection: SortDirection;
   t: (key: I18nKey) => string;
+  onViewModeChange: (value: "cards" | "table") => void;
+  onCardSortKeyChange: (value: ChainSortKey) => void;
+  onCardSortDirectionChange: (value: SortDirection) => void;
+  onTableSortKeyChange: (value: ChainSortKey) => void;
+  onTableSortDirectionChange: (value: SortDirection) => void;
   onSelectSymbol?: (symbol: string) => void;
 }) {
-  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
-  const [cardSortKey, setCardSortKey] = useState<ChainSortKey>("expiry");
-  const [cardSortDirection, setCardSortDirection] = useState<SortDirection>("asc");
-  const [tableSortKey, setTableSortKey] = useState<ChainSortKey>("expiry");
-  const [tableSortDirection, setTableSortDirection] = useState<SortDirection>("asc");
-
   const sortedRows = rows
     .slice()
     .sort((left, right) => compareRows(left, right, cardSortKey, cardSortDirection));
@@ -111,10 +126,10 @@ export function ChainSection({
       className="table-sort-button"
       onClick={() => {
         if (tableSortKey === key) {
-          setTableSortDirection((value) => (value === "asc" ? "desc" : "asc"));
+          onTableSortDirectionChange(tableSortDirection === "asc" ? "desc" : "asc");
         } else {
-          setTableSortKey(key);
-          setTableSortDirection("asc");
+          onTableSortKeyChange(key);
+          onTableSortDirectionChange("asc");
         }
       }}
     >
@@ -135,7 +150,7 @@ export function ChainSection({
             <span>{t("chainView")}</span>
             <SelectField
               value={viewMode}
-              onChange={(value: "cards" | "table") => setViewMode(value)}
+              onChange={onViewModeChange}
               options={[
                 { value: "cards", label: t("chainViewCards") },
                 { value: "table", label: t("chainViewTable") },
@@ -148,7 +163,7 @@ export function ChainSection({
                 <span>{t("sortBy")}</span>
                 <SelectField
                   value={cardSortKey}
-                  onChange={(value: ChainSortKey) => setCardSortKey(value)}
+                  onChange={onCardSortKeyChange}
                   options={cardSortOptions}
                 />
               </label>
@@ -156,7 +171,7 @@ export function ChainSection({
                 <span>{t("groupBy")}</span>
                 <SelectField
                   value={cardSortDirection}
-                  onChange={(value: SortDirection) => setCardSortDirection(value)}
+                  onChange={onCardSortDirectionChange}
                   options={[
                     { value: "asc", label: t("sortAscending") },
                     { value: "desc", label: t("sortDescending") },
@@ -176,6 +191,7 @@ export function ChainSection({
               row={row}
               t={t}
               accentColor={row.optionType === "call" ? upColor : downColor}
+              isSelected={row.symbol === selectedSymbol}
               onSelect={onSelectSymbol}
             />
           ))}
@@ -200,7 +216,7 @@ export function ChainSection({
               {tableRows.map((row) => (
                 <tr
                   key={row.symbol}
-                  className="chain-row-clickable"
+                  className={`chain-row-clickable${row.symbol === selectedSymbol ? " is-selected" : ""}`}
                   onClick={() => onSelectSymbol?.(row.symbol)}
                 >
                   <td>{row.optionType === "call" ? t("call") : t("put")}</td>

@@ -21,14 +21,18 @@ import { useRuntimeConfig } from "./hooks/useRuntimeConfig";
 import { ChainSection } from "./components/ChainSection";
 import { CurrentBookSection } from "./components/CurrentBookSection";
 import { GreeksSummarySection } from "./components/GreeksSummarySection";
+import { HedgeDecisionSection } from "./components/HedgeDecisionSection";
 import { HedgeLabSection } from "./components/HedgeLabSection";
 import { HeroSection } from "./components/HeroSection";
+import { InstrumentWorkbenchSection } from "./components/InstrumentWorkbenchSection";
 import { OptionRiskProfileSection } from "./components/OptionRiskProfileSection";
 import { OverviewSection } from "./components/OverviewSection";
 import { PortfolioPositionsSection } from "./components/PortfolioPositionsSection";
+import { RiskControlSection } from "./components/RiskControlSection";
 import { RiskMapSection } from "./components/RiskMapSection";
 import { SettingsSection } from "./components/SettingsSection";
 import { SidebarNav } from "./components/SidebarNav";
+import type { SidebarNavGroup } from "./components/SidebarNav";
 import { StatusPanel } from "./components/StatusPanel";
 import { StrategyCompareSection } from "./components/StrategyCompareSection";
 import type { FrontendSettings, GroupByMode } from "../types";
@@ -84,10 +88,52 @@ export function App() {
   const [groupByMode, setGroupByMode] = useState<GroupByMode>("full");
   const [hedgeTarget, setHedgeTarget] = useState("neutralize-delta");
   const [hedgeUniverse, setHedgeUniverse] = useState<HedgeUniverse>("futuresAndOptions");
+  const [chainViewMode, setChainViewMode] = useState<"cards" | "table">(
+    () => (localStorage.getItem("orp_chain_view") as "cards" | "table") ?? "cards",
+  );
+  const [chainCardSortKey, setChainCardSortKey] = useState<
+    "expiry" | "strike" | "iv" | "oi" | "mid" | "delta" | "gamma" | "vega" | "theta" | "optionType"
+  >(
+    () =>
+      (localStorage.getItem("orp_chain_card_sort_key") as
+        | "expiry"
+        | "strike"
+        | "iv"
+        | "oi"
+        | "mid"
+        | "delta"
+        | "gamma"
+        | "vega"
+        | "theta"
+        | "optionType") ?? "expiry",
+  );
+  const [chainCardSortDirection, setChainCardSortDirection] = useState<"asc" | "desc">(
+    () => (localStorage.getItem("orp_chain_card_sort_direction") as "asc" | "desc") ?? "asc",
+  );
+  const [chainTableSortKey, setChainTableSortKey] = useState<
+    "expiry" | "strike" | "iv" | "oi" | "mid" | "delta" | "gamma" | "vega" | "theta" | "optionType"
+  >(() =>
+    (localStorage.getItem("orp_chain_table_sort_key") as
+      | "expiry"
+      | "strike"
+      | "iv"
+      | "oi"
+      | "mid"
+      | "delta"
+      | "gamma"
+      | "vega"
+      | "theta"
+      | "optionType") ?? "expiry",
+  );
+  const [chainTableSortDirection, setChainTableSortDirection] = useState<"asc" | "desc">(
+    () => (localStorage.getItem("orp_chain_table_sort_direction") as "asc" | "desc") ?? "asc",
+  );
   const [settings, setSettings] = useState<FrontendSettings>(detectFrontendSettings);
   const [positionsInput, setPositionsInput] =
     useState<string>(DEFAULT_POSITIONS_INPUT);
-  const [selectedContractSymbol, setSelectedContractSymbol] = useState("");
+  const [selectedContractSymbol, setSelectedContractSymbol] = useState(
+    () => localStorage.getItem("orp_selected_contract_symbol") ?? "",
+  );
   const surfaceUnderlying = settings.focusUnderlying.trim() || "SPY";
   const { snapshot, error: snapshotError } = useSnapshot(
     surfaceUnderlying,
@@ -107,6 +153,26 @@ export function App() {
   useEffect(() => {
     localStorage.setItem("orp_palette", palette);
   }, [palette]);
+
+  useEffect(() => {
+    localStorage.setItem("orp_chain_view", chainViewMode);
+  }, [chainViewMode]);
+
+  useEffect(() => {
+    localStorage.setItem("orp_chain_card_sort_key", chainCardSortKey);
+    localStorage.setItem("orp_chain_card_sort_direction", chainCardSortDirection);
+    localStorage.setItem("orp_chain_table_sort_key", chainTableSortKey);
+    localStorage.setItem("orp_chain_table_sort_direction", chainTableSortDirection);
+  }, [
+    chainCardSortDirection,
+    chainCardSortKey,
+    chainTableSortDirection,
+    chainTableSortKey,
+  ]);
+
+  useEffect(() => {
+    localStorage.setItem("orp_selected_contract_symbol", selectedContractSymbol);
+  }, [selectedContractSymbol]);
 
   useEffect(() => {
     localStorage.setItem("orp_api_base_url", settings.apiBaseUrl);
@@ -190,7 +256,7 @@ export function App() {
     hedgeLabError ??
     comparisonError ??
     (snapshot ? null : t("loading"));
-  const navGroups = useMemo(
+  const navGroups = useMemo<SidebarNavGroup[]>(
     () => [
       {
         title: t("navDashboard"),
@@ -202,9 +268,10 @@ export function App() {
       {
         title: t("navRisk"),
         items: [
+          { path: "/risks", label: t("riskControlTitle") },
           { path: "/risk-map", label: t("riskMapTitle") },
-          { path: "/greeks-summary", label: t("greeksSummaryTitle") },
           { path: "/grouped-exposure", label: t("groupedExposureTitle") },
+          { path: "/greeks-summary", label: t("greeksSummaryTitle") },
           { path: "/spot-scenario", label: t("scenarioTitle") },
           { path: "/vol-scenario", label: t("volScenarioTitle") },
           { path: "/time-scenario", label: t("timeScenarioTitle") },
@@ -213,6 +280,7 @@ export function App() {
       {
         title: t("navHedge"),
         items: [
+          { path: "/hedges", label: t("hedgeDecisionTitle") },
           { path: "/hedge-lab", label: t("hedgeLabTitle") },
           { path: "/strategy-compare", label: t("strategyCompareTitle") },
         ],
@@ -220,6 +288,7 @@ export function App() {
       {
         title: t("navInstruments"),
         items: [
+          { path: "/instruments", label: t("instrumentWorkbenchTitle") },
           { path: "/option-risk-profile", label: t("optionRiskProfileTitle") },
           { path: "/chain", label: t("chainTitle") },
           { path: "/term-structure", label: t("termTitle") },
@@ -228,6 +297,7 @@ export function App() {
       },
       {
         title: t("navData"),
+        tone: "muted",
         items: [
           { path: "/positions", label: t("positionsTitle") },
           { path: "/settings", label: t("settingsTitle") },
@@ -269,8 +339,31 @@ export function App() {
               element={<CurrentBookSection book={book} t={t} />}
             />
             <Route
+              path="/risks"
+              element={
+                <RiskControlSection
+                  riskMap={riskMap}
+                  groupedExposures={groupedExposures}
+                  spotScenarios={portfolioScenario}
+                  volScenarios={portfolioVolScenario}
+                  timeScenarios={portfolioTimeScenario}
+                  t={t}
+                />
+              }
+            />
+            <Route
               path="/risk-map"
               element={<RiskMapSection riskMap={riskMap} t={t} />}
+            />
+            <Route
+              path="/hedges"
+              element={
+                <HedgeDecisionSection
+                  hedgeLab={hedgeLab}
+                  comparison={comparison}
+                  t={t}
+                />
+              }
             />
             <Route
               path="/hedge-lab"
@@ -288,6 +381,17 @@ export function App() {
             <Route
               path="/strategy-compare"
               element={<StrategyCompareSection comparison={comparison} t={t} />}
+            />
+            <Route
+              path="/instruments"
+              element={
+                <InstrumentWorkbenchSection
+                  rows={enrichedQuotes}
+                  focusUnderlying={settings.focusUnderlying.trim() || snapshot?.underlying.symbol || ""}
+                  selectedSymbol={selectedContractSymbol}
+                  t={t}
+                />
+              }
             />
             <Route
               path="/option-risk-profile"
@@ -460,7 +564,18 @@ export function App() {
                   rows={enrichedQuotes}
                   upColor={paletteColors.up}
                   downColor={paletteColors.down}
+                  selectedSymbol={selectedContractSymbol}
+                  viewMode={chainViewMode}
+                  cardSortKey={chainCardSortKey}
+                  cardSortDirection={chainCardSortDirection}
+                  tableSortKey={chainTableSortKey}
+                  tableSortDirection={chainTableSortDirection}
                   t={t}
+                  onViewModeChange={setChainViewMode}
+                  onCardSortKeyChange={setChainCardSortKey}
+                  onCardSortDirectionChange={setChainCardSortDirection}
+                  onTableSortKeyChange={setChainTableSortKey}
+                  onTableSortDirectionChange={setChainTableSortDirection}
                   onSelectSymbol={(symbol) => {
                     setSelectedContractSymbol(symbol);
                     navigate("/option-risk-profile");

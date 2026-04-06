@@ -241,6 +241,15 @@ input {
   margin-top: 16px;
 }
 
+.sidebar-group.muted .sidebar-group-title {
+  opacity: 0.72;
+}
+
+.sidebar-group.muted .sidebar-link {
+  background: transparent;
+  opacity: 0.78;
+}
+
 .sidebar-group:first-of-type {
   margin-top: 0;
 }
@@ -590,6 +599,12 @@ input {
   background: color-mix(in srgb, var(--paper) 92%, var(--bg) 8%);
 }
 
+.quote-card.is-selected,
+.chain-row-clickable.is-selected {
+  background: color-mix(in srgb, var(--paper) 86%, var(--bg) 14%);
+  outline: 1px solid color-mix(in srgb, var(--ink) 10%, #a44716 35%);
+}
+
 .pill {
   font-size: 0.78rem;
   text-transform: uppercase;
@@ -868,6 +883,10 @@ input {
 }
 
 .dashboard-proposal-stats {
+  margin-top: 12px;
+}
+
+.dashboard-column-card .chain-actions {
   margin-top: 12px;
 }
 

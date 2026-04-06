@@ -8,6 +8,7 @@ export interface SidebarNavItem {
 export interface SidebarNavGroup {
   title: string;
   items: SidebarNavItem[];
+  tone?: "default" | "muted";
 }
 
 export function SidebarNav({
@@ -27,7 +28,10 @@ export function SidebarNav({
           <strong className="sidebar-title">{title}</strong>
         </div>
         {groups.map((group) => (
-          <div key={group.title} className="sidebar-group">
+          <div
+            key={group.title}
+            className={`sidebar-group${group.tone === "muted" ? " muted" : ""}`}
+          >
             <span className="sidebar-group-title">{group.title}</span>
             <nav className="sidebar-nav" aria-label={group.title}>
               {group.items.map((item) => (

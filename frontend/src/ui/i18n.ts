@@ -22,10 +22,16 @@ export type I18nKey =
   | "currentBookDesc"
   | "riskMapTitle"
   | "riskMapDesc"
+  | "riskControlTitle"
+  | "riskControlDesc"
   | "hedgeLabTitle"
   | "hedgeLabDesc"
+  | "hedgeDecisionTitle"
+  | "hedgeDecisionDesc"
   | "strategyCompareTitle"
   | "strategyCompareDesc"
+  | "instrumentWorkbenchTitle"
+  | "instrumentWorkbenchDesc"
   | "apiBaseUrl"
   | "symbol"
   | "focusUnderlying"
@@ -51,6 +57,11 @@ export type I18nKey =
   | "dashboardOpenScenarios"
   | "dashboardOpenChain"
   | "dashboardOpenBook"
+  | "dashboardOpenGroupedExposure"
+  | "dashboardOpenGreeks"
+  | "dashboardOpenStrategyCompare"
+  | "dashboardOpenProfile"
+  | "dashboardOpenSurface"
   | "topConcentration"
   | "greeksSummaryTitle"
   | "greeksSummaryDesc"
@@ -219,12 +230,21 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     riskMapTitle: "Risk Map",
     riskMapDesc:
       "Summarize concentration, directional exposure, and top risk flags at the portfolio level.",
+    riskControlTitle: "Risk Control",
+    riskControlDesc:
+      "Read the portfolio through primary risks, concentration pockets, and scenario stress before drilling into raw data.",
     hedgeLabTitle: "Hedge Lab",
     hedgeLabDesc:
       "Compare simple hedge overlays before committing to execution.",
+    hedgeDecisionTitle: "Hedge Decision",
+    hedgeDecisionDesc:
+      "Review hedge candidates as decision paths, not just payoff mechanics.",
     strategyCompareTitle: "Strategy Compare",
     strategyCompareDesc:
       "Review baseline and hedge candidates side by side across cost and residual exposure.",
+    instrumentWorkbenchTitle: "Instrument Workbench",
+    instrumentWorkbenchDesc:
+      "Drill from the portfolio into chains, surfaces, and single-contract risk only after the top-down read is clear.",
     apiBaseUrl: "API Base URL",
     symbol: "Symbol",
     focusUnderlying: "Focus underlying",
@@ -251,6 +271,11 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dashboardOpenScenarios: "Open scenarios",
     dashboardOpenChain: "Open chain",
     dashboardOpenBook: "Open book",
+    dashboardOpenGroupedExposure: "Open grouped exposure",
+    dashboardOpenGreeks: "Open Greeks",
+    dashboardOpenStrategyCompare: "Open strategy compare",
+    dashboardOpenProfile: "Open profile",
+    dashboardOpenSurface: "Open surface",
     topConcentration: "Top concentration",
     greeksSummaryTitle: "Greeks Risk Snapshot",
     greeksSummaryDesc:
@@ -427,10 +452,16 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     currentBookDesc: "先把当前持仓标准化成组合持仓簿，再去比较不同对冲方案。",
     riskMapTitle: "风险地图",
     riskMapDesc: "从组合层总结集中度、方向暴露和主要风险提示。",
+    riskControlTitle: "风险控制",
+    riskControlDesc: "先读主要风险、集中度和情景压力，再决定是否继续下钻到原始数据。",
     hedgeLabTitle: "对冲实验室",
     hedgeLabDesc: "在执行前比较最简单的对冲覆盖方案。",
+    hedgeDecisionTitle: "对冲决策",
+    hedgeDecisionDesc: "把对冲候选方案当成决策路径来看，而不是只看 payoff 结构。",
     strategyCompareTitle: "策略比较",
     strategyCompareDesc: "并排查看基准方案和对冲候选方案的成本与剩余风险。",
+    instrumentWorkbenchTitle: "工具工作台",
+    instrumentWorkbenchDesc: "先完成组合层判断，再下钻到链、曲面和单合约风险剖面。",
     apiBaseUrl: "API 基础地址",
     symbol: "标的代码",
     focusUnderlying: "焦点标的",
@@ -457,6 +488,11 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dashboardOpenScenarios: "进入情景分析",
     dashboardOpenChain: "进入期权链",
     dashboardOpenBook: "进入持仓簿",
+    dashboardOpenGroupedExposure: "进入分组暴露",
+    dashboardOpenGreeks: "进入 Greeks",
+    dashboardOpenStrategyCompare: "进入策略比较",
+    dashboardOpenProfile: "进入风险剖面",
+    dashboardOpenSurface: "进入曲面",
     topConcentration: "最高集中度",
     greeksSummaryTitle: "Greeks 风险快照",
     greeksSummaryDesc: "当前先做链级别聚合，用于展示平台形态。真实组合模式应聚合实际持仓。",
