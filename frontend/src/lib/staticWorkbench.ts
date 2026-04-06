@@ -909,6 +909,29 @@ export function buildStaticHedgeLab(input: {
     proposals.push(buildCollarProposal(baselineExposure, target));
   }
 
+  const hedgePriority = (proposal: HedgeProposal) => {
+    if (proposal.hedgeType === "none") return 99;
+
+    if (target === "tail-protection") {
+      if (proposal.hedgeType === "protectivePut") return 0;
+      if (proposal.hedgeType === "collar") return 1;
+      if (proposal.hedgeType === "futuresOverlay") return 2;
+    }
+
+    if (target === "reduce-beta") {
+      if (proposal.hedgeType === "futuresOverlay") return 0;
+      if (proposal.hedgeType === "collar") return 1;
+      if (proposal.hedgeType === "protectivePut") return 2;
+    }
+
+    if (proposal.hedgeType === "futuresOverlay") return 0;
+    if (proposal.hedgeType === "collar") return 1;
+    if (proposal.hedgeType === "protectivePut") return 2;
+    return 98;
+  };
+
+  proposals.sort((left, right) => hedgePriority(left) - hedgePriority(right));
+
   return {
     baselineExposure,
     proposals,

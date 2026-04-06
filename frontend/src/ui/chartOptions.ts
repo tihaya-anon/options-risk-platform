@@ -1,5 +1,6 @@
 import type { EChartsOption } from "echarts";
 import type { ChartTheme } from "./chartTheme";
+import { formatMoney, formatNumber } from "./format";
 
 export function buildBaseChartOption({
   chartTheme,
@@ -22,6 +23,16 @@ export function buildBaseChartOption({
     },
     legend,
   };
+}
+
+export function buildMoneyTooltipFormatter(digits = 2) {
+  return (value: unknown) =>
+    typeof value === "number" ? formatMoney(Number(value.toFixed(digits))) : String(value ?? "");
+}
+
+export function buildNumberTooltipFormatter(digits = 2) {
+  return (value: unknown) =>
+    typeof value === "number" ? formatNumber(value, digits) : String(value ?? "");
 }
 
 export function buildCategoryAxis({

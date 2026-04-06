@@ -1,86 +1,63 @@
-import { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { getChartTheme } from "./chartTheme";
+import { getChartTheme } from "@/ui/chartTheme";
 import {
   paletteTokens,
   type Language,
   type Palette,
   type ThemeMode,
-} from "./config";
-import { createTranslator } from "./i18n";
+} from "@/ui/config";
+import { createTranslator } from "@/ui/i18n";
 import {
   detectFrontendSettings,
   detectLanguage,
   detectPalette,
   detectTheme,
-} from "./preferences";
-import { useSnapshot } from "./hooks/useSnapshot";
-import { usePortfolioAnalysis } from "./hooks/usePortfolioAnalysis";
-import { useConnectionHealth } from "./hooks/useConnectionHealth";
-import { useRuntimeConfig } from "./hooks/useRuntimeConfig";
-import { useStaticDatasetInfo } from "./hooks/useStaticDatasetInfo";
-import { ChainSection } from "./components/ChainSection";
-import { CurrentBookSection } from "./components/CurrentBookSection";
-import { DataWorkspaceSection } from "./components/DataWorkspaceSection";
-import { HedgeDecisionSection } from "./components/HedgeDecisionSection";
-import { HedgeLabSection } from "./components/HedgeLabSection";
-import { HeroSection } from "./components/HeroSection";
-import { InstrumentWorkbenchSection } from "./components/InstrumentWorkbenchSection";
-import { OptionRiskProfileSection } from "./components/OptionRiskProfileSection";
-import { OverviewSection } from "./components/OverviewSection";
-import { PortfolioPositionsSection } from "./components/PortfolioPositionsSection";
-import { RiskControlSection } from "./components/RiskControlSection";
-import { RiskMapSection } from "./components/RiskMapSection";
-import { SettingsSection } from "./components/SettingsSection";
-import { SidebarNav } from "./components/SidebarNav";
-import type { SidebarNavGroup } from "./components/SidebarNav";
-import { StatusPanel } from "./components/StatusPanel";
-import { StrategyCompareSection } from "./components/StrategyCompareSection";
-import type { FrontendSettings, GroupByMode } from "../types";
-import type { HedgeUniverse } from "../api/generated/model/hedgeUniverse";
-import { useBookSnapshot } from "./hooks/useBookSnapshot";
-import { useHedgeLab } from "./hooks/useHedgeLab";
-import { useRiskMap } from "./hooks/useRiskMap";
-import { useStrategyComparison } from "./hooks/useStrategyComparison";
-import { isStaticDemoMode } from "../lib/staticWorkbench";
+} from "@/ui/preferences";
+import { useSnapshot } from "@/ui/hooks/useSnapshot";
+import { usePortfolioAnalysis } from "@/ui/hooks/usePortfolioAnalysis";
+import { useConnectionHealth } from "@/ui/hooks/useConnectionHealth";
+import { useRuntimeConfig } from "@/ui/hooks/useRuntimeConfig";
+import { useStaticDatasetInfo } from "@/ui/hooks/useStaticDatasetInfo";
+import { HeroSection } from "@/ui/components/layout/HeroSection";
+import { SidebarNav } from "@/ui/components/layout/SidebarNav";
+import type { FrontendSettings, GroupByMode } from "@/types";
+import { useBookSnapshot } from "@/ui/hooks/useBookSnapshot";
+import { useHedgeLab } from "@/ui/hooks/useHedgeLab";
+import { useRiskMap } from "@/ui/hooks/useRiskMap";
+import { useStrategyComparison } from "@/ui/hooks/useStrategyComparison";
+import { isStaticDemoMode } from "@/lib/staticWorkbench";
+import { buildSidebarNavGroups } from "@/ui/navigation";
+import { DashboardPage } from "@/ui/pages/DashboardPage";
+import {
+  GroupedExposurePage,
+  RiskMapPage,
+  RiskSummaryPage,
+  SpotScenarioPage,
+  TimeScenarioPage,
+  VolScenarioPage,
+} from "@/ui/pages/RiskPages";
+import {
+  HedgeLabPage,
+  HedgeSummaryPage,
+  StrategyComparePage,
+} from "@/ui/pages/HedgePages";
+import {
+  ChainPage,
+  InstrumentsSummaryPage,
+  OptionRiskProfilePage,
+  SkewPage,
+  TermStructurePage,
+} from "@/ui/pages/InstrumentPages";
+import {
+  CurrentBookPage,
+  DataWorkspacePage,
+  PositionsPage,
+  SettingsPage,
+} from "@/ui/pages/DataPages";
 
 const DEFAULT_POSITIONS_INPUT =
   "510050,20000\n510300,10000\n510500,5000\n510050C2604M02800,-2\n510050P2604M02800,3\n510300P2604M04400,2";
-
-const LazyGroupedExposureSection = lazy(() =>
-  import("./components/GroupedExposureSection").then((module) => ({
-    default: module.GroupedExposureSection,
-  }))
-);
-const LazyScenarioPnlSection = lazy(() =>
-  import("./components/ScenarioPnlSection").then((module) => ({
-    default: module.ScenarioPnlSection,
-  }))
-);
-const LazySkewSection = lazy(() =>
-  import("./components/SkewSection").then((module) => ({
-    default: module.SkewSection,
-  }))
-);
-const LazyTermStructureSection = lazy(() =>
-  import("./components/TermStructureSection").then((module) => ({
-    default: module.TermStructureSection,
-  }))
-);
-const LazyVolScenarioSection = lazy(() =>
-  import("./components/VolScenarioSection").then((module) => ({
-    default: module.VolScenarioSection,
-  }))
-);
-const LazyTimeScenarioSection = lazy(() =>
-  import("./components/TimeScenarioSection").then((module) => ({
-    default: module.TimeScenarioSection,
-  }))
-);
-
-function ChartSectionFallback() {
-  return <div className="panel card chart-loading">Loading chart module...</div>;
-}
 
 export function App() {
   const navigate = useNavigate();
@@ -89,8 +66,6 @@ export function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(detectTheme);
   const [palette, setPalette] = useState<Palette>(detectPalette);
   const [groupByMode, setGroupByMode] = useState<GroupByMode>("full");
-  const [hedgeTarget, setHedgeTarget] = useState("neutralize-delta");
-  const [hedgeUniverse, setHedgeUniverse] = useState<HedgeUniverse>("futuresAndOptions");
   const [chainViewMode, setChainViewMode] = useState<"cards" | "table">(
     () => (localStorage.getItem("orp_chain_view") as "cards" | "table") ?? "cards",
   );
@@ -217,8 +192,6 @@ export function App() {
   const { hedgeLab, error: hedgeLabError } = useHedgeLab({
     book,
     apiBaseUrl: settings.apiBaseUrl,
-    target: hedgeTarget,
-    hedgeUniverse,
   });
   const { comparison, error: comparisonError } = useStrategyComparison({
     hedgeLab,
@@ -276,56 +249,7 @@ export function App() {
     hedgeLabError ??
     comparisonError ??
     (snapshot ? null : t("loading"));
-  const navGroups = useMemo<SidebarNavGroup[]>(
-    () => [
-      {
-        title: t("navDashboard"),
-        items: [
-          { path: "/dashboard", label: t("overviewTitle") },
-          { path: "/current-book", label: t("currentBookTitle") },
-        ],
-      },
-      {
-        title: t("navRisk"),
-        items: [
-          { path: "/risks", label: t("riskControlTitle") },
-          { path: "/risk-map", label: t("riskMapTitle") },
-          { path: "/grouped-exposure", label: t("groupedExposureTitle") },
-          { path: "/spot-scenario", label: t("scenarioTitle") },
-          { path: "/vol-scenario", label: t("volScenarioTitle") },
-          { path: "/time-scenario", label: t("timeScenarioTitle") },
-        ],
-      },
-      {
-        title: t("navHedge"),
-        items: [
-          { path: "/hedges", label: t("hedgeDecisionTitle") },
-          { path: "/hedge-lab", label: t("hedgeLabTitle") },
-          { path: "/strategy-compare", label: t("strategyCompareTitle") },
-        ],
-      },
-      {
-        title: t("navInstruments"),
-        items: [
-          { path: "/instruments", label: t("instrumentWorkbenchTitle") },
-          { path: "/option-risk-profile", label: t("optionRiskProfileTitle") },
-          { path: "/chain", label: t("chainTitle") },
-          { path: "/term-structure", label: t("termTitle") },
-          { path: "/skew", label: t("skewTitle") },
-        ],
-      },
-      {
-        title: t("navData"),
-        tone: "muted",
-        items: [
-          { path: "/data", label: t("dataWorkspaceTitle") },
-          { path: "/positions", label: t("positionsTitle") },
-          { path: "/settings", label: t("settingsTitle") },
-        ],
-      },
-    ],
-    [t]
-  );
+  const navGroups = useMemo(() => buildSidebarNavGroups(t), [t]);
 
   return (
     <div className="page-shell dashboard-layout">
@@ -355,12 +279,12 @@ export function App() {
             <Route path="/overview" element={<Navigate to="/dashboard" replace />} />
             <Route
               path="/current-book"
-              element={<CurrentBookSection book={book} t={t} />}
+              element={<CurrentBookPage book={book} t={t} />}
             />
             <Route
               path="/risks"
               element={
-                <RiskControlSection
+                <RiskSummaryPage
                   riskMap={riskMap}
                   groupedExposures={groupedExposures}
                   spotScenarios={portfolioScenario}
@@ -373,12 +297,12 @@ export function App() {
             />
             <Route
               path="/risk-map"
-              element={<RiskMapSection riskMap={riskMap} language={language} t={t} />}
+              element={<RiskMapPage riskMap={riskMap} language={language} t={t} />}
             />
             <Route
               path="/hedges"
               element={
-                <HedgeDecisionSection
+                <HedgeSummaryPage
                   hedgeLab={hedgeLab}
                   comparison={comparison}
                   language={language}
@@ -389,22 +313,20 @@ export function App() {
             <Route
               path="/hedge-lab"
               element={
-                <HedgeLabSection
+                <HedgeLabPage
                   hedgeLab={hedgeLab}
-                  hedgeTarget={hedgeTarget}
-                  hedgeUniverse={hedgeUniverse}
+                  language={language}
                   t={t}
-                  onTargetChange={setHedgeTarget}
-                  onUniverseChange={setHedgeUniverse}
                 />
               }
             />
             <Route
               path="/strategy-compare"
               element={
-                <StrategyCompareSection
+                <StrategyComparePage
                   comparison={comparison}
                   selectedProposalId={selectedProposalId}
+                  language={language}
                   t={t}
                 />
               }
@@ -412,7 +334,7 @@ export function App() {
             <Route
               path="/instruments"
               element={
-                <InstrumentWorkbenchSection
+                <InstrumentsSummaryPage
                   rows={enrichedQuotes}
                   focusUnderlying={surfaceContextUnderlying}
                   selectedSymbol={selectedContractSymbol}
@@ -423,7 +345,7 @@ export function App() {
             <Route
               path="/option-risk-profile"
               element={
-                <OptionRiskProfileSection
+                <OptionRiskProfilePage
                   rows={enrichedQuotes}
                   selectedSymbol={selectedContractSymbol}
                   chartTheme={chartTheme}
@@ -436,14 +358,14 @@ export function App() {
             <Route
               path="/data"
               element={
-                <DataWorkspaceSection
+                <DataWorkspacePage
                   isStaticMode={isStaticMode}
                   staticDataset={staticDatasetInfo}
                   settings={settings}
-                  connectionStatus={health && !healthError ? "connected" : "degraded"}
                   positionsCount={parsedPositions?.positions.length ?? 0}
                   parseErrorCount={parsedPositions?.errors.length ?? 0}
                   unmatchedCount={portfolioExposure.unmatchedSymbols.length}
+                  connectionStatus={health && !healthError ? "connected" : "degraded"}
                   t={t}
                 />
               }
@@ -451,7 +373,7 @@ export function App() {
             <Route
               path="/settings"
               element={
-                <SettingsSection
+                <SettingsPage
                   settings={settings}
                   providers={runtimeConfig?.providers ?? ["mock", "yahooSynthetic"]}
                   advisorModes={runtimeConfig?.advisorModes ?? ["rules", "llm"]}
@@ -472,32 +394,26 @@ export function App() {
             <Route
               path="/dashboard"
               element={
-                !snapshot ? (
-                  <StatusPanel
-                    title={snapshotError ? t("failedLoad") : t("overviewTitle")}
-                    message={statusMessage ?? t("loading")}
-                  />
-                ) : (
-                  <OverviewSection
-                    snapshot={snapshot}
-                    exposure={portfolioExposure}
-                    spotScenarios={portfolioScenario}
-                    timeScenarios={portfolioTimeScenario}
-                    volScenarios={portfolioVolScenario}
-                    groupedExposures={groupedExposures}
-                    riskMap={riskMap}
-                    hedgeLab={hedgeLab}
-                    focusUnderlying={surfaceContextUnderlying}
-                    language={language}
-                    t={t}
-                  />
-                )
+                <DashboardPage
+                  snapshot={snapshot}
+                  exposure={portfolioExposure}
+                  spotScenarios={portfolioScenario}
+                  timeScenarios={portfolioTimeScenario}
+                  volScenarios={portfolioVolScenario}
+                  groupedExposures={groupedExposures}
+                  riskMap={riskMap}
+                  hedgeLab={hedgeLab}
+                  focusUnderlying={surfaceContextUnderlying}
+                  language={language}
+                  statusMessage={statusMessage ?? t("loading")}
+                  t={t}
+                />
               }
             />
             <Route
               path="/positions"
               element={
-                <PortfolioPositionsSection
+                <PositionsPage
                   positionsInput={positionsInput}
                   exposure={portfolioExposure}
                   parseErrors={parsedPositions?.errors ?? []}
@@ -511,92 +427,80 @@ export function App() {
             <Route
               path="/spot-scenario"
               element={
-                <Suspense fallback={<ChartSectionFallback />}>
-                  <LazyScenarioPnlSection
-                    scenarios={portfolioScenario}
-                    t={t}
-                    accentColor={paletteColors.accent}
-                    neutralColor={paletteColors.neutral}
-                    chartTheme={chartTheme}
-                  />
-                </Suspense>
+                <SpotScenarioPage
+                  scenarios={portfolioScenario}
+                  t={t}
+                  accentColor={paletteColors.accent}
+                  neutralColor={paletteColors.neutral}
+                  chartTheme={chartTheme}
+                />
               }
             />
             <Route
               path="/time-scenario"
               element={
-                <Suspense fallback={<ChartSectionFallback />}>
-                  <LazyTimeScenarioSection
-                    scenarios={portfolioTimeScenario}
-                    t={t}
-                    accentColor={paletteColors.down}
-                    neutralColor={paletteColors.neutral}
-                    chartTheme={chartTheme}
-                  />
-                </Suspense>
+                <TimeScenarioPage
+                  scenarios={portfolioTimeScenario}
+                  t={t}
+                  accentColor={paletteColors.down}
+                  neutralColor={paletteColors.neutral}
+                  chartTheme={chartTheme}
+                />
               }
             />
             <Route
               path="/vol-scenario"
               element={
-                <Suspense fallback={<ChartSectionFallback />}>
-                  <LazyVolScenarioSection
-                    scenarios={portfolioVolScenario}
-                    t={t}
-                    accentColor={paletteColors.up}
-                    neutralColor={paletteColors.neutral}
-                    chartTheme={chartTheme}
-                  />
-                </Suspense>
+                <VolScenarioPage
+                  scenarios={portfolioVolScenario}
+                  t={t}
+                  accentColor={paletteColors.up}
+                  neutralColor={paletteColors.neutral}
+                  chartTheme={chartTheme}
+                />
               }
             />
             <Route
               path="/grouped-exposure"
               element={
-                <Suspense fallback={<ChartSectionFallback />}>
-                  <LazyGroupedExposureSection
-                    groups={groupedExposures}
-                    groupByMode={groupByMode}
-                    selectedBucket={selectedBucket}
-                    t={t}
-                    chartTheme={chartTheme}
-                    onGroupByModeChange={setGroupByMode}
-                  />
-                </Suspense>
+                <GroupedExposurePage
+                  groups={groupedExposures}
+                  groupByMode={groupByMode}
+                  selectedBucket={selectedBucket}
+                  t={t}
+                  chartTheme={chartTheme}
+                  onGroupByModeChange={setGroupByMode}
+                />
               }
             />
             <Route
               path="/term-structure"
               element={
-                <Suspense fallback={<ChartSectionFallback />}>
-                  <LazyTermStructureSection
-                    rows={enrichedQuotes}
-                    upColor={paletteColors.up}
-                    downColor={paletteColors.down}
-                    chartTheme={chartTheme}
-                    t={t}
-                  />
-                </Suspense>
+                <TermStructurePage
+                  rows={enrichedQuotes}
+                  upColor={paletteColors.up}
+                  downColor={paletteColors.down}
+                  chartTheme={chartTheme}
+                  t={t}
+                />
               }
             />
             <Route
               path="/skew"
               element={
-                <Suspense fallback={<ChartSectionFallback />}>
-                  <LazySkewSection
-                    rows={enrichedQuotes}
-                    upColor={paletteColors.up}
-                    downColor={paletteColors.down}
-                    chartTheme={chartTheme}
-                    t={t}
-                  />
-                </Suspense>
+                <SkewPage
+                  rows={enrichedQuotes}
+                  upColor={paletteColors.up}
+                  downColor={paletteColors.down}
+                  chartTheme={chartTheme}
+                  t={t}
+                />
               }
             />
             <Route
               path="/chain"
               element={
-                <ChainSection
+                <ChainPage
                   rows={enrichedQuotes}
                   upColor={paletteColors.up}
                   downColor={paletteColors.down}

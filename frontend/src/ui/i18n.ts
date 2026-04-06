@@ -271,6 +271,27 @@ export type I18nKey =
   | "hedgeSummaryProtectivePutTail"
   | "hedgeSummaryProtectivePutGeneral"
   | "hedgeSummaryCollar"
+  | "hedgeLabRecommendationTitle"
+  | "hedgeUniverseExcludesTitle"
+  | "hedgeStrategyPrimerTitle"
+  | "hedgeTargetDeltaSummary"
+  | "hedgeTargetBetaSummary"
+  | "hedgeTargetTailSummary"
+  | "hedgePrimerFutures"
+  | "hedgePrimerProtectivePut"
+  | "hedgePrimerCollar"
+  | "hedgeRationaleFuturesWhy"
+  | "hedgeRationaleFuturesTradeOff"
+  | "hedgeRationaleFuturesResidual"
+  | "hedgeRationalePutWhy"
+  | "hedgeRationalePutTradeOff"
+  | "hedgeRationalePutResidual"
+  | "hedgeRationaleCollarWhy"
+  | "hedgeRationaleCollarTradeOff"
+  | "hedgeRationaleCollarResidual"
+  | "hedgeLabOverviewSummary"
+  | "strategyCompareBestProtection"
+  | "strategyCompareLowestCost"
   | "dashboardInterpretationTitle"
   | "dashboardInterpretationHeadline"
   | "dashboardInterpretationBody"
@@ -570,9 +591,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     hedgeTargetBeta: "Reduce beta",
     hedgeTargetTail: "Tail protection",
     hedgeUniverse: "Universe",
-    hedgeUniverseAll: "Futures + options",
-    hedgeUniverseFutures: "Futures only",
-    hedgeUniverseOptions: "Options only",
+    hedgeUniverseAll: "All hedge tools",
+    hedgeUniverseFutures: "Futures overlay only",
+    hedgeUniverseOptions: "Options hedge only",
     hedgeWhy: "Why",
     hedgeTradeOffs: "Trade-offs",
     hedgeResidualRisks: "Residual risks",
@@ -608,6 +629,43 @@ const translations: Record<Language, Record<I18nKey, string>> = {
       "Buy downside convexity to reduce drawdown while retaining more upside participation.",
     hedgeSummaryCollar:
       "Pair a protective put with a covered upside call sale to lower hedge carry while capping some upside.",
+    hedgeLabRecommendationTitle: "Recommended hedge",
+    hedgeUniverseExcludesTitle: "Excluded by current universe",
+    hedgeStrategyPrimerTitle: "What it means",
+    hedgeTargetDeltaSummary:
+      "Use this when your first problem is directional exposure. Linear hedges usually move to the front.",
+    hedgeTargetBetaSummary:
+      "Use this when you want to compress market beta efficiently without paying too much carry.",
+    hedgeTargetTailSummary:
+      "Use this when your first concern is left-tail protection rather than perfect delta neutrality.",
+    hedgePrimerFutures:
+      "Futures overlays are the cleanest way to cut linear market exposure, but they also suppress upside participation.",
+    hedgePrimerProtectivePut:
+      "Protective puts cost premium, but they improve drawdown shape and keep more upside open.",
+    hedgePrimerCollar:
+      "Collars trade away some upside to reduce hedge carry, sitting between pure futures hedges and outright puts.",
+    hedgeRationaleFuturesWhy:
+      "Fastest way to cut linear delta and beta with relatively low implementation friction.",
+    hedgeRationaleFuturesTradeOff:
+      "It reduces upside participation almost as much as downside sensitivity.",
+    hedgeRationaleFuturesResidual:
+      "Gamma, vega, and event-driven gap risk still remain in the book.",
+    hedgeRationalePutWhy:
+      "Best fit when downside convexity matters more than perfect delta neutrality.",
+    hedgeRationalePutTradeOff:
+      "Premium cost creates negative carry and heavier theta bleed.",
+    hedgeRationalePutResidual:
+      "Upside remains open, but net delta and beta are only partially reduced.",
+    hedgeRationaleCollarWhy:
+      "Balances lower carry with better downside shape than a pure futures hedge.",
+    hedgeRationaleCollarTradeOff:
+      "Upside is surrendered beyond the short call strike.",
+    hedgeRationaleCollarResidual:
+      "Residual downside remains below the put strike and above any unhedged notional.",
+    hedgeLabOverviewSummary:
+      "Use this page to understand what each hedge structure is good at. Compare all of them before narrowing down in Strategy Compare.",
+    strategyCompareBestProtection: "Strongest protection",
+    strategyCompareLowestCost: "Lowest carry cost",
     dashboardInterpretationTitle: "Read this first",
     dashboardInterpretationHeadline: "Start with the whole book, not with an instrument.",
     dashboardInterpretationBody:
@@ -913,9 +971,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     hedgeTargetBeta: "压低 Beta",
     hedgeTargetTail: "尾部保护",
     hedgeUniverse: "工具范围",
-    hedgeUniverseAll: "期货 + 期权",
-    hedgeUniverseFutures: "仅期货",
-    hedgeUniverseOptions: "仅期权",
+    hedgeUniverseAll: "全部工具（期货 + 期权）",
+    hedgeUniverseFutures: "仅期货对冲",
+    hedgeUniverseOptions: "仅期权对冲",
     hedgeWhy: "适用原因",
     hedgeTradeOffs: "主要取舍",
     hedgeResidualRisks: "残余风险",
@@ -946,6 +1004,43 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     hedgeSummaryProtectivePutTail: "买入下行凸性，在保留上涨空间的同时改善尾部保护。",
     hedgeSummaryProtectivePutGeneral: "买入下行凸性，在保留更多上涨参与的同时减小回撤。",
     hedgeSummaryCollar: "用保护性 put 配合备兑 call 构造领口，以降低对冲持有成本并限制部分上行。",
+    hedgeLabRecommendationTitle: "当前优先方案",
+    hedgeUniverseExcludesTitle: "当前工具范围排除了",
+    hedgeStrategyPrimerTitle: "策略含义",
+    hedgeTargetDeltaSummary:
+      "当你最先想处理的是方向暴露时，用这个目标。线性对冲通常会排到最前面。",
+    hedgeTargetBetaSummary:
+      "当你想更高效地压低市场 Beta，同时尽量控制持有成本时，用这个目标。",
+    hedgeTargetTailSummary:
+      "当你最担心的是左尾风险，而不是严格中和 Delta 时，用这个目标。",
+    hedgePrimerFutures:
+      "期货对冲最适合快速削减线性市场暴露，但上涨参与度也会一起被压低。",
+    hedgePrimerProtectivePut:
+      "保护性看跌期权需要支付权利金，但能改善回撤形状，并保留更多上涨空间。",
+    hedgePrimerCollar:
+      "领口策略通过牺牲部分上涨，换取更低的对冲成本，处在纯期货和纯 put 之间。",
+    hedgeRationaleFuturesWhy:
+      "这是削减线性 Delta 和 Beta 最直接、实现摩擦较低的方法。",
+    hedgeRationaleFuturesTradeOff:
+      "它会几乎等比例地削弱上涨参与和下跌敏感度。",
+    hedgeRationaleFuturesResidual:
+      "Gamma、Vega 和事件驱动的跳空风险仍会留在组合里。",
+    hedgeRationalePutWhy:
+      "当下行凸性比严格的 Delta 中和更重要时，它通常更合适。",
+    hedgeRationalePutTradeOff:
+      "支付权利金会带来更明显的负 carry 和 Theta 损耗。",
+    hedgeRationalePutResidual:
+      "上涨空间保留更多，但净 Delta 和 Beta 只能部分压低。",
+    hedgeRationaleCollarWhy:
+      "它在控制 carry 的同时，通常能提供比纯期货更好的下行形状。",
+    hedgeRationaleCollarTradeOff:
+      "一旦价格突破卖出 call 的行权价，上方收益会被牺牲。",
+    hedgeRationaleCollarResidual:
+      "在 put 行权价以下，以及未完全覆盖的名义敞口上，残余下行仍然存在。",
+    hedgeLabOverviewSummary:
+      "这一页的重点是先看清每种对冲结构擅长解决什么问题，再去策略比较里做更细的权衡。",
+    strategyCompareBestProtection: "保护最强",
+    strategyCompareLowestCost: "成本最低",
     dashboardInterpretationTitle: "先看这一层",
     dashboardInterpretationHeadline: "先读整本组合，再去看单个工具。",
     dashboardInterpretationBody:

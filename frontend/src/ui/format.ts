@@ -29,6 +29,40 @@ export function formatNumber(value: number | null, digits = 2): string {
   return value === null ? "n/a" : value.toFixed(digits);
 }
 
+export function formatPrice(value: number | null): string {
+  return formatNumber(value, 2);
+}
+
+export function formatMoney(value: number | null): string {
+  if (value === null) return "n/a";
+  const abs = Math.abs(value);
+  const digits = abs >= 1000 ? 0 : 2;
+  return value.toLocaleString("zh-CN", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+export function formatQuantity(value: number | null): string {
+  if (value === null) return "n/a";
+  const abs = Math.abs(value);
+  const digits = abs >= 1000 || Number.isInteger(value) ? 0 : 2;
+  return value.toLocaleString("zh-CN", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+export function formatStrike(value: number | null): string {
+  if (value === null) return "n/a";
+  if (Number.isInteger(value)) return value.toFixed(0);
+
+  const digits = value < 10 ? 3 : value < 100 ? 2 : 1;
+  return value
+    .toFixed(digits)
+    .replace(/\.?0+$/, "");
+}
+
 export function groupByExpiry(
   rows: EnrichedOptionQuote[]
 ): Map<string, EnrichedOptionQuote[]> {

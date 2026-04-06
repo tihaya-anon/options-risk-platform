@@ -1,7 +1,7 @@
-import type { I18nKey } from "../i18n";
-import { formatNumber } from "../format";
-import { GreekMetricCard } from "./GreekMetricCard";
-import { PanelSection } from "./PanelSection";
+import type { I18nKey } from "@/ui/i18n";
+import { formatNumber } from "@/ui/format";
+import { GreekMetricCard } from "@/ui/components/shared/GreekMetricCard";
+import { PanelSection } from "@/ui/components/layout/PanelSection";
 
 export function GreeksSummarySection({
   summary,
