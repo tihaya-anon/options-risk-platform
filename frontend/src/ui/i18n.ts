@@ -219,7 +219,7 @@ export type I18nKey =
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
-    appEyebrow: "Static Options Risk Platform",
+    appEyebrow: "Options Risk Platform",
     appTitle: "Option Risk Should Read Like a Control Panel, Not a Spreadsheet.",
     appLede:
       "A static TypeScript dashboard with pluggable implied-volatility modeling. Today it uses Black-Scholes. Tomorrow it can swap models without rewriting the UI contract.",
@@ -458,7 +458,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     riskDetailsExpiryConcentration: "{bucket} currently dominates expiry-level risk.",
   },
   zh: {
-    appEyebrow: "静态期权风险平台",
+    appEyebrow: "组合风险平台",
     appTitle: "期权风险界面应该像控制台，而不是电子表格。",
     appLede:
       "这是一个静态 TypeScript 风险面板，隐含波动率模型通过通用接口接入。当前先用 Black-Scholes，后续可替换而不重写前端契约。",

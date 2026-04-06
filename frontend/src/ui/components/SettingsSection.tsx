@@ -52,7 +52,8 @@ export function SettingsSection({
   return (
     <PanelSection
       title={t("settingsTitle")}
-      description={t("settingsDesc")}
+      description={t("dataWorkspaceDesc")}
+      className="data-panel"
       bodyClassName="settings-panel-content"
     >
       <div className="settings-layout">

@@ -21,9 +21,11 @@ export function SidebarNav({
   return (
     <aside className="sidebar card">
       <div className="sidebar-inner custom-scrollbar">
-        <div className="sidebar-head">
-          <span className="sidebar-kicker">{kicker}</span>
-        </div>
+        {kicker && (
+          <div className="sidebar-head">
+            <span className="sidebar-kicker">{kicker}</span>
+          </div>
+        )}
         {groups.map((group) => (
           <div
             key={group.title}

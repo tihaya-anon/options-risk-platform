@@ -311,7 +311,7 @@ export function App() {
     <div className="page-shell dashboard-layout">
       <SidebarNav
         groups={navGroups}
-        kicker={t("appEyebrow")}
+        kicker=""
       />
 
       <main className="dashboard-content">
@@ -353,7 +353,7 @@ export function App() {
             />
             <Route
               path="/risk-map"
-              element={<RiskMapSection riskMap={riskMap} t={t} />}
+              element={<RiskMapSection riskMap={riskMap} language={language} t={t} />}
             />
             <Route
               path="/hedges"

@@ -1,13 +1,17 @@
 import type { RiskMap } from "../../api/generated/model/riskMap";
 import type { I18nKey } from "../i18n";
+import type { Language } from "../config";
 import { GreekMetricCard } from "./GreekMetricCard";
 import { PanelSection } from "./PanelSection";
+import { translateBackendMessage } from "../i18n";
 
 export function RiskMapSection({
   riskMap,
+  language,
   t,
 }: {
   riskMap: RiskMap | null;
+  language: Language;
   t: (key: I18nKey) => string;
 }) {
   return (
@@ -44,9 +48,13 @@ export function RiskMapSection({
               <article key={`${risk.category}-${risk.summary}`} className="card grouped-exposure-card">
                 <div className="meta-block">
                   <span>{risk.category}</span>
-                  <strong>{risk.summary}</strong>
+                  <strong>{translateBackendMessage(language, risk.summary)}</strong>
                 </div>
-                {risk.details ? <p className="subtle">{risk.details}</p> : null}
+                {risk.details ? (
+                  <p className="subtle">
+                    {translateBackendMessage(language, risk.details)}
+                  </p>
+                ) : null}
               </article>
             ))}
           </div>
