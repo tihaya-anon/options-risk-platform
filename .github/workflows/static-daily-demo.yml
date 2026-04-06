@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "30 9 * * 1-5"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 permissions:
   contents: read
   pages: write
@@ -30,7 +33,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
 

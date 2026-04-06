@@ -23,8 +23,8 @@ import {
 } from "../ui/positions";
 import { blackScholesModel } from "./bs";
 
-const STATIC_MANIFEST_URL = "/data/latest/manifest.json";
-const STATIC_FALLBACK_SNAPSHOT_URL = "/data/latest.json";
+const STATIC_MANIFEST_PATH = "data/latest/manifest.json";
+const STATIC_FALLBACK_SNAPSHOT_PATH = "data/latest.json";
 const DEFAULT_STATIC_PROVIDER = "staticDaily";
 const DEFAULT_STATIC_SYMBOL = "510050";
 
@@ -54,6 +54,13 @@ interface StaticUniverseContext {
   quoteMap: Map<string, EnrichedSnapshotFile["quotes"][number]>;
   underlyingMap: Map<string, EnrichedSnapshotFile["underlying"]>;
   primarySnapshot: EnrichedSnapshotFile;
+}
+
+function resolveStaticAssetPath(relativePath: string) {
+  const baseUrl = import.meta.env.BASE_URL || "/";
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+  const normalizedPath = relativePath.replace(/^\/+/, "");
+  return `${normalizedBase}${normalizedPath}`;
 }
 
 function parseOptionContractSymbol(symbol: string) {
@@ -90,7 +97,9 @@ export function isStaticDemoMode(apiBaseUrl: string): boolean {
 }
 
 export async function fetchStaticRuntimeConfig(): Promise<GetConfig200> {
-  const manifest = await tryFetchJson<StaticManifest>(STATIC_MANIFEST_URL);
+  const manifest = await tryFetchJson<StaticManifest>(
+    resolveStaticAssetPath(STATIC_MANIFEST_PATH),
+  );
 
   return {
     provider: DEFAULT_STATIC_PROVIDER,
@@ -128,14 +137,23 @@ export async function fetchStaticHealth(): Promise<GetHealth200> {
 export async function fetchStaticSnapshot(
   symbol: string,
 ): Promise<EnrichedSnapshotFile> {
-  const manifest = await tryFetchJson<StaticManifest>(STATIC_MANIFEST_URL);
+  const manifest = await tryFetchJson<StaticManifest>(
+    resolveStaticAssetPath(STATIC_MANIFEST_PATH),
+  );
   const normalizedSymbol = symbol.trim().toUpperCase() || manifest?.defaultSymbol || DEFAULT_STATIC_SYMBOL;
 
   const manifestEntry = manifest?.symbols.find((item) => item.symbol === normalizedSymbol);
   const rawSnapshot =
-    (manifestEntry && (await tryFetchJson<OptionSnapshotFile>(manifestEntry.path))) ||
-    (await tryFetchJson<OptionSnapshotFile>(`/data/latest/${normalizedSymbol}.json`)) ||
-    (await tryFetchJson<OptionSnapshotFile>(STATIC_FALLBACK_SNAPSHOT_URL));
+    (manifestEntry &&
+      (await tryFetchJson<OptionSnapshotFile>(
+        resolveStaticAssetPath(manifestEntry.path),
+      ))) ||
+    (await tryFetchJson<OptionSnapshotFile>(
+      resolveStaticAssetPath(`data/latest/${normalizedSymbol}.json`),
+    )) ||
+    (await tryFetchJson<OptionSnapshotFile>(
+      resolveStaticAssetPath(STATIC_FALLBACK_SNAPSHOT_PATH),
+    ));
 
   if (!rawSnapshot) {
     throw new Error("Static snapshot not found.");
@@ -148,7 +166,9 @@ export async function fetchStaticSnapshot(
 }
 
 export async function fetchStaticDatasetInfo(): Promise<StaticDatasetInfo> {
-  const manifest = await tryFetchJson<StaticManifest>(STATIC_MANIFEST_URL);
+  const manifest = await tryFetchJson<StaticManifest>(
+    resolveStaticAssetPath(STATIC_MANIFEST_PATH),
+  );
   return {
     mode: "static",
     asOf: manifest?.asOf ?? null,
@@ -160,7 +180,9 @@ export async function fetchStaticDatasetInfo(): Promise<StaticDatasetInfo> {
 }
 
 export async function fetchStaticUniverseSnapshots(): Promise<EnrichedSnapshotFile[]> {
-  const manifest = await tryFetchJson<StaticManifest>(STATIC_MANIFEST_URL);
+  const manifest = await tryFetchJson<StaticManifest>(
+    resolveStaticAssetPath(STATIC_MANIFEST_PATH),
+  );
   const symbolList = manifest?.symbols.map((item) => item.symbol) ?? [DEFAULT_STATIC_SYMBOL];
 
   const snapshots = await Promise.all(
