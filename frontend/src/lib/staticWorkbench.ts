@@ -106,7 +106,7 @@ export async function fetchStaticRuntimeConfig(): Promise<GetConfig200> {
         supportsScenarios: true,
         notes:
           `Loads daily T-1 snapshots from GitHub Actions. Public source: ${
-            manifest?.provider ?? "public market data"
+            manifest?.provider ?? "CN public market data"
           }. Universe: ${
             manifest?.symbols.map((item) => item.symbol).join(", ") ?? DEFAULT_STATIC_SYMBOL
           }. As of ${manifest?.asOf ?? "unknown"}.`,
@@ -563,7 +563,7 @@ export function buildStaticBook(input: {
         symbol,
         underlying: quote.underlying,
         quantity: position.quantity,
-        multiplier: 100,
+        multiplier: quote.contractMultiplier ?? 100,
         markPrice: quote.mid,
         expiry: quote.expiry,
         strike: quote.strike,

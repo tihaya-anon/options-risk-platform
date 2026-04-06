@@ -3,7 +3,7 @@ name: Static Daily Demo
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 22 * * 1-5"
+    - cron: "30 9 * * 1-5"
 
 permissions:
   contents: read
@@ -35,7 +35,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Generate static T-1 snapshots
-        run: node scripts/generate-static-snapshots.mjs --symbols SPY,QQQ,IWM,AAPL
+        run: node scripts/generate-static-snapshots.mjs --symbols 510050,510300,510500
 
       - name: Install frontend dependencies
         working-directory: frontend

@@ -6,19 +6,43 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
 const outputDir = path.join(repoRoot, "frontend", "public", "data", "latest");
 const fallbackSnapshotPath = path.join(repoRoot, "frontend", "public", "data", "latest.json");
-const YAHOO_OPTIONS_BASE = "https://query2.finance.yahoo.com/v7/finance/options/";
-const DEFAULT_RISK_FREE_RATE = 0.045;
-const DEFAULT_UNIVERSE = ["SPY", "QQQ", "IWM", "AAPL"];
+
+const DEFAULT_RISK_FREE_RATE = 0.015;
 const DEFAULT_MAX_EXPIRATIONS = 3;
+const DEFAULT_UNIVERSE = ["510050", "510300", "510500"];
+const SINA_BATCH_SIZE = 40;
 const REQUEST_HEADERS = {
   "user-agent":
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
   accept: "application/json,text/plain,*/*",
 };
+const SINA_HEADERS = {
+  ...REQUEST_HEADERS,
+  referer: "https://stock.finance.sina.com.cn/",
+};
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+const UNDERLYING_CONFIG = {
+  "510050": {
+    label: "华夏上证50ETF期权",
+    spotUrl: "http://yunhq.sse.com.cn:32041/v1/sh1/list/self/510050",
+  },
+  "510300": {
+    label: "华泰柏瑞沪深300ETF期权",
+    spotUrl: "http://yunhq.sse.com.cn:32041/v1/sh1/list/self/510300",
+  },
+  "510500": {
+    label: "南方中证500ETF期权",
+    spotUrl: "http://yunhq.sse.com.cn:32041/v1/sh1/list/self/510500",
+  },
+  "588000": {
+    label: "华夏科创50ETF期权",
+    spotUrl: "http://yunhq.sse.com.cn:32041/v1/sh1/list/self/588000",
+  },
+  "588080": {
+    label: "易方达科创50ETF期权",
+    spotUrl: "http://yunhq.sse.com.cn:32041/v1/sh1/list/self/588080",
+  },
+};
 
 function getArgumentValue(flag) {
   const index = process.argv.indexOf(flag);
@@ -31,9 +55,10 @@ function resolveUniverse() {
   const csv = explicitUniverse ?? process.env.STATIC_UNIVERSE ?? DEFAULT_UNIVERSE.join(",");
   return csv
     .split(",")
-    .map((item) => item.trim().toUpperCase())
+    .map((item) => item.trim())
     .filter(Boolean)
-    .filter((symbol, index, all) => all.indexOf(symbol) === index);
+    .filter((symbol, index, all) => all.indexOf(symbol) === index)
+    .filter((symbol) => symbol in UNDERLYING_CONFIG);
 }
 
 function resolveMaxExpirations() {
@@ -45,154 +70,219 @@ function resolveMaxExpirations() {
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : DEFAULT_MAX_EXPIRATIONS;
 }
 
-async function fetchJson(url) {
-  const response = await fetch(url, { headers: REQUEST_HEADERS });
-  if (!response.ok) {
-    throw new Error(`Request failed ${response.status} for ${url}`);
-  }
-  return response.json();
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function toIsoTimestamp(unixSeconds) {
-  return new Date(unixSeconds * 1000).toISOString();
-}
-
-function formatExpiry(unixSeconds) {
-  return new Date(unixSeconds * 1000).toISOString().slice(0, 10);
-}
-
-async function createYahooSession(maxAttempts = 3) {
+async function fetchJsonWithRetry(url, options = {}, maxAttempts = 3) {
   let lastError = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      const response = await fetch("https://fc.yahoo.com", { headers: REQUEST_HEADERS });
-      const setCookie = response.headers.get("set-cookie");
-      const cookie = setCookie?.split(";")[0];
-
-      if (!cookie) {
-        throw new Error("Unable to obtain Yahoo session cookie.");
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`Request failed ${response.status} for ${url}`);
       }
-
-      const crumbResponse = await fetch("https://query1.finance.yahoo.com/v1/test/getcrumb", {
-        headers: {
-          ...REQUEST_HEADERS,
-          cookie,
-        },
-      });
-
-      if (!crumbResponse.ok) {
-        throw new Error(`Failed to retrieve Yahoo crumb: ${crumbResponse.status}`);
-      }
-
-      const crumb = (await crumbResponse.text()).trim();
-      if (!crumb) {
-        throw new Error("Yahoo crumb response was empty.");
-      }
-
-      return { cookie, crumb };
+      return await response.json();
     } catch (error) {
       lastError = error;
       if (attempt < maxAttempts) {
-        await sleep(500 * attempt);
+        await sleep(400 * attempt);
       }
     }
   }
 
-  throw lastError ?? new Error("Unable to create Yahoo session.");
+  throw lastError ?? new Error(`Request failed for ${url}`);
 }
 
-async function fetchOptionIndex(symbol, session) {
-  const url = `${YAHOO_OPTIONS_BASE}${encodeURIComponent(symbol)}?crumb=${encodeURIComponent(session.crumb)}`;
-  const payload = await fetch(url, {
-    headers: {
-      ...REQUEST_HEADERS,
-      cookie: session.cookie,
-    },
-  }).then(async (response) => {
-    if (!response.ok) {
-      throw new Error(`Request failed ${response.status} for ${url}`);
-    }
-    return response.json();
-  });
-  const result = payload?.optionChain?.result?.[0];
+async function fetchTextWithRetry(url, options = {}, maxAttempts = 3) {
+  let lastError = null;
 
-  if (!result) {
-    throw new Error(`Missing options index for ${symbol}`);
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`Request failed ${response.status} for ${url}`);
+      }
+      return await response.text();
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxAttempts) {
+        await sleep(400 * attempt);
+      }
+    }
+  }
+
+  throw lastError ?? new Error(`Request failed for ${url}`);
+}
+
+function formatDate(dateLike) {
+  const value = String(dateLike);
+  if (value.length !== 8) return value;
+  return `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
+}
+
+function formatTimestamp(datePart, timePart) {
+  const date = formatDate(datePart);
+  const raw = String(timePart).padStart(6, "0");
+  return `${date}T${raw.slice(0, 2)}:${raw.slice(2, 4)}:${raw.slice(4, 6)}+08:00`;
+}
+
+async function fetchUnderlyingSpot(symbol) {
+  const config = UNDERLYING_CONFIG[symbol];
+  const payload = await fetchJsonWithRetry(config.spotUrl, {
+    headers: REQUEST_HEADERS,
+  });
+  const raw = payload?.list?.[0];
+
+  if (!raw) {
+    throw new Error(`Missing underlying spot for ${symbol}`);
   }
 
   return {
-    quote: result.quote ?? null,
-    expirationDates: result.expirationDates ?? [],
+    symbol,
+    name: raw[1] ?? config.label,
+    spot: Number(raw[2]),
+    currency: "CNY",
+    timestamp: formatTimestamp(payload.date, payload.time),
   };
 }
 
-function normalizeOptionQuote(rawQuote, optionType) {
-  const expiry = formatExpiry(rawQuote.expiration);
+async function fetchCurrentDayContracts() {
+  const url = "http://query.sse.com.cn/commonQuery.do";
+  const params = new URLSearchParams({
+    isPagination: "false",
+    expireDate: "",
+    securityId: "",
+    sqlId: "SSE_ZQPZ_YSP_GGQQZSXT_XXPL_DRHY_SEARCH_L",
+  });
+  const payload = await fetchJsonWithRetry(`${url}?${params.toString()}`, {
+    headers: {
+      ...REQUEST_HEADERS,
+      referer: "http://www.sse.com.cn/",
+    },
+  });
+
+  return Array.isArray(payload?.result) ? payload.result : [];
+}
+
+function selectContractsForUnderlying(contracts, symbol, maxExpirations) {
+  const filtered = contracts.filter((item) => String(item.SECURITYNAMEBYID).includes(`(${symbol})`));
+  const expiryOrder = [...new Set(filtered.map((item) => String(item.EXPIRE_DATE)))].sort();
+  const selectedExpiries = new Set(expiryOrder.slice(0, maxExpirations));
+
+  return filtered
+    .filter((item) => selectedExpiries.has(String(item.EXPIRE_DATE)))
+    .sort((left, right) => {
+      const expiryCompare = String(left.EXPIRE_DATE).localeCompare(String(right.EXPIRE_DATE));
+      if (expiryCompare !== 0) return expiryCompare;
+      const strikeCompare = Number(left.EXERCISE_PRICE) - Number(right.EXERCISE_PRICE);
+      if (strikeCompare !== 0) return strikeCompare;
+      return String(left.CALL_OR_PUT).localeCompare(String(right.CALL_OR_PUT));
+    });
+}
+
+function chunk(list, size) {
+  const chunks = [];
+  for (let index = 0; index < list.length; index += size) {
+    chunks.push(list.slice(index, index + size));
+  }
+  return chunks;
+}
+
+function parseSinaLine(line) {
+  const match = line.match(/^var hq_str_CON_OP_(\d+)="(.*)"$/);
+  if (!match) return null;
+  const [, contractCode, payload] = match;
   return {
-    symbol: rawQuote.contractSymbol,
-    underlying: rawQuote.symbol ?? rawQuote.contractSymbol.replace(/\d.*/, ""),
-    optionType,
-    strike: Number(rawQuote.strike),
-    expiry,
-    bid: Number(rawQuote.bid ?? rawQuote.lastPrice ?? 0),
-    ask: Number(rawQuote.ask ?? rawQuote.lastPrice ?? 0),
-    last: Number(rawQuote.lastPrice ?? 0),
-    volume: Number(rawQuote.volume ?? 0),
-    openInterest: Number(rawQuote.openInterest ?? 0),
+    contractCode,
+    values: payload.split(","),
   };
 }
 
-async function fetchOptionChainForExpiry(symbol, expiryTimestamp, session) {
-  const url = `${YAHOO_OPTIONS_BASE}${encodeURIComponent(symbol)}?date=${expiryTimestamp}&crumb=${encodeURIComponent(session.crumb)}`;
-  const payload = await fetch(url, {
-    headers: {
-      ...REQUEST_HEADERS,
-      cookie: session.cookie,
-    },
-  }).then(async (response) => {
-    if (!response.ok) {
-      throw new Error(`Request failed ${response.status} for ${url}`);
-    }
-    return response.json();
-  });
-  const result = payload?.optionChain?.result?.[0];
-  const options = result?.options?.[0];
+async function fetchSinaQuotes(contractCodes) {
+  const resultMap = new Map();
+  const batches = chunk(contractCodes, SINA_BATCH_SIZE);
 
-  if (!options) {
-    return [];
+  for (const batch of batches) {
+    const url = `https://hq.sinajs.cn/list=${batch.map((code) => `CON_OP_${code}`).join(",")}`;
+    const text = await fetchTextWithRetry(url, { headers: SINA_HEADERS });
+    const lines = text
+      .split(";")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    for (const line of lines) {
+      const parsed = parseSinaLine(line);
+      if (parsed) {
+        resultMap.set(parsed.contractCode, parsed.values);
+      }
+    }
   }
 
-  const calls = (options.calls ?? []).map((quote) => normalizeOptionQuote(quote, "call"));
-  const puts = (options.puts ?? []).map((quote) => normalizeOptionQuote(quote, "put"));
-  return [...calls, ...puts];
+  return resultMap;
 }
 
-async function buildSnapshotFromYahoo(symbol, maxExpirations, session) {
-  const optionIndex = await fetchOptionIndex(symbol, session);
-  const expirationDates = optionIndex.expirationDates.slice(0, maxExpirations);
-  const chainBatches = await Promise.all(
-    expirationDates.map((expiryTimestamp) =>
-      fetchOptionChainForExpiry(symbol, expiryTimestamp, session),
-    ),
-  );
-  const quotes = chainBatches.flat().filter((quote) => Number.isFinite(quote.strike));
-  const regularMarketPrice = Number(optionIndex.quote?.regularMarketPrice ?? NaN);
-  const regularMarketTime = optionIndex.quote?.regularMarketTime;
+function normalizeOptionType(value) {
+  if (String(value).includes("购") || String(value).includes("认购")) return "call";
+  return "put";
+}
 
-  if (!quotes.length || !Number.isFinite(regularMarketPrice)) {
-    throw new Error(`No option quotes returned for ${symbol}`);
+function buildQuoteFromContract(contract, values) {
+  const bid = Number(values[1] ?? 0);
+  const last = Number(values[2] ?? 0);
+  const ask = Number(values[3] ?? 0);
+  const openInterest = Number(values[5] ?? 0);
+  const volume = Number(values[41] ?? values[42] ?? 0);
+
+  return {
+    symbol: String(contract.CONTRACT_ID),
+    underlying: String(contract.SECURITYNAMEBYID).match(/\((\d+)\)/)?.[1] ?? "",
+    optionType: normalizeOptionType(contract.CALL_OR_PUT),
+    strike: Number(contract.EXERCISE_PRICE),
+    expiry: formatDate(contract.EXPIRE_DATE),
+    contractMultiplier: Number(contract.CONTRACT_UNIT ?? 10000),
+    bid,
+    ask,
+    last,
+    volume,
+    openInterest,
+  };
+}
+
+async function buildSnapshotFromChina(symbol, contracts, maxExpirations) {
+  const underlying = await fetchUnderlyingSpot(symbol);
+  const selectedContracts = selectContractsForUnderlying(contracts, symbol, maxExpirations);
+
+  if (!selectedContracts.length) {
+    throw new Error(`No SSE option contracts found for ${symbol}`);
+  }
+
+  const contractCodes = selectedContracts.map((item) => String(item.SECURITY_ID));
+  const quoteMap = await fetchSinaQuotes(contractCodes);
+  const quotes = selectedContracts
+    .map((contract) => {
+      const values = quoteMap.get(String(contract.SECURITY_ID));
+      if (!values || values.length < 43) {
+        return null;
+      }
+      return buildQuoteFromContract(contract, values);
+    })
+    .filter(Boolean);
+
+  if (!quotes.length) {
+    throw new Error(`No Sina quotes returned for ${symbol}`);
   }
 
   return {
-    source: "yahoo-finance-public",
-    generatedAt: toIsoTimestamp(regularMarketTime ?? Math.floor(Date.now() / 1000)),
+    source: "cn-public-sse-sina",
+    generatedAt: underlying.timestamp,
     riskFreeRate: DEFAULT_RISK_FREE_RATE,
     underlying: {
       symbol,
-      spot: regularMarketPrice,
-      currency: optionIndex.quote?.currency ?? "USD",
-      timestamp: toIsoTimestamp(regularMarketTime ?? Math.floor(Date.now() / 1000)),
+      spot: underlying.spot,
+      currency: underlying.currency,
+      timestamp: underlying.timestamp,
     },
     quotes,
   };
@@ -210,20 +300,14 @@ async function readJsonIfExists(filepath) {
 async function main() {
   const universe = resolveUniverse();
   const maxExpirations = resolveMaxExpirations();
-  let session = null;
-  try {
-    session = await createYahooSession();
-  } catch (error) {
-    console.warn("[static] Yahoo session bootstrap failed, falling back to cached snapshots.");
-    console.warn(error instanceof Error ? error.message : String(error));
-  }
+  const contracts = await fetchCurrentDayContracts();
 
   await mkdir(outputDir, { recursive: true });
 
   const manifest = {
     asOf: null,
     generatedAt: new Date().toISOString(),
-    provider: "yahoo-finance-public",
+    provider: "cn-public-sse-sina",
     defaultSymbol: universe[0] ?? DEFAULT_UNIVERSE[0],
     symbols: [],
     failedSymbols: [],
@@ -231,13 +315,10 @@ async function main() {
 
   for (const symbol of universe) {
     try {
-      if (!session) {
-        throw new Error("Yahoo session unavailable");
-      }
-
-      const snapshot = await buildSnapshotFromYahoo(symbol, maxExpirations, session);
+      const snapshot = await buildSnapshotFromChina(symbol, contracts, maxExpirations);
       const filename = `${symbol}.json`;
       const relativePath = `/data/latest/${filename}`;
+
       await writeFile(
         path.join(outputDir, filename),
         `${JSON.stringify(snapshot, null, 2)}\n`,
@@ -261,7 +342,8 @@ async function main() {
           "utf8",
         );
       }
-      console.log(`[static] fetched ${symbol} with ${snapshot.quotes.length} quotes`);
+
+      console.log(`[static] fetched ${symbol} with ${snapshot.quotes.length} option quotes`);
     } catch (error) {
       console.warn(`[static] failed to fetch ${symbol}`);
       console.warn(error instanceof Error ? error.message : String(error));
@@ -282,7 +364,7 @@ async function main() {
   }
 
   if (!manifest.symbols.length) {
-    throw new Error("No static snapshots were generated from public market data.");
+    throw new Error("No mainland static snapshots were generated.");
   }
 
   await writeFile(
@@ -293,7 +375,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("[static] failed to generate Yahoo-based static snapshots");
+  console.error("[static] failed to generate mainland static snapshots");
   console.error(error);
   process.exitCode = 1;
 });

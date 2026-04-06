@@ -46,7 +46,7 @@ import { useStrategyComparison } from "./hooks/useStrategyComparison";
 import { isStaticDemoMode } from "../lib/staticWorkbench";
 
 const DEFAULT_POSITIONS_INPUT =
-  "SPY,100\nQQQ,40\nAAPL,80\nSPY260515P00525000,2\nQQQ260619P00470000,1\nAAPL260515C00210000,-1";
+  "510050,20000\n510300,10000\n510500,5000";
 
 const LazyGroupedExposureSection = lazy(() =>
   import("./components/GroupedExposureSection").then((module) => ({

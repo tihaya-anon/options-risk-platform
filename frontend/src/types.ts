@@ -6,6 +6,7 @@ export interface OptionQuote {
   optionType: OptionRight;
   strike: number;
   expiry: string;
+  contractMultiplier?: number;
   bid: number;
   ask: number;
   last: number;
