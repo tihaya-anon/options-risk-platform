@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { getChartTheme } from "./chartTheme";
 import {
   paletteTokens,
@@ -85,6 +85,7 @@ function ChartSectionFallback() {
 
 export function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [language, setLanguage] = useState<Language>(detectLanguage);
   const [themeMode, setThemeMode] = useState<ThemeMode>(detectTheme);
   const [palette, setPalette] = useState<Palette>(detectPalette);
@@ -246,6 +247,10 @@ export function App() {
   const portfolioVolScenario = analysis?.volScenarios ?? [];
   const portfolioTimeScenario = analysis?.timeScenarios ?? [];
   const groupedExposures = analysis?.groupedExposures ?? [];
+  const routeParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const selectedBucket = routeParams.get("bucket") ?? "";
+  const selectedProposalId = routeParams.get("proposal") ?? "";
+  const routeSymbol = routeParams.get("symbol") ?? "";
 
   useEffect(() => {
     if (!selectedContractSymbol) {
@@ -255,6 +260,12 @@ export function App() {
       }
     }
   }, [enrichedQuotes, selectedContractSymbol]);
+
+  useEffect(() => {
+    if (routeSymbol && routeSymbol !== selectedContractSymbol) {
+      setSelectedContractSymbol(routeSymbol);
+    }
+  }, [routeSymbol, selectedContractSymbol]);
 
   const paletteColors = paletteTokens[palette];
   const chartTheme = useMemo(() => getChartTheme(themeMode), [themeMode]);
@@ -392,7 +403,13 @@ export function App() {
             />
             <Route
               path="/strategy-compare"
-              element={<StrategyCompareSection comparison={comparison} t={t} />}
+              element={
+                <StrategyCompareSection
+                  comparison={comparison}
+                  selectedProposalId={selectedProposalId}
+                  t={t}
+                />
+              }
             />
             <Route
               path="/instruments"
@@ -542,6 +559,7 @@ export function App() {
                   <LazyGroupedExposureSection
                     groups={groupedExposures}
                     groupByMode={groupByMode}
+                    selectedBucket={selectedBucket}
                     t={t}
                     chartTheme={chartTheme}
                     onGroupByModeChange={setGroupByMode}

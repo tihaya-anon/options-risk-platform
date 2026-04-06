@@ -12,12 +12,14 @@ import { SelectField } from "./SelectField";
 export function GroupedExposureSection({
   groups,
   groupByMode,
+  selectedBucket,
   t,
   chartTheme,
   onGroupByModeChange,
 }: {
   groups: GroupedExposure[];
   groupByMode: GroupByMode;
+  selectedBucket?: string;
   t: (key: I18nKey) => string;
   chartTheme: ChartTheme;
   onGroupByModeChange: (mode: GroupByMode) => void;
@@ -95,7 +97,10 @@ export function GroupedExposureSection({
           )}
         </article>
         {groups.map((group) => (
-          <article key={group.bucket} className="card grouped-exposure-card">
+          <article
+            key={group.bucket}
+            className={`card grouped-exposure-card${selectedBucket === group.bucket ? " is-selected" : ""}`}
+          >
             <div className="meta-block">
               <span>{t("bucket")}</span>
               <strong>{group.bucket}</strong>

@@ -158,7 +158,10 @@ export function RiskControlSection({
                   <span>{t("groupedExposureTitle")}</span>
                   <strong>{topBuckets[0]?.bucket ?? t("none")}</strong>
                 </div>
-                <Link className="button-like dashboard-link" to="/grouped-exposure">
+                <Link
+                  className="button-like dashboard-link"
+                  to={topBuckets[0] ? `/grouped-exposure?bucket=${encodeURIComponent(topBuckets[0].bucket)}` : "/grouped-exposure"}
+                >
                   {t("dashboardOpenGroupedExposure")}
                 </Link>
               </div>

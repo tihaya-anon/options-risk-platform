@@ -306,7 +306,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     appTitle: "Option Risk Should Read Like a Control Panel, Not a Spreadsheet.",
     appLede:
       "A static TypeScript dashboard with pluggable implied-volatility modeling. Today it uses Black-Scholes. Tomorrow it can swap models without rewriting the UI contract.",
-    controlTowerTitle: "Portfolio Risk Cockpit",
+    controlTowerTitle: "Portfolio Risk Panel",
     status: "Status",
     recommendedAction: "Recommended action",
     underlying: "Underlying",
@@ -387,12 +387,12 @@ const translations: Record<Language, Record<I18nKey, string>> = {
       "Paste or upload raw positions, inspect parsing errors, and verify unmatched symbols before risk aggregation.",
     dataWorkspaceConnectionTitle: "Provider connection",
     dataWorkspaceConnectionDesc:
-      "Adjust provider defaults, focus underlying, and backend connection options without cluttering the main cockpit.",
+      "Adjust provider defaults, focus underlying, and backend connection options without cluttering the main panel.",
     dataWorkspaceConnectionHealthDesc:
       "Keep connection settings here so analysis pages stay focused on portfolio decisions instead of infrastructure details.",
     dataWorkspaceDatasetTitle: "Dataset state",
     dataWorkspaceLiveModeBody:
-      "Live backend mode can fetch fresher snapshots and run heavier analytics, but the cockpit should still start from the same book and risk workflow.",
+      "Live backend mode can fetch fresher snapshots and run heavier analytics, but the panel should still start from the same book and risk workflow.",
     dataWorkspaceImportHealthTitle: "Import health",
     dataWorkspaceImportHealthDesc:
       "Before reading risk outputs, make sure symbols are parsed cleanly and the book has as few unmatched legs as possible.",
@@ -659,7 +659,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     appTitle: "期权风险界面应该像控制台，而不是电子表格。",
     appLede:
       "这是一个静态 TypeScript 风险面板，隐含波动率模型通过通用接口接入。当前先用 Black-Scholes，后续可替换而不重写前端契约。",
-    controlTowerTitle: "组合风险驾驶舱",
+    controlTowerTitle: "组合风险面板",
     status: "状态",
     recommendedAction: "建议动作",
     underlying: "标的",
@@ -732,7 +732,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
       "粘贴或上传原始持仓，检查解析错误与未匹配合约，再进入风险聚合流程。",
     dataWorkspaceConnectionTitle: "数据连接",
     dataWorkspaceConnectionDesc:
-      "配置 provider、焦点标的和后端连接选项，但不要让这些配置淹没主驾驶舱。",
+      "配置 provider、焦点标的和后端连接选项，但不要让这些配置淹没主面板。",
     dataWorkspaceConnectionHealthDesc:
       "连接配置应该留在这里处理，让分析页始终聚焦在组合判断，而不是基础设施细节。",
     dataWorkspaceDatasetTitle: "数据状态",

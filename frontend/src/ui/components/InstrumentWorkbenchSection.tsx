@@ -85,9 +85,12 @@ export function InstrumentWorkbenchSection({
               <span>{t("dashboardInstrumentFocusTitle")}</span>
               <strong>{focusUnderlying || rows[0]?.underlying || t("none")}</strong>
             </div>
-            <Link className="button-like dashboard-link" to="/chain">
-              {t("dashboardOpenChain")}
-            </Link>
+              <Link
+                className="button-like dashboard-link"
+                to={selectedRow ? `/chain?symbol=${encodeURIComponent(selectedRow.symbol)}` : "/chain"}
+              >
+                {t("dashboardOpenChain")}
+              </Link>
           </div>
           <div className="risk-list">
             <article className="card grouped-exposure-card">
@@ -103,7 +106,10 @@ export function InstrumentWorkbenchSection({
               </div>
             </article>
             <div className="chain-actions">
-              <Link className="button-like dashboard-link" to="/option-risk-profile">
+              <Link
+                className="button-like dashboard-link"
+                to={selectedRow ? `/option-risk-profile?symbol=${encodeURIComponent(selectedRow.symbol)}` : "/option-risk-profile"}
+              >
                 {t("dashboardOpenProfile")}
               </Link>
               <Link className="button-like dashboard-link" to="/term-structure">

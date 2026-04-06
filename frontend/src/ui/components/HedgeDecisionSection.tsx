@@ -151,7 +151,10 @@ export function HedgeDecisionSection({
                   <span>{t("strategyExplanationTitle")}</span>
                   <strong>{topComparisons[0]?.label ?? t("none")}</strong>
                 </div>
-                <Link className="button-like dashboard-link" to="/strategy-compare">
+                <Link
+                  className="button-like dashboard-link"
+                  to={topComparisons[0] ? `/strategy-compare?proposal=${encodeURIComponent(topComparisons[0].proposalId)}` : "/strategy-compare"}
+                >
                   {t("dashboardOpenStrategyCompare")}
                 </Link>
               </div>

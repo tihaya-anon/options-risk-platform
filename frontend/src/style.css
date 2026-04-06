@@ -1108,6 +1108,16 @@ input {
   background: color-mix(in srgb, var(--paper) 90%, var(--bg) 10%);
 }
 
+.chain-row-clickable.is-selected,
+.book-table tbody tr.is-selected {
+  background: color-mix(in srgb, var(--paper) 82%, var(--bg) 18%);
+}
+
+.grouped-exposure-card.is-selected {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--line) 52%);
+  background: color-mix(in srgb, var(--paper) 86%, var(--bg) 14%);
+}
+
 .table-sort-button {
   display: inline-flex;
   align-items: center;

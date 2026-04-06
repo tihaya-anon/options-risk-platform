@@ -4,9 +4,11 @@ import { PanelSection } from "./PanelSection";
 
 export function StrategyCompareSection({
   comparison,
+  selectedProposalId,
   t,
 }: {
   comparison: StrategyComparison | null;
+  selectedProposalId?: string;
   t: (key: I18nKey) => string;
 }) {
   return (
@@ -33,7 +35,10 @@ export function StrategyCompareSection({
               </thead>
               <tbody>
                 {comparison.rows.map((row) => (
-                  <tr key={row.proposalId}>
+                  <tr
+                    key={row.proposalId}
+                    className={selectedProposalId === row.proposalId ? "is-selected" : ""}
+                  >
                     <td>{row.label}</td>
                     <td>{row.estimatedCost.toFixed(2)}</td>
                     <td>{row.residualExposure.delta.toFixed(2)}</td>
@@ -49,7 +54,10 @@ export function StrategyCompareSection({
           <div className="risk-list">
             <span className="sidebar-kicker">{t("strategyExplanationTitle")}</span>
             {comparison.rows.map((row) => (
-              <article key={`${row.proposalId}-explanation`} className="card grouped-exposure-card">
+              <article
+                key={`${row.proposalId}-explanation`}
+                className={`card grouped-exposure-card${selectedProposalId === row.proposalId ? " is-selected" : ""}`}
+              >
                 <div className="meta-block">
                   <span>{row.label}</span>
                   <strong>{row.residualExposure.delta.toFixed(2)}</strong>

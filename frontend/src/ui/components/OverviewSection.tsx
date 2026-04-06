@@ -255,7 +255,10 @@ export function OverviewSection({
                       : t("none")}
                   </strong>
                 </div>
-              <Link className="button-like dashboard-link" to="/hedge-lab">
+              <Link
+                className="button-like dashboard-link"
+                to={topHedges[0] ? `/strategy-compare?proposal=${encodeURIComponent(topHedges[0].id)}` : "/hedge-lab"}
+              >
                 {t("dashboardOpenHedgeLab")}
               </Link>
             </div>
@@ -336,7 +339,14 @@ export function OverviewSection({
                 <span>{t("dashboardInstrumentFocusTitle")}</span>
                 <strong>{focusUnderlying || snapshot.underlying.symbol}</strong>
               </div>
-              <Link className="button-like dashboard-link" to="/chain">
+              <Link
+                className="button-like dashboard-link"
+                to={
+                  snapshot.quotes[0]?.symbol
+                    ? `/chain?symbol=${encodeURIComponent(snapshot.quotes[0].symbol)}`
+                    : "/chain"
+                }
+              >
                 {t("dashboardOpenChain")}
               </Link>
             </div>
