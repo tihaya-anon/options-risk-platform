@@ -9,6 +9,9 @@ import type {
 } from "../positions";
 import { GreekMetricCard } from "./GreekMetricCard";
 import { PanelSection } from "./PanelSection";
+import { StatusBadge } from "./StatusBadge";
+import type { Language } from "../config";
+import { translateBackendMessage } from "../i18n";
 
 function getWorstScenario<T extends { portfolioPnl: number }>(items: T[]): T | null {
   if (items.length === 0) return null;
@@ -23,6 +26,7 @@ export function RiskControlSection({
   spotScenarios,
   volScenarios,
   timeScenarios,
+  language,
   t,
 }: {
   riskMap: RiskMap | null;
@@ -30,6 +34,7 @@ export function RiskControlSection({
   spotScenarios: ScenarioPoint[];
   volScenarios: VolScenarioPoint[];
   timeScenarios: TimeScenarioPoint[];
+  language: Language;
   t: (key: I18nKey) => string;
 }) {
   const worstSpot = getWorstScenario(spotScenarios);
@@ -62,11 +67,27 @@ export function RiskControlSection({
               <div className="risk-list">
                 {topRisks.map((risk) => (
                   <article key={`${risk.category}-${risk.summary}`} className="card grouped-exposure-card">
-                    <div className="meta-block">
-                      <span>{risk.category}</span>
-                      <strong>{risk.summary}</strong>
+                    <div className="dashboard-card-topline">
+                      <div className="meta-block">
+                        <span>{risk.category}</span>
+                        <strong>{translateBackendMessage(language, risk.summary)}</strong>
+                      </div>
+                      <StatusBadge
+                        label={risk.severity}
+                        tone={
+                          risk.severity === "high"
+                            ? "critical"
+                            : risk.severity === "medium"
+                              ? "warning"
+                              : "info"
+                        }
+                      />
                     </div>
-                    {risk.details ? <p className="subtle">{risk.details}</p> : null}
+                    {risk.details ? (
+                      <p className="subtle">
+                        {translateBackendMessage(language, risk.details)}
+                      </p>
+                    ) : null}
                   </article>
                 ))}
               </div>

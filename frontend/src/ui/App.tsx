@@ -312,7 +312,6 @@ export function App() {
       <SidebarNav
         groups={navGroups}
         kicker={t("appEyebrow")}
-        title={t("controlTowerTitle")}
       />
 
       <main className="dashboard-content">
@@ -347,6 +346,7 @@ export function App() {
                   spotScenarios={portfolioScenario}
                   volScenarios={portfolioVolScenario}
                   timeScenarios={portfolioTimeScenario}
+                  language={language}
                   t={t}
                 />
               }
@@ -444,6 +444,7 @@ export function App() {
                     riskMap={riskMap}
                     hedgeLab={hedgeLab}
                     focusUnderlying={settings.focusUnderlying.trim()}
+                    language={language}
                     t={t}
                   />
                 )

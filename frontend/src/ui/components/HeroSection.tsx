@@ -26,10 +26,12 @@ export function HeroSection({
   return (
     <section className="hero card">
       <div className="hero-identity">
-        <p className="eyebrow" style={{ color: accentColor }}>
-          {t("appEyebrow")}
-        </p>
-        <strong className="hero-titleline">{title}</strong>
+        <div className="hero-brand">
+          <p className="eyebrow" style={{ color: accentColor }}>
+            {t("appEyebrow")}
+          </p>
+          <strong className="hero-titleline">{title}</strong>
+        </div>
       </div>
 
       <div className="utility-dock card">

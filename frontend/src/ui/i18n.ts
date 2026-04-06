@@ -5,6 +5,8 @@ export type I18nKey =
   | "appTitle"
   | "appLede"
   | "controlTowerTitle"
+  | "status"
+  | "recommendedAction"
   | "underlying"
   | "spot"
   | "snapshot"
@@ -48,6 +50,9 @@ export type I18nKey =
   | "dashboardSignalHealthy"
   | "dashboardSignalWatch"
   | "dashboardSignalDefensive"
+  | "dashboardActionHealthy"
+  | "dashboardActionWatch"
+  | "dashboardActionDefensive"
   | "dashboardTopRisksTitle"
   | "dashboardHedgeIdeasTitle"
   | "dashboardScenarioWatchTitle"
@@ -62,6 +67,7 @@ export type I18nKey =
   | "dashboardOpenStrategyCompare"
   | "dashboardOpenProfile"
   | "dashboardOpenSurface"
+  | "dataWorkspaceDesc"
   | "topConcentration"
   | "greeksSummaryTitle"
   | "greeksSummaryDesc"
@@ -201,7 +207,15 @@ export type I18nKey =
   | "hedgeWhy"
   | "hedgeTradeOffs"
   | "hedgeResidualRisks"
-  | "strategyExplanationTitle";
+  | "strategyExplanationTitle"
+  | "riskSummaryDirectionalBetaElevated"
+  | "riskDetailsDirectionalBetaElevated"
+  | "riskSummaryVegaExposureElevated"
+  | "riskDetailsVegaExposureElevated"
+  | "riskSummaryTopSymbolConcentration"
+  | "riskDetailsTopSymbolConcentration"
+  | "riskSummaryExpiryConcentration"
+  | "riskDetailsExpiryConcentration";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -209,7 +223,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     appTitle: "Option Risk Should Read Like a Control Panel, Not a Spreadsheet.",
     appLede:
       "A static TypeScript dashboard with pluggable implied-volatility modeling. Today it uses Black-Scholes. Tomorrow it can swap models without rewriting the UI contract.",
-    controlTowerTitle: "Portfolio Risk Control Tower",
+    controlTowerTitle: "Portfolio Risk Cockpit",
+    status: "Status",
+    recommendedAction: "Recommended action",
     underlying: "Underlying",
     spot: "Spot",
     snapshot: "Snapshot",
@@ -255,13 +271,16 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     saveSettings: "Save settings",
     quoteCount: "Contracts in view",
     focusUnderlyingEmpty: "Use auto-detected underlyings from the book.",
-    overviewTitle: "Dashboard",
+    overviewTitle: "Portfolio Overview",
     overviewDesc:
       "Start with the most important portfolio signals, then drill into risks, hedges, and instruments only when needed.",
     dashboardSignal: "Book signal",
     dashboardSignalHealthy: "Balanced",
     dashboardSignalWatch: "Watchlist",
     dashboardSignalDefensive: "Defensive",
+    dashboardActionHealthy: "Keep monitoring. Drill down only if concentration starts to build.",
+    dashboardActionWatch: "Inspect concentration and compare lighter hedge overlays.",
+    dashboardActionDefensive: "Review risk concentration and open hedge candidates now.",
     dashboardTopRisksTitle: "Primary Risks",
     dashboardHedgeIdeasTitle: "Hedge Ideas",
     dashboardScenarioWatchTitle: "Scenario Watch",
@@ -276,6 +295,8 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dashboardOpenStrategyCompare: "Open strategy compare",
     dashboardOpenProfile: "Open profile",
     dashboardOpenSurface: "Open surface",
+    dataWorkspaceDesc:
+      "Use these pages to configure providers and ingest raw positions after the top-down review is clear.",
     topConcentration: "Top concentration",
     greeksSummaryTitle: "Greeks Risk Snapshot",
     greeksSummaryDesc:
@@ -427,13 +448,23 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     hedgeTradeOffs: "Trade-offs",
     hedgeResidualRisks: "Residual risks",
     strategyExplanationTitle: "Decision notes",
+    riskSummaryDirectionalBetaElevated: "Directional beta exposure is elevated.",
+    riskDetailsDirectionalBetaElevated: "Current beta proxy is {value}.",
+    riskSummaryVegaExposureElevated: "Net vega exposure is elevated.",
+    riskDetailsVegaExposureElevated: "Current vega is {value}.",
+    riskSummaryTopSymbolConcentration: "The book is concentrated in {bucket}.",
+    riskDetailsTopSymbolConcentration: "{bucket} contributes the largest market value slice.",
+    riskSummaryExpiryConcentration: "Expiry concentration is elevated in {bucket}.",
+    riskDetailsExpiryConcentration: "{bucket} currently dominates expiry-level risk.",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
     appTitle: "期权风险界面应该像控制台，而不是电子表格。",
     appLede:
       "这是一个静态 TypeScript 风险面板，隐含波动率模型通过通用接口接入。当前先用 Black-Scholes，后续可替换而不重写前端契约。",
-    controlTowerTitle: "组合风险控制塔",
+    controlTowerTitle: "组合风险驾驶舱",
+    status: "状态",
+    recommendedAction: "建议动作",
     underlying: "标的",
     spot: "现价",
     snapshot: "快照时间",
@@ -472,13 +503,16 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     saveSettings: "保存设置",
     quoteCount: "当前合约数",
     focusUnderlyingEmpty: "使用组合中自动识别的标的作为曲面视图上下文。",
-    overviewTitle: "控制塔",
+    overviewTitle: "组合总览",
     overviewDesc:
       "先看最关键的组合信号，再按风险、对冲和工具页面逐层下钻，而不是直接面对原始数据。",
     dashboardSignal: "组合状态",
     dashboardSignalHealthy: "相对平衡",
     dashboardSignalWatch: "需要关注",
     dashboardSignalDefensive: "偏防御",
+    dashboardActionHealthy: "继续监控即可，只有在集中度上升时再下钻。",
+    dashboardActionWatch: "优先检查集中度，并比较更轻量的对冲覆盖方案。",
+    dashboardActionDefensive: "立即查看风险集中，并打开对冲候选方案。",
     dashboardTopRisksTitle: "主要风险",
     dashboardHedgeIdeasTitle: "对冲思路",
     dashboardScenarioWatchTitle: "情景观察",
@@ -493,6 +527,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dashboardOpenStrategyCompare: "进入策略比较",
     dashboardOpenProfile: "进入风险剖面",
     dashboardOpenSurface: "进入曲面",
+    dataWorkspaceDesc: "在完成上层风险判断后，再回到这些页面配置 provider 与导入原始持仓。",
     topConcentration: "最高集中度",
     greeksSummaryTitle: "Greeks 风险快照",
     greeksSummaryDesc: "当前先做链级别聚合，用于展示平台形态。真实组合模式应聚合实际持仓。",
@@ -638,9 +673,86 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     hedgeTradeOffs: "主要取舍",
     hedgeResidualRisks: "残余风险",
     strategyExplanationTitle: "决策说明",
+    riskSummaryDirectionalBetaElevated: "方向性 Beta 暴露偏高。",
+    riskDetailsDirectionalBetaElevated: "当前 Beta 代理值为 {value}。",
+    riskSummaryVegaExposureElevated: "净 Vega 暴露偏高。",
+    riskDetailsVegaExposureElevated: "当前 Vega 为 {value}。",
+    riskSummaryTopSymbolConcentration: "组合在 {bucket} 上集中度偏高。",
+    riskDetailsTopSymbolConcentration: "{bucket} 当前贡献了最大的市值权重。",
+    riskSummaryExpiryConcentration: "{bucket} 的到期集中度偏高。",
+    riskDetailsExpiryConcentration: "{bucket} 当前主导了到期维度的风险暴露。",
   },
 };
 
 export function createTranslator(language: Language) {
   return (key: I18nKey): string => translations[language][key];
+}
+
+const backendMessageCatalog = {
+  "Directional beta exposure is elevated.": "riskSummaryDirectionalBetaElevated",
+  "Net vega exposure is elevated.": "riskSummaryVegaExposureElevated",
+} as const satisfies Record<string, I18nKey>;
+
+export function translateBackendMessage(
+  language: Language,
+  message: string,
+): string {
+  const match = backendMessageCatalog[message as keyof typeof backendMessageCatalog];
+  if (match) {
+    return translations[language][match];
+  }
+
+  const directionalDetails = message.match(/^Current beta proxy is ([\d.-]+)\.$/);
+  if (directionalDetails) {
+    return translations[language].riskDetailsDirectionalBetaElevated.replace(
+      "{value}",
+      directionalDetails[1],
+    );
+  }
+
+  const vegaDetails = message.match(/^Current vega is ([\d.-]+)\.$/);
+  if (vegaDetails) {
+    return translations[language].riskDetailsVegaExposureElevated.replace(
+      "{value}",
+      vegaDetails[1],
+    );
+  }
+
+  const symbolConcentration = message.match(/^The book is concentrated in (.+)\.$/);
+  if (symbolConcentration) {
+    return translations[language].riskSummaryTopSymbolConcentration.replace(
+      "{bucket}",
+      symbolConcentration[1],
+    );
+  }
+
+  const symbolConcentrationDetails = message.match(
+    /^(.+) contributes the largest market value slice\.$/,
+  );
+  if (symbolConcentrationDetails) {
+    return translations[language].riskDetailsTopSymbolConcentration.replace(
+      "{bucket}",
+      symbolConcentrationDetails[1],
+    );
+  }
+
+  const expiryConcentration = message.match(/^Expiry concentration is elevated in (.+)\.$/);
+  if (expiryConcentration) {
+    return translations[language].riskSummaryExpiryConcentration.replace(
+      "{bucket}",
+      expiryConcentration[1],
+    );
+  }
+
+  const expiryConcentrationDetails = message.match(
+    /^(.+) currently dominates expiry-level risk\.$/,
+  );
+  if (expiryConcentrationDetails) {
+    return translations[language].riskDetailsExpiryConcentration.replace(
+      "{bucket}",
+      expiryConcentrationDetails[1],
+    );
+  }
+
+  return message;
 }

@@ -3,6 +3,7 @@ import type { OptionSnapshotFile } from "../../types";
 import type { HedgeProposalResponse } from "../../api/generated/model/hedgeProposalResponse";
 import type { RiskMap } from "../../api/generated/model/riskMap";
 import type { I18nKey } from "../i18n";
+import type { Language } from "../config";
 import type {
   GroupedExposure,
   PortfolioExposure,
@@ -11,6 +12,8 @@ import type {
   VolScenarioPoint,
 } from "../positions";
 import { PanelSection } from "./PanelSection";
+import { StatusBadge } from "./StatusBadge";
+import { translateBackendMessage } from "../i18n";
 
 function getWorstScenario<T extends { portfolioPnl: number }>(items: T[]): T | null {
   if (items.length === 0) return null;
@@ -29,6 +32,7 @@ export function OverviewSection({
   riskMap,
   hedgeLab,
   focusUnderlying,
+  language,
   t,
 }: {
   snapshot: OptionSnapshotFile;
@@ -40,6 +44,7 @@ export function OverviewSection({
   riskMap: RiskMap | null;
   hedgeLab: HedgeProposalResponse | null;
   focusUnderlying: string;
+  language: Language;
   t: (key: I18nKey) => string;
 }) {
   const worstSpot = getWorstScenario(spotScenarios);
@@ -62,6 +67,12 @@ export function OverviewSection({
     }
     return t("dashboardSignalHealthy");
   })();
+  const dashboardAction =
+    dashboardSignal === t("dashboardSignalDefensive")
+      ? t("dashboardActionDefensive")
+      : dashboardSignal === t("dashboardSignalWatch")
+        ? t("dashboardActionWatch")
+        : t("dashboardActionHealthy");
 
   const cards = [
     {
@@ -100,17 +111,37 @@ export function OverviewSection({
     <PanelSection title={t("overviewTitle")} description={t("overviewDesc")}>
       <div className="dashboard-panel-content">
         <article className="card dashboard-summary-card">
-          <div className="meta-block">
-            <span>{t("overviewTitle")}</span>
-            <strong>
-              {topRisks[0]?.summary ??
-                `${snapshot.underlying.symbol} @ ${snapshot.underlying.spot.toFixed(2)}`}
-            </strong>
+          <div className="dashboard-card-topline">
+            <div className="meta-block">
+              <span>{t("overviewTitle")}</span>
+              <strong>
+                {topRisks[0]
+                  ? translateBackendMessage(language, topRisks[0].summary)
+                  :
+                  `${snapshot.underlying.symbol} @ ${snapshot.underlying.spot.toFixed(2)}`}
+              </strong>
+            </div>
+            <StatusBadge
+              label={dashboardSignal}
+              tone={
+                dashboardSignal === t("dashboardSignalDefensive")
+                  ? "critical"
+                  : dashboardSignal === t("dashboardSignalWatch")
+                    ? "warning"
+                    : "positive"
+              }
+            />
           </div>
           <p className="subtle">
-            {topRisks[0]?.details ??
+            {(topRisks[0]?.details
+              ? translateBackendMessage(language, topRisks[0].details)
+              : null) ??
               `${t("quoteCount")}: ${snapshot.quotes.length}. ${t("dashboardOpenRiskMap")} / ${t("dashboardOpenHedgeLab")} / ${t("dashboardOpenChain")}.`}
           </p>
+          <div className="dashboard-summary-action">
+            <span>{t("recommendedAction")}</span>
+            <strong>{dashboardAction}</strong>
+          </div>
         </article>
 
         <div className="overview-grid dashboard-metric-strip">
@@ -127,7 +158,11 @@ export function OverviewSection({
             <div className="dashboard-section-head">
               <div className="meta-block">
                 <span>{t("dashboardTopRisksTitle")}</span>
-                <strong>{topRisks[0]?.summary ?? t("none")}</strong>
+                <strong>
+                  {topRisks[0]
+                    ? translateBackendMessage(language, topRisks[0].summary)
+                    : t("none")}
+                </strong>
               </div>
               <Link className="button-like dashboard-link" to="/risk-map">
                 {t("dashboardOpenRiskMap")}
@@ -137,10 +172,14 @@ export function OverviewSection({
               {topRisks.map((risk) => (
                 <article key={`${risk.category}-${risk.summary}`} className="card grouped-exposure-card">
                   <div className="meta-block">
-                    <span>{risk.category}</span>
-                    <strong>{risk.summary}</strong>
-                  </div>
-                  {risk.details ? <p className="subtle">{risk.details}</p> : null}
+                      <span>{risk.category}</span>
+                      <strong>{translateBackendMessage(language, risk.summary)}</strong>
+                    </div>
+                  {risk.details ? (
+                    <p className="subtle">
+                      {translateBackendMessage(language, risk.details)}
+                    </p>
+                  ) : null}
                 </article>
               ))}
             </div>

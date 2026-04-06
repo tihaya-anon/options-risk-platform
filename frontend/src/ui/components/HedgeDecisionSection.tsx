@@ -3,6 +3,7 @@ import type { HedgeProposalResponse } from "../../api/generated/model/hedgePropo
 import type { StrategyComparison } from "../../api/generated/model/strategyComparison";
 import type { I18nKey } from "../i18n";
 import { PanelSection } from "./PanelSection";
+import { StatusBadge } from "./StatusBadge";
 
 export function HedgeDecisionSection({
   hedgeLab,
@@ -40,9 +41,23 @@ export function HedgeDecisionSection({
               <div className="risk-list">
                 {topProposals.map((proposal) => (
                   <article key={proposal.id} className="card grouped-exposure-card">
-                    <div className="meta-block">
-                      <span>{proposal.instrument ?? t("none")}</span>
-                      <strong>{proposal.label}</strong>
+                    <div className="dashboard-card-topline">
+                      <div className="meta-block">
+                        <span>{proposal.instrument ?? t("none")}</span>
+                        <strong>{proposal.label}</strong>
+                      </div>
+                      <StatusBadge
+                        label={proposal.hedgeType}
+                        tone={
+                          proposal.hedgeType === "protectivePut"
+                            ? "warning"
+                            : proposal.hedgeType === "collar"
+                              ? "info"
+                              : proposal.hedgeType === "futuresOverlay"
+                                ? "positive"
+                                : "neutral"
+                        }
+                      />
                     </div>
                     <p className="subtle">{proposal.summary}</p>
                     <div className="grouped-stats dashboard-proposal-stats">
@@ -73,9 +88,21 @@ export function HedgeDecisionSection({
               <div className="risk-list">
                 {topComparisons.map((row) => (
                   <article key={row.proposalId} className="card grouped-exposure-card">
-                    <div className="meta-block">
-                      <span>{row.label}</span>
-                      <strong>{row.residualExposure.delta.toFixed(2)}</strong>
+                    <div className="dashboard-card-topline">
+                      <div className="meta-block">
+                        <span>{row.label}</span>
+                        <strong>{row.residualExposure.delta.toFixed(2)}</strong>
+                      </div>
+                      <StatusBadge
+                        label={((row.downsideProtection ?? 0) * 100).toFixed(0) + "%"}
+                        tone={
+                          (row.downsideProtection ?? 0) > 0.65
+                            ? "positive"
+                            : (row.downsideProtection ?? 0) > 0.35
+                              ? "warning"
+                              : "neutral"
+                        }
+                      />
                     </div>
                     <p className="subtle">
                       {row.explanation?.upsideRetention ?? t("none")}

@@ -153,6 +153,11 @@ input {
   flex-wrap: wrap;
 }
 
+.hero-brand {
+  display: grid;
+  gap: 4px;
+}
+
 .eyebrow {
   margin: 0;
   font-weight: 700;
@@ -230,9 +235,10 @@ input {
 }
 
 .sidebar-head {
-  display: grid;
-  gap: 4px;
-  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  min-height: 18px;
+  margin-bottom: 10px;
 }
 
 .sidebar-group {
@@ -263,15 +269,9 @@ input {
 
 .sidebar-kicker {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-}
-
-.sidebar-title {
-  font-family: "Space Grotesk", "Segoe UI", sans-serif;
-  color: var(--ink);
-  font-size: 1.2rem;
 }
 
 .sidebar-nav {
@@ -725,6 +725,17 @@ input {
   padding: 16px;
 }
 
+.data-panel .panel-head h2,
+.data-panel .panel-head p {
+  opacity: 0.88;
+}
+
+.data-panel .settings-card,
+.data-panel .positions-editor,
+.data-panel .positions-summary {
+  border-radius: 18px;
+}
+
 .settings-input {
   width: 100%;
 }
@@ -853,6 +864,23 @@ input {
   max-width: 72ch;
 }
 
+.dashboard-card-topline {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-summary-action {
+  display: grid;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.dashboard-summary-action strong {
+  color: var(--ink);
+}
+
 .dashboard-metric-strip {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -884,6 +912,43 @@ input {
 
 .dashboard-proposal-stats {
   margin-top: 12px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-badge.neutral {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.status-badge.positive {
+  color: #0f7a43;
+  background: rgba(29, 185, 84, 0.12);
+}
+
+.status-badge.warning {
+  color: #9a5b06;
+  background: rgba(231, 163, 33, 0.14);
+}
+
+.status-badge.critical {
+  color: #a44716;
+  background: rgba(219, 139, 80, 0.14);
+}
+
+.status-badge.info {
+  color: #245f94;
+  background: rgba(61, 136, 205, 0.12);
 }
 
 .dashboard-column-card .chain-actions {
