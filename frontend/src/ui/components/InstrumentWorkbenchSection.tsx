@@ -3,6 +3,7 @@ import type { EnrichedOptionQuote } from "../../types";
 import type { I18nKey } from "../i18n";
 import { GreekMetricCard } from "./GreekMetricCard";
 import { PanelSection } from "./PanelSection";
+import { ActionRail } from "./ActionRail";
 
 export function InstrumentWorkbenchSection({
   rows,
@@ -23,6 +24,27 @@ export function InstrumentWorkbenchSection({
       description={t("instrumentWorkbenchDesc")}
       bodyClassName="risk-map-panel-content"
     >
+      <ActionRail
+        title={t("primaryActionsTitle")}
+        items={[
+          {
+            to: "/chain",
+            label: t("dashboardOpenChain"),
+            caption: focusUnderlying || rows[0]?.underlying || t("none"),
+          },
+          {
+            to: "/option-risk-profile",
+            label: t("dashboardOpenProfile"),
+            caption: selectedRow?.symbol ?? t("none"),
+          },
+          {
+            to: "/term-structure",
+            label: t("dashboardOpenSurface"),
+            caption: t("termTitle"),
+          },
+        ]}
+      />
+
       <div className="dashboard-split-grid">
         <article className="card dashboard-column-card">
           <div className="dashboard-section-head">

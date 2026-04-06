@@ -12,6 +12,7 @@ import { PanelSection } from "./PanelSection";
 import { StatusBadge } from "./StatusBadge";
 import type { Language } from "../config";
 import { translateBackendMessage } from "../i18n";
+import { ActionRail } from "./ActionRail";
 
 function getWorstScenario<T extends { portfolioPnl: number }>(items: T[]): T | null {
   if (items.length === 0) return null;
@@ -53,12 +54,37 @@ export function RiskControlSection({
         <div className="empty-state">{t("loading")}</div>
       ) : (
         <>
+          <ActionRail
+            title={t("primaryActionsTitle")}
+            items={[
+              {
+                to: "/grouped-exposure",
+                label: t("dashboardOpenGroupedExposure"),
+                caption: topBuckets[0]?.bucket ?? t("none"),
+              },
+              {
+                to: "/spot-scenario",
+                label: t("dashboardOpenScenarios"),
+                caption: t("worstSpotScenario"),
+              },
+              {
+                to: "/greeks-summary",
+                label: t("dashboardOpenGreeks"),
+                caption: t("greeksSummaryTitle"),
+              },
+            ]}
+          />
+
           <div className="dashboard-split-grid">
             <article className="card dashboard-column-card">
               <div className="dashboard-section-head">
                 <div className="meta-block">
                   <span>{t("dashboardTopRisksTitle")}</span>
-                  <strong>{topRisks[0]?.summary ?? t("none")}</strong>
+                  <strong>
+                    {topRisks[0]
+                      ? translateBackendMessage(language, topRisks[0].summary)
+                      : t("none")}
+                  </strong>
                 </div>
                 <Link className="button-like dashboard-link" to="/risk-map">
                   {t("dashboardOpenRiskMap")}

@@ -4,6 +4,7 @@ import type { StrategyComparison } from "../../api/generated/model/strategyCompa
 import type { I18nKey } from "../i18n";
 import { PanelSection } from "./PanelSection";
 import { StatusBadge } from "./StatusBadge";
+import { ActionRail } from "./ActionRail";
 
 export function HedgeDecisionSection({
   hedgeLab,
@@ -27,6 +28,22 @@ export function HedgeDecisionSection({
         <div className="empty-state">{t("loading")}</div>
       ) : (
         <>
+          <ActionRail
+            title={t("primaryActionsTitle")}
+            items={[
+              {
+                to: "/hedge-lab",
+                label: t("dashboardOpenHedgeLab"),
+                caption: topProposals[0]?.label ?? t("none"),
+              },
+              {
+                to: "/strategy-compare",
+                label: t("dashboardOpenStrategyCompare"),
+                caption: topComparisons[0]?.label ?? t("none"),
+              },
+            ]}
+          />
+
           <div className="dashboard-split-grid">
             <article className="card dashboard-column-card">
               <div className="dashboard-section-head">

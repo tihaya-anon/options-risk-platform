@@ -67,7 +67,14 @@ export type I18nKey =
   | "dashboardOpenStrategyCompare"
   | "dashboardOpenProfile"
   | "dashboardOpenSurface"
+  | "dashboardOpenSettings"
   | "dataWorkspaceDesc"
+  | "dataWorkspaceTitle"
+  | "dataWorkspaceImportTitle"
+  | "dataWorkspaceImportDesc"
+  | "dataWorkspaceConnectionTitle"
+  | "dataWorkspaceConnectionDesc"
+  | "primaryActionsTitle"
   | "topConcentration"
   | "greeksSummaryTitle"
   | "greeksSummaryDesc"
@@ -295,8 +302,17 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dashboardOpenStrategyCompare: "Open strategy compare",
     dashboardOpenProfile: "Open profile",
     dashboardOpenSurface: "Open surface",
+    dashboardOpenSettings: "Open settings",
     dataWorkspaceDesc:
       "Use these pages to configure providers and ingest raw positions after the top-down review is clear.",
+    dataWorkspaceTitle: "Data Workspace",
+    dataWorkspaceImportTitle: "Position ingestion",
+    dataWorkspaceImportDesc:
+      "Paste or upload raw positions, inspect parsing errors, and verify unmatched symbols before risk aggregation.",
+    dataWorkspaceConnectionTitle: "Provider connection",
+    dataWorkspaceConnectionDesc:
+      "Adjust provider defaults, focus underlying, and backend connection options without cluttering the main cockpit.",
+    primaryActionsTitle: "Primary actions",
     topConcentration: "Top concentration",
     greeksSummaryTitle: "Greeks Risk Snapshot",
     greeksSummaryDesc:
@@ -527,7 +543,16 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dashboardOpenStrategyCompare: "进入策略比较",
     dashboardOpenProfile: "进入风险剖面",
     dashboardOpenSurface: "进入曲面",
+    dashboardOpenSettings: "进入设置",
     dataWorkspaceDesc: "在完成上层风险判断后，再回到这些页面配置 provider 与导入原始持仓。",
+    dataWorkspaceTitle: "数据工作区",
+    dataWorkspaceImportTitle: "持仓导入",
+    dataWorkspaceImportDesc:
+      "粘贴或上传原始持仓，检查解析错误与未匹配合约，再进入风险聚合流程。",
+    dataWorkspaceConnectionTitle: "数据连接",
+    dataWorkspaceConnectionDesc:
+      "配置 provider、焦点标的和后端连接选项，但不要让这些配置淹没主驾驶舱。",
+    primaryActionsTitle: "下一步动作",
     topConcentration: "最高集中度",
     greeksSummaryTitle: "Greeks 风险快照",
     greeksSummaryDesc: "当前先做链级别聚合，用于展示平台形态。真实组合模式应聚合实际持仓。",

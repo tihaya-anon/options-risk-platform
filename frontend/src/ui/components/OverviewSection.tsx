@@ -14,6 +14,7 @@ import type {
 import { PanelSection } from "./PanelSection";
 import { StatusBadge } from "./StatusBadge";
 import { translateBackendMessage } from "../i18n";
+import { ActionRail } from "./ActionRail";
 
 function getWorstScenario<T extends { portfolioPnl: number }>(items: T[]): T | null {
   if (items.length === 0) return null;
@@ -143,6 +144,27 @@ export function OverviewSection({
             <strong>{dashboardAction}</strong>
           </div>
         </article>
+
+        <ActionRail
+          title={t("primaryActionsTitle")}
+          items={[
+            {
+              to: "/risks",
+              label: t("dashboardOpenRiskMap"),
+              caption: t("dashboardActionWatch"),
+            },
+            {
+              to: "/hedges",
+              label: t("dashboardOpenHedgeLab"),
+              caption: t("dashboardActionDefensive"),
+            },
+            {
+              to: "/instruments",
+              label: t("dashboardOpenChain"),
+              caption: t("focusUnderlying") + " / " + (focusUnderlying || snapshot.underlying.symbol),
+            },
+          ]}
+        />
 
         <div className="overview-grid dashboard-metric-strip">
           {cards.map((card) => (

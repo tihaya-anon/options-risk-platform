@@ -20,6 +20,7 @@ import { useConnectionHealth } from "./hooks/useConnectionHealth";
 import { useRuntimeConfig } from "./hooks/useRuntimeConfig";
 import { ChainSection } from "./components/ChainSection";
 import { CurrentBookSection } from "./components/CurrentBookSection";
+import { DataWorkspaceSection } from "./components/DataWorkspaceSection";
 import { GreeksSummarySection } from "./components/GreeksSummarySection";
 import { HedgeDecisionSection } from "./components/HedgeDecisionSection";
 import { HedgeLabSection } from "./components/HedgeLabSection";
@@ -299,6 +300,7 @@ export function App() {
         title: t("navData"),
         tone: "muted",
         items: [
+          { path: "/data", label: t("dataWorkspaceTitle") },
           { path: "/positions", label: t("positionsTitle") },
           { path: "/settings", label: t("settingsTitle") },
         ],
@@ -405,6 +407,10 @@ export function App() {
                   onSelectSymbol={setSelectedContractSymbol}
                 />
               }
+            />
+            <Route
+              path="/data"
+              element={<DataWorkspaceSection t={t} />}
             />
             <Route
               path="/settings"

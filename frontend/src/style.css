@@ -854,6 +854,33 @@ input {
   gap: 14px;
 }
 
+.action-rail {
+  display: grid;
+  gap: 10px;
+}
+
+.action-rail-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.action-rail-card {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.action-rail-card strong {
+  color: var(--ink);
+}
+
+.action-rail-card span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
 .dashboard-summary-card,
 .dashboard-column-card {
   padding: 16px;
@@ -1148,6 +1175,10 @@ input {
 
   .dashboard-split-grid {
     grid-template-columns: minmax(0, 1.2fr) minmax(360px, 0.8fr);
+  }
+
+  .action-rail-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
