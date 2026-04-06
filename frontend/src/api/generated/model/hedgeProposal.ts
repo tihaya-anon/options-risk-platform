@@ -9,6 +9,7 @@ The frontend should treat this contract as the canonical integration surface.
  */
 import type { HedgeType } from './hedgeType';
 import type { ExposureSummary } from './exposureSummary';
+import type { HedgeRationale } from './hedgeRationale';
 
 export interface HedgeProposal {
   id: string;
@@ -23,4 +24,5 @@ export interface HedgeProposal {
   estimatedCost?: number | null;
   residualExposure: ExposureSummary;
   notes?: string[];
+  rationale?: HedgeRationale;
 }

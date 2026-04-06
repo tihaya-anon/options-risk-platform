@@ -10,13 +10,21 @@ export interface SidebarNavGroup {
   items: SidebarNavItem[];
 }
 
-export function SidebarNav({ groups }: { groups: SidebarNavGroup[] }) {
+export function SidebarNav({
+  groups,
+  kicker,
+  title,
+}: {
+  groups: SidebarNavGroup[];
+  kicker: string;
+  title: string;
+}) {
   return (
     <aside className="sidebar card">
       <div className="sidebar-inner custom-scrollbar">
         <div className="sidebar-head">
-          <span className="sidebar-kicker">Options Risk</span>
-          <strong className="sidebar-title">Workbench</strong>
+          <span className="sidebar-kicker">{kicker}</span>
+          <strong className="sidebar-title">{title}</strong>
         </div>
         {groups.map((group) => (
           <div key={group.title} className="sidebar-group">

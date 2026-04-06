@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { createHedgeProposals } from "../../api/client";
 import type { BookSnapshot } from "../../api/generated/model/bookSnapshot";
+import type { HedgeUniverse } from "../../api/generated/model/hedgeUniverse";
 import type { HedgeProposalResponse } from "../../api/generated/model/hedgeProposalResponse";
 
 export function useHedgeLab(input: {
   book: BookSnapshot | null;
   apiBaseUrl: string;
   target: string;
+  hedgeUniverse: HedgeUniverse;
 }) {
   const [hedgeLab, setHedgeLab] = useState<HedgeProposalResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +23,8 @@ export function useHedgeLab(input: {
 
     createHedgeProposals({
       book: input.book,
-      allowedHedgeTypes: ["none", "futuresOverlay", "protectivePut"],
       target: input.target,
+      hedgeUniverse: input.hedgeUniverse,
       apiBaseUrl: input.apiBaseUrl,
     })
       .then((result) => {
@@ -41,7 +43,7 @@ export function useHedgeLab(input: {
     return () => {
       isActive = false;
     };
-  }, [input.apiBaseUrl, input.book, input.target]);
+  }, [input.apiBaseUrl, input.book, input.target, input.hedgeUniverse]);
 
   return { hedgeLab, error };
 }

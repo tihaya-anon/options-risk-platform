@@ -4,6 +4,7 @@ export type I18nKey =
   | "appEyebrow"
   | "appTitle"
   | "appLede"
+  | "controlTowerTitle"
   | "underlying"
   | "spot"
   | "snapshot"
@@ -33,8 +34,24 @@ export type I18nKey =
   | "provider"
   | "advisorMode"
   | "saveSettings"
+  | "quoteCount"
+  | "focusUnderlyingEmpty"
   | "overviewTitle"
   | "overviewDesc"
+  | "dashboardSignal"
+  | "dashboardSignalHealthy"
+  | "dashboardSignalWatch"
+  | "dashboardSignalDefensive"
+  | "dashboardTopRisksTitle"
+  | "dashboardHedgeIdeasTitle"
+  | "dashboardScenarioWatchTitle"
+  | "dashboardInstrumentFocusTitle"
+  | "dashboardOpenRiskMap"
+  | "dashboardOpenHedgeLab"
+  | "dashboardOpenScenarios"
+  | "dashboardOpenChain"
+  | "dashboardOpenBook"
+  | "topConcentration"
   | "greeksSummaryTitle"
   | "greeksSummaryDesc"
   | "netDelta"
@@ -149,9 +166,12 @@ export type I18nKey =
   | "instrumentType"
   | "markPrice"
   | "topRisksTitle"
+  | "navDashboard"
   | "navBook"
   | "navRisk"
   | "navHedge"
+  | "navInstruments"
+  | "navData"
   | "navSurface"
   | "hedgeCost"
   | "hedgeInstrument"
@@ -162,7 +182,15 @@ export type I18nKey =
   | "hedgeTarget"
   | "hedgeTargetDelta"
   | "hedgeTargetBeta"
-  | "hedgeTargetTail";
+  | "hedgeTargetTail"
+  | "hedgeUniverse"
+  | "hedgeUniverseAll"
+  | "hedgeUniverseFutures"
+  | "hedgeUniverseOptions"
+  | "hedgeWhy"
+  | "hedgeTradeOffs"
+  | "hedgeResidualRisks"
+  | "strategyExplanationTitle";
 
 const translations: Record<Language, Record<I18nKey, string>> = {
   en: {
@@ -170,6 +198,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     appTitle: "Option Risk Should Read Like a Control Panel, Not a Spreadsheet.",
     appLede:
       "A static TypeScript dashboard with pluggable implied-volatility modeling. Today it uses Black-Scholes. Tomorrow it can swap models without rewriting the UI contract.",
+    controlTowerTitle: "Portfolio Risk Control Tower",
     underlying: "Underlying",
     spot: "Spot",
     snapshot: "Snapshot",
@@ -204,9 +233,25 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     provider: "Provider",
     advisorMode: "Advisor mode",
     saveSettings: "Save settings",
-    overviewTitle: "Overview",
+    quoteCount: "Contracts in view",
+    focusUnderlyingEmpty: "Use auto-detected underlyings from the book.",
+    overviewTitle: "Dashboard",
     overviewDesc:
-      "A compact landing page for the most important current risk signals before you drill into detail pages.",
+      "Start with the most important portfolio signals, then drill into risks, hedges, and instruments only when needed.",
+    dashboardSignal: "Book signal",
+    dashboardSignalHealthy: "Balanced",
+    dashboardSignalWatch: "Watchlist",
+    dashboardSignalDefensive: "Defensive",
+    dashboardTopRisksTitle: "Primary Risks",
+    dashboardHedgeIdeasTitle: "Hedge Ideas",
+    dashboardScenarioWatchTitle: "Scenario Watch",
+    dashboardInstrumentFocusTitle: "Instrument Focus",
+    dashboardOpenRiskMap: "Open risk map",
+    dashboardOpenHedgeLab: "Open hedge lab",
+    dashboardOpenScenarios: "Open scenarios",
+    dashboardOpenChain: "Open chain",
+    dashboardOpenBook: "Open book",
+    topConcentration: "Top concentration",
     greeksSummaryTitle: "Greeks Risk Snapshot",
     greeksSummaryDesc:
       "Quote-level aggregation to show the platform shape. Real portfolio mode would aggregate actual positions.",
@@ -332,9 +377,12 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     instrumentType: "Instrument",
     markPrice: "Mark Price",
     topRisksTitle: "Top Risks",
+    navDashboard: "Dashboard",
     navBook: "Book",
     navRisk: "Risk",
     navHedge: "Hedge",
+    navInstruments: "Instruments",
+    navData: "Data",
     navSurface: "Surface",
     hedgeCost: "Hedge Cost",
     hedgeInstrument: "Instrument",
@@ -346,12 +394,21 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     hedgeTargetDelta: "Neutralize delta",
     hedgeTargetBeta: "Reduce beta",
     hedgeTargetTail: "Tail protection",
+    hedgeUniverse: "Universe",
+    hedgeUniverseAll: "Futures + options",
+    hedgeUniverseFutures: "Futures only",
+    hedgeUniverseOptions: "Options only",
+    hedgeWhy: "Why",
+    hedgeTradeOffs: "Trade-offs",
+    hedgeResidualRisks: "Residual risks",
+    strategyExplanationTitle: "Decision notes",
   },
   zh: {
     appEyebrow: "静态期权风险平台",
     appTitle: "期权风险界面应该像控制台，而不是电子表格。",
     appLede:
       "这是一个静态 TypeScript 风险面板，隐含波动率模型通过通用接口接入。当前先用 Black-Scholes，后续可替换而不重写前端契约。",
+    controlTowerTitle: "组合风险控制塔",
     underlying: "标的",
     spot: "现价",
     snapshot: "快照时间",
@@ -382,9 +439,25 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     provider: "数据提供方",
     advisorMode: "建议引擎模式",
     saveSettings: "保存设置",
-    overviewTitle: "总览",
+    quoteCount: "当前合约数",
+    focusUnderlyingEmpty: "使用组合中自动识别的标的作为曲面视图上下文。",
+    overviewTitle: "控制塔",
     overviewDesc:
-      "打开平台后先看到最关键的风险摘要，再决定是否继续深入到细分页面。",
+      "先看最关键的组合信号，再按风险、对冲和工具页面逐层下钻，而不是直接面对原始数据。",
+    dashboardSignal: "组合状态",
+    dashboardSignalHealthy: "相对平衡",
+    dashboardSignalWatch: "需要关注",
+    dashboardSignalDefensive: "偏防御",
+    dashboardTopRisksTitle: "主要风险",
+    dashboardHedgeIdeasTitle: "对冲思路",
+    dashboardScenarioWatchTitle: "情景观察",
+    dashboardInstrumentFocusTitle: "工具视角",
+    dashboardOpenRiskMap: "进入风险地图",
+    dashboardOpenHedgeLab: "进入对冲实验室",
+    dashboardOpenScenarios: "进入情景分析",
+    dashboardOpenChain: "进入期权链",
+    dashboardOpenBook: "进入持仓簿",
+    topConcentration: "最高集中度",
     greeksSummaryTitle: "Greeks 风险快照",
     greeksSummaryDesc: "当前先做链级别聚合，用于展示平台形态。真实组合模式应聚合实际持仓。",
     netDelta: "净 Delta",
@@ -504,9 +577,12 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     instrumentType: "工具类型",
     markPrice: "标记价格",
     topRisksTitle: "主要风险",
+    navDashboard: "总览",
     navBook: "持仓簿",
     navRisk: "风险",
     navHedge: "对冲",
+    navInstruments: "工具",
+    navData: "数据",
     navSurface: "曲面",
     hedgeCost: "对冲成本",
     hedgeInstrument: "对冲工具",
@@ -518,6 +594,14 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     hedgeTargetDelta: "中和 Delta",
     hedgeTargetBeta: "压低 Beta",
     hedgeTargetTail: "尾部保护",
+    hedgeUniverse: "工具范围",
+    hedgeUniverseAll: "期货 + 期权",
+    hedgeUniverseFutures: "仅期货",
+    hedgeUniverseOptions: "仅期权",
+    hedgeWhy: "适用原因",
+    hedgeTradeOffs: "主要取舍",
+    hedgeResidualRisks: "残余风险",
+    strategyExplanationTitle: "决策说明",
   },
 };
 

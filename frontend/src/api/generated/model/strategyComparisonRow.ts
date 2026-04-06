@@ -8,6 +8,7 @@ The frontend should treat this contract as the canonical integration surface.
  * OpenAPI spec version: 0.1.0
  */
 import type { ExposureSummary } from './exposureSummary';
+import type { StrategyExplanation } from './strategyExplanation';
 
 export interface StrategyComparisonRow {
   proposalId: string;
@@ -20,4 +21,5 @@ export interface StrategyComparisonRow {
   downsideProtection?: number | null;
   /** @nullable */
   carryTheta?: number | null;
+  explanation?: StrategyExplanation;
 }

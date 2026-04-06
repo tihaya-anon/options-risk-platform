@@ -89,8 +89,9 @@ export async function createRiskMap(input: {
 
 export async function createHedgeProposals(input: {
   book: BookSnapshot;
-  allowedHedgeTypes?: ("none" | "futuresOverlay" | "protectivePut")[];
+  allowedHedgeTypes?: ("none" | "futuresOverlay" | "protectivePut" | "collar")[];
   target?: string;
+  hedgeUniverse?: "futuresOnly" | "optionsOnly" | "futuresAndOptions";
   apiBaseUrl: string;
 }): Promise<HedgeProposalResponse> {
   setApiBaseUrl(input.apiBaseUrl);
@@ -98,6 +99,7 @@ export async function createHedgeProposals(input: {
     book: input.book,
     allowedHedgeTypes: input.allowedHedgeTypes,
     target: input.target,
+    hedgeUniverse: input.hedgeUniverse,
   });
   return response.data;
 }

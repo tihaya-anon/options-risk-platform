@@ -18,6 +18,8 @@ import type {
   GetSnapshotParams,
   HedgeLabRequest,
   HedgeProposalResponse,
+  ProviderTestRequest,
+  ProviderTestResponse,
   RiskMap,
   RiskMapRequest,
   StrategyCompareRequest,
@@ -134,6 +136,42 @@ export const getSnapshot = async (params?: GetSnapshotParams, options?: RequestI
     method: 'GET'
     
     
+  }
+);}
+
+
+/**
+ * @summary Provider-aware connection test for a specific provider and symbol
+ */
+export type testProviderConnectionResponse200 = {
+  data: ProviderTestResponse
+  status: 200
+}
+    
+export type testProviderConnectionResponseSuccess = (testProviderConnectionResponse200) & {
+  headers: Headers;
+};
+;
+
+export type testProviderConnectionResponse = (testProviderConnectionResponseSuccess)
+
+export const getTestProviderConnectionUrl = () => {
+
+
+  
+
+  return `/providers/test`
+}
+
+export const testProviderConnection = async (providerTestRequest?: ProviderTestRequest, options?: RequestInit): Promise<testProviderConnectionResponse> => {
+  
+  return customFetch<testProviderConnectionResponse>(getTestProviderConnectionUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      providerTestRequest,)
   }
 );}
 

@@ -32,6 +32,7 @@ import { SidebarNav } from "./components/SidebarNav";
 import { StatusPanel } from "./components/StatusPanel";
 import { StrategyCompareSection } from "./components/StrategyCompareSection";
 import type { FrontendSettings, GroupByMode } from "../types";
+import type { HedgeUniverse } from "../api/generated/model/hedgeUniverse";
 import { useBookSnapshot } from "./hooks/useBookSnapshot";
 import { useHedgeLab } from "./hooks/useHedgeLab";
 import { useRiskMap } from "./hooks/useRiskMap";
@@ -82,6 +83,7 @@ export function App() {
   const [palette, setPalette] = useState<Palette>(detectPalette);
   const [groupByMode, setGroupByMode] = useState<GroupByMode>("full");
   const [hedgeTarget, setHedgeTarget] = useState("neutralize-delta");
+  const [hedgeUniverse, setHedgeUniverse] = useState<HedgeUniverse>("futuresAndOptions");
   const [settings, setSettings] = useState<FrontendSettings>(detectFrontendSettings);
   const [positionsInput, setPositionsInput] =
     useState<string>(DEFAULT_POSITIONS_INPUT);
@@ -140,6 +142,7 @@ export function App() {
     book,
     apiBaseUrl: settings.apiBaseUrl,
     target: hedgeTarget,
+    hedgeUniverse,
   });
   const { comparison, error: comparisonError } = useStrategyComparison({
     hedgeLab,
@@ -190,12 +193,10 @@ export function App() {
   const navGroups = useMemo(
     () => [
       {
-        title: t("navBook"),
+        title: t("navDashboard"),
         items: [
-          { path: "/overview", label: t("overviewTitle") },
+          { path: "/dashboard", label: t("overviewTitle") },
           { path: "/current-book", label: t("currentBookTitle") },
-          { path: "/positions", label: t("positionsTitle") },
-          { path: "/settings", label: t("settingsTitle") },
         ],
       },
       {
@@ -217,12 +218,19 @@ export function App() {
         ],
       },
       {
-        title: t("navSurface"),
+        title: t("navInstruments"),
         items: [
-          { path: "/term-structure", label: t("termTitle") },
-          { path: "/skew", label: t("skewTitle") },
           { path: "/option-risk-profile", label: t("optionRiskProfileTitle") },
           { path: "/chain", label: t("chainTitle") },
+          { path: "/term-structure", label: t("termTitle") },
+          { path: "/skew", label: t("skewTitle") },
+        ],
+      },
+      {
+        title: t("navData"),
+        items: [
+          { path: "/positions", label: t("positionsTitle") },
+          { path: "/settings", label: t("settingsTitle") },
         ],
       },
     ],
@@ -231,7 +239,11 @@ export function App() {
 
   return (
     <div className="page-shell dashboard-layout">
-      <SidebarNav groups={navGroups} />
+      <SidebarNav
+        groups={navGroups}
+        kicker={t("appEyebrow")}
+        title={t("controlTowerTitle")}
+      />
 
       <main className="dashboard-content">
         <div className="dashboard-header">
@@ -240,6 +252,7 @@ export function App() {
             themeMode={themeMode}
             palette={palette}
             accentColor={paletteColors.accent}
+            title={t("controlTowerTitle")}
             t={t}
             onLanguageChange={setLanguage}
             onThemeChange={setThemeMode}
@@ -249,7 +262,8 @@ export function App() {
 
         <div className="dashboard-main custom-scrollbar">
           <Routes>
-            <Route path="/" element={<Navigate to="/overview" replace />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/overview" element={<Navigate to="/dashboard" replace />} />
             <Route
               path="/current-book"
               element={<CurrentBookSection book={book} t={t} />}
@@ -264,8 +278,10 @@ export function App() {
                 <HedgeLabSection
                   hedgeLab={hedgeLab}
                   hedgeTarget={hedgeTarget}
+                  hedgeUniverse={hedgeUniverse}
                   t={t}
                   onTargetChange={setHedgeTarget}
+                  onUniverseChange={setHedgeUniverse}
                 />
               }
             />
@@ -306,7 +322,7 @@ export function App() {
               }
             />
             <Route
-              path="/overview"
+              path="/dashboard"
               element={
                 !snapshot ? (
                   <StatusPanel
@@ -321,6 +337,9 @@ export function App() {
                     timeScenarios={portfolioTimeScenario}
                     volScenarios={portfolioVolScenario}
                     groupedExposures={groupedExposures}
+                    riskMap={riskMap}
+                    hedgeLab={hedgeLab}
+                    focusUnderlying={settings.focusUnderlying.trim()}
                     t={t}
                   />
                 )
