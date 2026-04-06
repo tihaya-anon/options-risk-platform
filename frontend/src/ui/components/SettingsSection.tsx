@@ -73,8 +73,8 @@ export function SettingsSection({
               <strong>{connectionProvider}</strong>
             </div>
             <div>
-              <span>{t("symbol")}</span>
-              <strong>{settings.symbol}</strong>
+              <span>{t("focusUnderlying")}</span>
+              <strong>{settings.focusUnderlying || t("autoDetect")}</strong>
             </div>
             <div>
               <span>{t("advisorMode")}</span>
@@ -149,11 +149,12 @@ export function SettingsSection({
           />
         </label>
         <label className="field-stack">
-          <span>{t("symbol")}</span>
+          <span>{t("focusUnderlying")}</span>
           <input
             className="settings-input"
-            value={settings.symbol}
-            onChange={handleChange("symbol")}
+            value={settings.focusUnderlying}
+            onChange={handleChange("focusUnderlying")}
+            placeholder={t("focusUnderlyingPlaceholder")}
           />
         </label>
         <label className="field-stack">

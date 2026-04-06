@@ -127,7 +127,7 @@ export interface AnalysisResponse {
 
 export interface FrontendSettings {
   apiBaseUrl: string;
-  symbol: string;
+  focusUnderlying: string;
   provider: string;
   advisorMode: string;
 }

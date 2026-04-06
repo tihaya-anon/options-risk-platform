@@ -5,7 +5,7 @@ import type { BookSnapshot } from "../../api/generated/model/bookSnapshot";
 
 export function useBookSnapshot(input: {
   positionsInput: string;
-  defaultSymbol: string;
+  defaultSymbol?: string;
   snapshot: EnrichedSnapshotFile | null;
   apiBaseUrl: string;
 }) {

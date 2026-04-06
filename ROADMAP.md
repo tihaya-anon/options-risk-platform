@@ -43,7 +43,7 @@
 
 ### Provider Connection
 
-- [ ] 新增 `provider-aware connection test`
+- [x] 新增 `provider-aware connection test`
   - 目标：不只测服务是否存活，而是真正测试当前 provider 和当前 symbol
   - 预期返回：
     - 是否成功
@@ -52,7 +52,7 @@
     - 响应耗时
     - 错误详情
 
-- [ ] 在后端新增 `POST /providers/test`
+- [x] 在后端新增 `POST /providers/test`
 
 - [ ] 在前端 `Provider Connection` 页展示连接测试结果面板
 
@@ -66,28 +66,28 @@
 
 ### Hedge Lab
 
-- [ ] 增加 `hedge universe` 控制
-  - [ ] `futures only`
-  - [ ] `options only`
-  - [ ] `futures + options`
+- [x] 增加 `hedge universe` 控制
+  - [x] `futures only`
+  - [x] `options only`
+  - [x] `futures + options`
 
 - [x] 增加 `hedge target`
   - [x] `neutralize delta`
   - [x] `reduce beta`
   - [x] `tail protection`
 
-- [ ] 让 `Hedge Lab` 的 proposal 更贴近决策页面
-  - [ ] 显示为什么推荐该方案
-  - [ ] 显示该方案主要 trade-off
-  - [ ] 显示主要残余风险
+- [x] 让 `Hedge Lab` 的 proposal 更贴近决策页面
+  - [x] 显示为什么推荐该方案
+  - [x] 显示该方案主要 trade-off
+  - [x] 显示主要残余风险
 
 ### Strategy Compare
 
-- [ ] 增加 explanation block
-  - [ ] 解释 upside retention
-  - [ ] 解释 downside protection
-  - [ ] 解释 carry / theta
-  - [ ] 解释 residual beta / delta / vega
+- [x] 增加 explanation block
+  - [x] 解释 upside retention
+  - [x] 解释 downside protection
+  - [x] 解释 carry / theta
+  - [x] 解释 residual beta / delta / vega
 
 - [ ] 支持 comparison row 的排序和筛选
 
@@ -123,8 +123,8 @@
 
 - [ ] 让 `book/parse` 支持更明确的 instrument type 输入格式
 - [ ] 让 `risk-map` 输出更丰富的 concentration / factor 风险摘要
-- [ ] 让 `hedge-lab` 输出更丰富的 rationale 字段
-- [ ] 让 `strategy-compare` 输出 explanation 字段
+- [x] 让 `hedge-lab` 输出更丰富的 rationale 字段
+- [x] 让 `strategy-compare` 输出 explanation 字段
 
 ## UI 与信息架构
 
@@ -207,9 +207,9 @@
 
 ## 推荐实现顺序
 
-- [ ] 1. `provider-aware connection test`
-- [ ] 2. `hedge universe controls`
-- [ ] 3. `strategy compare explanation layer`
+- [x] 1. `provider-aware connection test`
+- [x] 2. `hedge universe controls`
+- [x] 3. `strategy compare explanation layer`
 - [ ] 4. `option risk profile` 更真实的场景分析
 - [ ] 5. 全局 page context 基础设施
 - [ ] 6. LLM 悬浮球 UI

@@ -86,8 +86,9 @@ export function App() {
   const [positionsInput, setPositionsInput] =
     useState<string>(DEFAULT_POSITIONS_INPUT);
   const [selectedContractSymbol, setSelectedContractSymbol] = useState("");
+  const surfaceUnderlying = settings.focusUnderlying.trim() || "SPY";
   const { snapshot, error: snapshotError } = useSnapshot(
-    settings.symbol,
+    surfaceUnderlying,
     settings.provider,
     settings.apiBaseUrl
   );
@@ -107,7 +108,7 @@ export function App() {
 
   useEffect(() => {
     localStorage.setItem("orp_api_base_url", settings.apiBaseUrl);
-    localStorage.setItem("orp_symbol", settings.symbol);
+    localStorage.setItem("orp_focus_underlying", settings.focusUnderlying);
     localStorage.setItem("orp_provider", settings.provider);
     localStorage.setItem("orp_advisor_mode", settings.advisorMode);
   }, [settings]);
@@ -127,7 +128,7 @@ export function App() {
   } = useConnectionHealth(settings.apiBaseUrl);
   const { book, error: bookError } = useBookSnapshot({
     positionsInput,
-    defaultSymbol: settings.symbol,
+    defaultSymbol: settings.focusUnderlying.trim() || undefined,
     snapshot,
     apiBaseUrl: settings.apiBaseUrl,
   });

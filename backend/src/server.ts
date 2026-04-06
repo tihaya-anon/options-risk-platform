@@ -4,11 +4,13 @@ import { buildRiskMap, parseBook } from "./lib/bookWorkbench.js";
 import { enrichSnapshot } from "./lib/enrichSnapshot.js";
 import { compareStrategies, createHedgeProposals } from "./lib/hedgeLab.js";
 import { analyzePortfolio } from "./lib/portfolioAnalysis.js";
+import { testProviderConnection } from "./lib/providerConnection.js";
 import { getProvider, listProviders } from "./providers/providerRegistry.js";
 import type {
   AnalysisRequest,
   BookParseRequest,
   HedgeLabRequest,
+  ProviderTestRequest,
   RiskMapRequest,
   StrategyCompareRequest,
 } from "./types.js";
@@ -79,6 +81,19 @@ const server = http.createServer(async (req: any, res: any) => {
         riskFreeRate: config.riskFreeRate,
       });
       sendJson(res, 200, enrichSnapshot(rawSnapshot));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/providers/test") {
+      const payload = (await readJsonBody(req)) as ProviderTestRequest;
+      const providerName = payload.provider ?? config.provider;
+      const symbol = payload.symbol ?? config.defaultSymbol;
+      const provider = getProvider(providerName);
+      sendJson(
+        res,
+        200,
+        await testProviderConnection(provider, symbol, config.riskFreeRate),
+      );
       return;
     }
 

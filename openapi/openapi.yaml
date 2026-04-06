@@ -92,6 +92,24 @@ paths:
               schema:
                 $ref: "#/components/schemas/EnrichedSnapshotFile"
 
+  /providers/test:
+    post:
+      operationId: testProviderConnection
+      summary: Provider-aware connection test for a specific provider and symbol
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProviderTestRequest"
+      responses:
+        "200":
+          description: Provider test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderTestResponse"
+
   /portfolio/analyze:
     post:
       operationId: analyzePortfolio
@@ -191,6 +209,10 @@ components:
     HedgeType:
       type: string
       enum: [none, futuresOverlay, protectivePut, collar, custom]
+
+    HedgeUniverse:
+      type: string
+      enum: [futuresOnly, optionsOnly, futuresAndOptions]
 
     Position:
       type: object
@@ -362,6 +384,25 @@ components:
           type: array
           items:
             type: string
+        rationale:
+          $ref: "#/components/schemas/HedgeRationale"
+
+    HedgeRationale:
+      type: object
+      required: [why, tradeOffs, residualRisks]
+      properties:
+        why:
+          type: array
+          items:
+            type: string
+        tradeOffs:
+          type: array
+          items:
+            type: string
+        residualRisks:
+          type: array
+          items:
+            type: string
 
     StrategyComparisonRow:
       type: object
@@ -388,6 +429,25 @@ components:
         carryTheta:
           type: number
           nullable: true
+        explanation:
+          $ref: "#/components/schemas/StrategyExplanation"
+
+    StrategyExplanation:
+      type: object
+      required:
+        - upsideRetention
+        - downsideProtection
+        - carryTheta
+        - residualExposure
+      properties:
+        upsideRetention:
+          type: string
+        downsideProtection:
+          type: string
+        carryTheta:
+          type: string
+        residualExposure:
+          type: string
 
     StrategyComparison:
       type: object
@@ -433,6 +493,10 @@ components:
             $ref: "#/components/schemas/HedgeType"
         target:
           type: string
+          nullable: true
+        hedgeUniverse:
+          allOf:
+            - $ref: "#/components/schemas/HedgeUniverse"
           nullable: true
 
     HedgeProposalResponse:
@@ -485,6 +549,43 @@ components:
           type: boolean
         notes:
           type: string
+
+    ProviderTestRequest:
+      type: object
+      properties:
+        provider:
+          type: string
+          nullable: true
+        symbol:
+          type: string
+          nullable: true
+
+    ProviderTestResponse:
+      type: object
+      required:
+        - ok
+        - provider
+        - symbol
+        - latencyMs
+      properties:
+        ok:
+          type: boolean
+        provider:
+          type: string
+        symbol:
+          type: string
+        latencyMs:
+          type: number
+        error:
+          type: string
+          nullable: true
+        source:
+          type: string
+          nullable: true
+        generatedAt:
+          type: string
+          format: date-time
+          nullable: true
 
     OptionQuote:
       type: object

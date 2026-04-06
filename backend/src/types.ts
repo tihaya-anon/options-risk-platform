@@ -150,6 +150,13 @@ export interface RiskMapRequest {
 }
 
 export type HedgeType = "none" | "futuresOverlay" | "protectivePut" | "collar" | "custom";
+export type HedgeUniverse = "futuresOnly" | "optionsOnly" | "futuresAndOptions";
+
+export interface HedgeRationale {
+  why: string[];
+  tradeOffs: string[];
+  residualRisks: string[];
+}
 
 export interface HedgeProposal {
   id: string;
@@ -161,12 +168,14 @@ export interface HedgeProposal {
   estimatedCost?: number | null;
   residualExposure: ExposureSummary;
   notes?: string[];
+  rationale?: HedgeRationale;
 }
 
 export interface HedgeLabRequest {
   book: BookSnapshot;
   allowedHedgeTypes?: HedgeType[];
   target?: string | null;
+  hedgeUniverse?: HedgeUniverse | null;
 }
 
 export interface HedgeProposalResponse {
@@ -182,6 +191,12 @@ export interface StrategyComparisonRow {
   upsideRetention?: number | null;
   downsideProtection?: number | null;
   carryTheta?: number | null;
+  explanation?: {
+    upsideRetention: string;
+    downsideProtection: string;
+    carryTheta: string;
+    residualExposure: string;
+  };
 }
 
 export interface StrategyCompareRequest {
@@ -247,4 +262,19 @@ export interface SnapshotProvider {
   name: string;
   metadata: ProviderMetadata;
   getSnapshot(config: ProviderConfig): Promise<SnapshotFile>;
+}
+
+export interface ProviderTestRequest {
+  provider?: string | null;
+  symbol?: string | null;
+}
+
+export interface ProviderTestResponse {
+  ok: boolean;
+  provider: string;
+  symbol: string;
+  latencyMs: number;
+  error?: string | null;
+  source?: string | null;
+  generatedAt?: string | null;
 }

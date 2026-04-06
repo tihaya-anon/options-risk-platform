@@ -27,6 +27,9 @@ export type I18nKey =
   | "strategyCompareDesc"
   | "apiBaseUrl"
   | "symbol"
+  | "focusUnderlying"
+  | "focusUnderlyingPlaceholder"
+  | "autoDetect"
   | "provider"
   | "advisorMode"
   | "saveSettings"
@@ -180,7 +183,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     chinese: "中文",
     settingsTitle: "Settings",
     settingsDesc:
-      "Configure where the frontend requests data from, and which default underlying to analyze.",
+      "Configure the backend endpoint, data provider, and optional focus underlying for surface-level views.",
     currentBookTitle: "Current Book",
     currentBookDesc:
       "Normalize the current holdings into a portfolio book before comparing hedge overlays.",
@@ -195,6 +198,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
       "Review baseline and hedge candidates side by side across cost and residual exposure.",
     apiBaseUrl: "API Base URL",
     symbol: "Symbol",
+    focusUnderlying: "Focus underlying",
+    focusUnderlyingPlaceholder: "Optional. Used for surface views like chain, skew, and risk profile.",
+    autoDetect: "Auto detect",
     provider: "Provider",
     advisorMode: "Advisor mode",
     saveSettings: "Save settings",
@@ -359,7 +365,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     chinese: "中文",
     settingsTitle: "设置",
     settingsDesc:
-      "配置前端请求数据的 API 地址，以及默认分析的标的代码。",
+      "配置前端请求数据的 API 地址、数据提供方，以及仅用于曲面类页面的可选焦点标的。",
     currentBookTitle: "当前持仓簿",
     currentBookDesc: "先把当前持仓标准化成组合持仓簿，再去比较不同对冲方案。",
     riskMapTitle: "风险地图",
@@ -370,6 +376,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     strategyCompareDesc: "并排查看基准方案和对冲候选方案的成本与剩余风险。",
     apiBaseUrl: "API 基础地址",
     symbol: "标的代码",
+    focusUnderlying: "焦点标的",
+    focusUnderlyingPlaceholder: "可选。仅用于期权链、skew、风险剖面等单标的页面。",
+    autoDetect: "自动识别",
     provider: "数据提供方",
     advisorMode: "建议引擎模式",
     saveSettings: "保存设置",
