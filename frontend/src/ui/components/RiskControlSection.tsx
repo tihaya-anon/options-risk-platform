@@ -11,7 +11,7 @@ import { GreekMetricCard } from "./GreekMetricCard";
 import { PanelSection } from "./PanelSection";
 import { StatusBadge } from "./StatusBadge";
 import type { Language } from "../config";
-import { translateBackendMessage } from "../i18n";
+import { translateBackendMessage, translateRiskCategory } from "../i18n";
 import { ActionRail } from "./ActionRail";
 
 function getWorstScenario<T extends { portfolioPnl: number }>(items: T[]): T | null {
@@ -95,7 +95,7 @@ export function RiskControlSection({
                   <article key={`${risk.category}-${risk.summary}`} className="card grouped-exposure-card">
                     <div className="dashboard-card-topline">
                       <div className="meta-block">
-                        <span>{risk.category}</span>
+                        <span>{translateRiskCategory(language, risk.category)}</span>
                         <strong>{translateBackendMessage(language, risk.summary)}</strong>
                       </div>
                       <StatusBadge

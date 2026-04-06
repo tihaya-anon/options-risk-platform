@@ -3,7 +3,7 @@
 这是一个期权与组合风险工作台，支持两种运行形态：
 
 - `static daily demo`
-  通过 GitHub Actions 每日抓取并预计算快照，前端纯静态部署即可运行
+  通过 GitHub Actions 每日生成 `T-1` 快照与 Greeks，前端纯静态部署即可运行
 - `live backend mode`
   通过后端接入 provider、实时抓取和更重的定价/Greeks 计算
 
@@ -88,6 +88,23 @@ pnpm install
 pnpm dev
 ```
 
+默认情况下：
+
+- 不填写 `API Base URL`
+- 前端会自动进入 `static daily demo` 模式
+- 直接读取 `public/data/latest/manifest.json` 与静态快照文件
+- 所有组合解析、风险聚合、对冲比较都在浏览器内完成
+- 当前静态样例默认覆盖：
+  - `SPY`
+  - `QQQ`
+  - `IWM`
+  - `AAPL`
+
+如果需要切换到后端模式：
+
+- 在 `Settings` 中填写后端 `API Base URL`
+- 前端就会改为调用 backend API
+
 后端：
 
 ```bash
@@ -133,17 +150,39 @@ docker compose up --build
 
 ## Daily Snapshot 思路
 
-计划增加一个面向静态部署的 daily data pipeline：
+当前仓库已经预留了一个面向静态部署的 daily data pipeline：
 
-- GitHub Actions 每天收盘后抓取 `top universe`
+- GitHub Actions 每天在美股收盘后生成 `T-1` 数据
 - 对可覆盖的合约预计算 Greeks
 - 生成静态文件，例如：
   - `public/data/latest/manifest.json`
   - `public/data/latest/{symbol}.json`
 - 前端按 `as of` 时间读取快照
 - 用户持仓仅在浏览器内解析，不上传到服务端
+- 当前 workflow 文件：
+  - `.github/workflows/static-daily-demo.yml`
+- 当前静态生成脚本：
+  - `scripts/generate-static-snapshots.mjs`
 
 这个模式的定位是：
 
 - 适合宣传、演示、轻量试用
 - 不适合盘中实时交易决策
+
+## 静态构建
+
+如果你只想验证静态模式，可以直接运行：
+
+```bash
+make static-generate
+make frontend-build
+```
+
+或在 `frontend` 下执行：
+
+```bash
+pnpm static:generate
+pnpm build
+```
+
+这会先生成多标的静态快照，再构建纯前端页面。

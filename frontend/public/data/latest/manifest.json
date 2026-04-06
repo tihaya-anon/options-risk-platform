@@ -1,0 +1,26 @@
+{
+  "asOf": "2026-04-05T21:00:00.000Z",
+  "defaultSymbol": "SPY",
+  "symbols": [
+    {
+      "symbol": "SPY",
+      "path": "/data/latest/SPY.json",
+      "generatedAt": "2026-04-05T21:00:00.000Z"
+    },
+    {
+      "symbol": "QQQ",
+      "path": "/data/latest/QQQ.json",
+      "generatedAt": "2026-04-05T21:00:00.000Z"
+    },
+    {
+      "symbol": "IWM",
+      "path": "/data/latest/IWM.json",
+      "generatedAt": "2026-04-05T21:00:00.000Z"
+    },
+    {
+      "symbol": "AAPL",
+      "path": "/data/latest/AAPL.json",
+      "generatedAt": "2026-04-05T21:00:00.000Z"
+    }
+  ]
+}

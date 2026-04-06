@@ -1,10 +1,15 @@
 import { Link } from "react-router-dom";
 import type { I18nKey } from "../i18n";
 import { PanelSection } from "./PanelSection";
+import type { StaticDatasetInfo } from "../../lib/staticWorkbench";
 
 export function DataWorkspaceSection({
+  isStaticMode,
+  staticDataset,
   t,
 }: {
+  isStaticMode: boolean;
+  staticDataset: StaticDatasetInfo | null;
   t: (key: I18nKey) => string;
 }) {
   return (
@@ -14,6 +19,36 @@ export function DataWorkspaceSection({
       className="data-panel"
       bodyClassName="risk-map-panel-content"
     >
+      <div className="overview-grid positions-overview-grid">
+        <article className="card overview-card">
+          <span>{t("modeTitle")}</span>
+          <strong>{isStaticMode ? t("modeStaticDaily") : t("modeLiveBackend")}</strong>
+        </article>
+        <article className="card overview-card">
+          <span>{t("asOfTitle")}</span>
+          <strong>{staticDataset?.asOf ?? t("none")}</strong>
+        </article>
+        <article className="card overview-card">
+          <span>{t("universeTitle")}</span>
+          <strong>{staticDataset?.symbols.join(", ") ?? t("none")}</strong>
+        </article>
+        <article className="card overview-card">
+          <span>{t("defaultSymbolTitle")}</span>
+          <strong>{staticDataset?.defaultSymbol ?? t("none")}</strong>
+        </article>
+        <article className="card overview-card">
+          <span>{t("symbolCountTitle")}</span>
+          <strong>{staticDataset?.symbols.length ?? 0}</strong>
+        </article>
+      </div>
+
+      {isStaticMode ? (
+        <div className="data-mode-callout">
+          <span>{t("staticDataNoticeTitle")}</span>
+          <strong>{t("staticDataNoticeBody")}</strong>
+        </div>
+      ) : null}
+
       <div className="dashboard-split-grid">
         <article className="card dashboard-column-card">
           <div className="meta-block">

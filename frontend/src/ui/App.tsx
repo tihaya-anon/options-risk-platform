@@ -18,6 +18,7 @@ import { useSnapshot } from "./hooks/useSnapshot";
 import { usePortfolioAnalysis } from "./hooks/usePortfolioAnalysis";
 import { useConnectionHealth } from "./hooks/useConnectionHealth";
 import { useRuntimeConfig } from "./hooks/useRuntimeConfig";
+import { useStaticDatasetInfo } from "./hooks/useStaticDatasetInfo";
 import { ChainSection } from "./components/ChainSection";
 import { CurrentBookSection } from "./components/CurrentBookSection";
 import { DataWorkspaceSection } from "./components/DataWorkspaceSection";
@@ -42,9 +43,10 @@ import { useBookSnapshot } from "./hooks/useBookSnapshot";
 import { useHedgeLab } from "./hooks/useHedgeLab";
 import { useRiskMap } from "./hooks/useRiskMap";
 import { useStrategyComparison } from "./hooks/useStrategyComparison";
+import { isStaticDemoMode } from "../lib/staticWorkbench";
 
 const DEFAULT_POSITIONS_INPUT =
-  "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1";
+  "SPY,100\nQQQ,40\nAAPL,80\nSPY260515P00525000,2\nQQQ260619P00470000,1\nAAPL260515C00210000,-1";
 
 const LazyGroupedExposureSection = lazy(() =>
   import("./components/GroupedExposureSection").then((module) => ({
@@ -135,7 +137,7 @@ export function App() {
   const [selectedContractSymbol, setSelectedContractSymbol] = useState(
     () => localStorage.getItem("orp_selected_contract_symbol") ?? "",
   );
-  const surfaceUnderlying = settings.focusUnderlying.trim() || "SPY";
+  const surfaceUnderlying = settings.focusUnderlying.trim();
   const { snapshot, error: snapshotError } = useSnapshot(
     surfaceUnderlying,
     settings.provider,
@@ -188,7 +190,14 @@ export function App() {
   };
 
   const t = useMemo(() => createTranslator(language), [language]);
+  const isStaticMode = isStaticDemoMode(settings.apiBaseUrl);
   const runtimeConfig = useRuntimeConfig(settings.apiBaseUrl);
+  const staticDatasetInfo = useStaticDatasetInfo(settings.apiBaseUrl);
+  const surfaceContextUnderlying =
+    settings.focusUnderlying.trim() ||
+    staticDatasetInfo?.defaultSymbol ||
+    snapshot?.underlying.symbol ||
+    "";
   const {
     health,
     error: healthError,
@@ -197,7 +206,7 @@ export function App() {
   } = useConnectionHealth(settings.apiBaseUrl);
   const { book, error: bookError } = useBookSnapshot({
     positionsInput,
-    defaultSymbol: settings.focusUnderlying.trim() || undefined,
+    defaultSymbol: surfaceContextUnderlying || undefined,
     snapshot,
     apiBaseUrl: settings.apiBaseUrl,
   });
@@ -363,6 +372,7 @@ export function App() {
                 <HedgeDecisionSection
                   hedgeLab={hedgeLab}
                   comparison={comparison}
+                  language={language}
                   t={t}
                 />
               }
@@ -389,7 +399,7 @@ export function App() {
               element={
                 <InstrumentWorkbenchSection
                   rows={enrichedQuotes}
-                  focusUnderlying={settings.focusUnderlying.trim() || snapshot?.underlying.symbol || ""}
+                  focusUnderlying={surfaceContextUnderlying}
                   selectedSymbol={selectedContractSymbol}
                   t={t}
                 />
@@ -410,7 +420,13 @@ export function App() {
             />
             <Route
               path="/data"
-              element={<DataWorkspaceSection t={t} />}
+              element={
+                <DataWorkspaceSection
+                  isStaticMode={isStaticMode}
+                  staticDataset={staticDatasetInfo}
+                  t={t}
+                />
+              }
             />
             <Route
               path="/settings"
@@ -424,6 +440,8 @@ export function App() {
                   connectionProvider={health?.provider ?? settings.provider}
                   connectionError={healthError}
                   isConnectionChecking={isConnectionChecking}
+                  isStaticMode={isStaticMode}
+                  staticDataset={staticDatasetInfo}
                   t={t}
                   onSettingsChange={setSettings}
                   onSave={() => setSettings({ ...settings })}
@@ -449,7 +467,7 @@ export function App() {
                     groupedExposures={groupedExposures}
                     riskMap={riskMap}
                     hedgeLab={hedgeLab}
-                    focusUnderlying={settings.focusUnderlying.trim()}
+                    focusUnderlying={surfaceContextUnderlying}
                     language={language}
                     t={t}
                   />

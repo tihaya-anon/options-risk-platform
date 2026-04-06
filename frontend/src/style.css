@@ -796,6 +796,19 @@ input {
   margin-top: 14px;
 }
 
+.data-mode-callout {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.data-mode-callout strong {
+  color: var(--ink);
+}
+
 .provider-note strong,
 .connection-error strong {
   color: var(--ink);

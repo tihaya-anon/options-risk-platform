@@ -3,7 +3,7 @@ import type { I18nKey } from "../i18n";
 import type { Language } from "../config";
 import { GreekMetricCard } from "./GreekMetricCard";
 import { PanelSection } from "./PanelSection";
-import { translateBackendMessage } from "../i18n";
+import { translateBackendMessage, translateRiskCategory } from "../i18n";
 
 export function RiskMapSection({
   riskMap,
@@ -47,7 +47,7 @@ export function RiskMapSection({
             {riskMap.topRisks.map((risk) => (
               <article key={`${risk.category}-${risk.summary}`} className="card grouped-exposure-card">
                 <div className="meta-block">
-                  <span>{risk.category}</span>
+                  <span>{translateRiskCategory(language, risk.category)}</span>
                   <strong>{translateBackendMessage(language, risk.summary)}</strong>
                 </div>
                 {risk.details ? (

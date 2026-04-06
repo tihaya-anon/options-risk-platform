@@ -13,7 +13,12 @@ import type {
 } from "../positions";
 import { PanelSection } from "./PanelSection";
 import { StatusBadge } from "./StatusBadge";
-import { translateBackendMessage } from "../i18n";
+import {
+  translateBackendMessage,
+  translateHedgeLabel,
+  translateHedgeSummary,
+  translateRiskCategory,
+} from "../i18n";
 import { ActionRail } from "./ActionRail";
 
 function getWorstScenario<T extends { portfolioPnl: number }>(items: T[]): T | null {
@@ -194,7 +199,7 @@ export function OverviewSection({
               {topRisks.map((risk) => (
                 <article key={`${risk.category}-${risk.summary}`} className="card grouped-exposure-card">
                   <div className="meta-block">
-                      <span>{risk.category}</span>
+                      <span>{translateRiskCategory(language, risk.category)}</span>
                       <strong>{translateBackendMessage(language, risk.summary)}</strong>
                     </div>
                   {risk.details ? (
@@ -209,10 +214,14 @@ export function OverviewSection({
 
           <article className="card dashboard-column-card">
             <div className="dashboard-section-head">
-              <div className="meta-block">
-                <span>{t("dashboardHedgeIdeasTitle")}</span>
-                <strong>{topHedges[0]?.label ?? t("none")}</strong>
-              </div>
+                <div className="meta-block">
+                  <span>{t("dashboardHedgeIdeasTitle")}</span>
+                  <strong>
+                    {topHedges[0]
+                      ? translateHedgeLabel(language, topHedges[0].label)
+                      : t("none")}
+                  </strong>
+                </div>
               <Link className="button-like dashboard-link" to="/hedge-lab">
                 {t("dashboardOpenHedgeLab")}
               </Link>
@@ -222,9 +231,11 @@ export function OverviewSection({
                 <article key={proposal.id} className="card grouped-exposure-card">
                   <div className="meta-block">
                     <span>{proposal.instrument ?? t("none")}</span>
-                    <strong>{proposal.label}</strong>
+                    <strong>{translateHedgeLabel(language, proposal.label)}</strong>
                   </div>
-                  <p className="subtle">{proposal.summary}</p>
+                  <p className="subtle">
+                    {translateHedgeSummary(language, proposal.summary)}
+                  </p>
                   <div className="grouped-stats dashboard-proposal-stats">
                     <div>
                       <span>{t("hedgeCost")}</span>

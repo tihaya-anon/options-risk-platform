@@ -2,17 +2,21 @@ import { Link } from "react-router-dom";
 import type { HedgeProposalResponse } from "../../api/generated/model/hedgeProposalResponse";
 import type { StrategyComparison } from "../../api/generated/model/strategyComparison";
 import type { I18nKey } from "../i18n";
+import type { Language } from "../config";
 import { PanelSection } from "./PanelSection";
 import { StatusBadge } from "./StatusBadge";
 import { ActionRail } from "./ActionRail";
+import { translateHedgeLabel, translateHedgeSummary, translateHedgeType } from "../i18n";
 
 export function HedgeDecisionSection({
   hedgeLab,
   comparison,
+  language,
   t,
 }: {
   hedgeLab: HedgeProposalResponse | null;
   comparison: StrategyComparison | null;
+  language: Language;
   t: (key: I18nKey) => string;
 }) {
   const topProposals = hedgeLab?.proposals.slice(0, 3) ?? [];
@@ -34,7 +38,9 @@ export function HedgeDecisionSection({
               {
                 to: "/hedge-lab",
                 label: t("dashboardOpenHedgeLab"),
-                caption: topProposals[0]?.label ?? t("none"),
+                caption: topProposals[0]
+                  ? translateHedgeLabel(language, topProposals[0].label)
+                  : t("none"),
               },
               {
                 to: "/strategy-compare",
@@ -49,7 +55,11 @@ export function HedgeDecisionSection({
               <div className="dashboard-section-head">
                 <div className="meta-block">
                   <span>{t("dashboardHedgeIdeasTitle")}</span>
-                  <strong>{topProposals[0]?.label ?? t("none")}</strong>
+                  <strong>
+                    {topProposals[0]
+                      ? translateHedgeLabel(language, topProposals[0].label)
+                      : t("none")}
+                  </strong>
                 </div>
                 <Link className="button-like dashboard-link" to="/hedge-lab">
                   {t("dashboardOpenHedgeLab")}
@@ -61,10 +71,10 @@ export function HedgeDecisionSection({
                     <div className="dashboard-card-topline">
                       <div className="meta-block">
                         <span>{proposal.instrument ?? t("none")}</span>
-                        <strong>{proposal.label}</strong>
+                        <strong>{translateHedgeLabel(language, proposal.label)}</strong>
                       </div>
                       <StatusBadge
-                        label={proposal.hedgeType}
+                        label={translateHedgeType(language, proposal.hedgeType)}
                         tone={
                           proposal.hedgeType === "protectivePut"
                             ? "warning"
@@ -76,7 +86,9 @@ export function HedgeDecisionSection({
                         }
                       />
                     </div>
-                    <p className="subtle">{proposal.summary}</p>
+                    <p className="subtle">
+                      {translateHedgeSummary(language, proposal.summary)}
+                    </p>
                     <div className="grouped-stats dashboard-proposal-stats">
                       <div>
                         <span>{t("hedgeCost")}</span>

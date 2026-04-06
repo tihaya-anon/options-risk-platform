@@ -19,16 +19,34 @@ import type { RiskMap } from "./generated/model/riskMap";
 import type { StrategyComparison } from "./generated/model/strategyComparison";
 import type { AnalysisRequestAdvisorMode } from "./generated/model/analysisRequestAdvisorMode";
 import { setApiBaseUrl } from "./mutator";
+import {
+  buildStaticAnalysis,
+  buildStaticBook,
+  buildStaticHedgeLab,
+  buildStaticRiskMap,
+  buildStaticStrategyCompare,
+  fetchStaticHealth,
+  fetchStaticRuntimeConfig,
+  fetchStaticSnapshot,
+  fetchStaticUniverseSnapshots,
+  isStaticDemoMode,
+} from "../lib/staticWorkbench";
 
-export const DEFAULT_API_BASE_URL = "http://localhost:8787/api";
+export const DEFAULT_API_BASE_URL = "";
 
 export async function fetchHealth(apiBaseUrl: string) {
+  if (isStaticDemoMode(apiBaseUrl)) {
+    return fetchStaticHealth();
+  }
   setApiBaseUrl(apiBaseUrl);
   const response = await getHealthGenerated();
   return response.data;
 }
 
 export async function fetchRuntimeConfig(apiBaseUrl: string) {
+  if (isStaticDemoMode(apiBaseUrl)) {
+    return fetchStaticRuntimeConfig();
+  }
   setApiBaseUrl(apiBaseUrl);
   const response = await getConfigGenerated();
   return response.data;
@@ -39,6 +57,9 @@ export async function fetchSnapshot(
   provider: string,
   apiBaseUrl: string
 ): Promise<EnrichedSnapshotFile> {
+  if (isStaticDemoMode(apiBaseUrl)) {
+    return fetchStaticSnapshot(symbol);
+  }
   setApiBaseUrl(apiBaseUrl);
   const response = await getSnapshotGenerated({ symbol, provider });
   return response.data as EnrichedSnapshotFile;
@@ -51,6 +72,16 @@ export async function analyzePortfolio(input: {
   apiBaseUrl: string;
   advisorMode: string;
 }): Promise<AnalysisResponse> {
+  if (isStaticDemoMode(input.apiBaseUrl)) {
+    const universeSnapshots = await fetchStaticUniverseSnapshots();
+    return buildStaticAnalysis({
+      snapshot: input.snapshot,
+      universeSnapshots,
+      positionsInput: input.positionsInput,
+      groupByMode: input.groupByMode,
+      advisorMode: input.advisorMode,
+    });
+  }
   setApiBaseUrl(input.apiBaseUrl);
   const response = await analyzePortfolioGenerated({
       snapshot: input.snapshot,
@@ -67,6 +98,15 @@ export async function parseBook(input: {
   snapshot?: EnrichedSnapshotFile | null;
   apiBaseUrl: string;
 }): Promise<BookSnapshot> {
+  if (isStaticDemoMode(input.apiBaseUrl)) {
+    const universeSnapshots = await fetchStaticUniverseSnapshots();
+    return buildStaticBook({
+      positionsInput: input.positionsInput,
+      defaultSymbol: input.defaultSymbol,
+      snapshot: input.snapshot,
+      universeSnapshots,
+    });
+  }
   setApiBaseUrl(input.apiBaseUrl);
   const response = await parseBookGenerated({
     positionsInput: input.positionsInput,
@@ -80,6 +120,9 @@ export async function createRiskMap(input: {
   book: BookSnapshot;
   apiBaseUrl: string;
 }): Promise<RiskMap> {
+  if (isStaticDemoMode(input.apiBaseUrl)) {
+    return buildStaticRiskMap(input.book);
+  }
   setApiBaseUrl(input.apiBaseUrl);
   const response = await createRiskMapGenerated({
     book: input.book,
@@ -94,6 +137,13 @@ export async function createHedgeProposals(input: {
   hedgeUniverse?: "futuresOnly" | "optionsOnly" | "futuresAndOptions";
   apiBaseUrl: string;
 }): Promise<HedgeProposalResponse> {
+  if (isStaticDemoMode(input.apiBaseUrl)) {
+    return buildStaticHedgeLab({
+      book: input.book,
+      target: input.target,
+      hedgeUniverse: input.hedgeUniverse,
+    });
+  }
   setApiBaseUrl(input.apiBaseUrl);
   const response = await createHedgeProposalsGenerated({
     book: input.book,
@@ -109,6 +159,12 @@ export async function compareStrategies(input: {
   proposals: HedgeProposalResponse["proposals"];
   apiBaseUrl: string;
 }): Promise<StrategyComparison> {
+  if (isStaticDemoMode(input.apiBaseUrl)) {
+    return buildStaticStrategyCompare({
+      baselineExposure: input.baselineExposure,
+      proposals: input.proposals,
+    });
+  }
   setApiBaseUrl(input.apiBaseUrl);
   const response = await compareStrategiesGenerated({
     baselineExposure: input.baselineExposure,
