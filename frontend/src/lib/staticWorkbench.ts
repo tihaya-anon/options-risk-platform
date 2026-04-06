@@ -30,6 +30,7 @@ const DEFAULT_STATIC_SYMBOL = "SPY";
 
 interface StaticManifest {
   asOf: string;
+  provider?: string;
   defaultSymbol: string;
   symbols: Array<{
     symbol: string;
@@ -104,7 +105,9 @@ export async function fetchStaticRuntimeConfig(): Promise<GetConfig200> {
         supportsGreeks: true,
         supportsScenarios: true,
         notes:
-          `Loads daily precomputed snapshots from static files produced by GitHub Actions. Universe: ${
+          `Loads daily T-1 snapshots from GitHub Actions. Public source: ${
+            manifest?.provider ?? "public market data"
+          }. Universe: ${
             manifest?.symbols.map((item) => item.symbol).join(", ") ?? DEFAULT_STATIC_SYMBOL
           }. As of ${manifest?.asOf ?? "unknown"}.`,
       },

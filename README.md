@@ -3,7 +3,7 @@
 这是一个期权与组合风险工作台，支持两种运行形态：
 
 - `static daily demo`
-  通过 GitHub Actions 每日生成 `T-1` 快照与 Greeks，前端纯静态部署即可运行
+  通过 GitHub Actions 每日抓取真实公开行情并生成 `T-1` 快照，前端纯静态部署即可运行
 - `live backend mode`
   通过后端接入 provider、实时抓取和更重的定价/Greeks 计算
 
@@ -152,8 +152,10 @@ docker compose up --build
 
 当前仓库已经预留了一个面向静态部署的 daily data pipeline：
 
-- GitHub Actions 每天在美股收盘后生成 `T-1` 数据
-- 对可覆盖的合约预计算 Greeks
+- GitHub Actions 每天在美股收盘后抓取真实公开行情数据
+- 当前脚本使用 Yahoo Finance 公共 web endpoint，并通过 cookie / crumb 握手拉取期权链
+- 对可覆盖的合约生成静态链数据，前端再基于快照做 Greeks 富化与组合聚合
+- 如果公开端点临时限流，workflow 会优先保留上一次成功的静态快照，避免前端部署空数据
 - 生成静态文件，例如：
   - `public/data/latest/manifest.json`
   - `public/data/latest/{symbol}.json`
@@ -168,6 +170,11 @@ docker compose up --build
 
 - 适合宣传、演示、轻量试用
 - 不适合盘中实时交易决策
+
+注意：
+
+- Yahoo 这类公共 web endpoint 不属于稳定商业 SLA 接口，后续仍建议逐步接入更正式的数据 provider
+- 静态演示模式的价值在于：每天自动抓取真实公开数据，生成可直接部署的 `T-1` 风险看板，而不是手写样例 JSON
 
 ## 静态构建
 

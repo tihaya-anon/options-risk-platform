@@ -1,73 +1,29 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
-const outputDir = path.join(
-  repoRoot,
-  "frontend",
-  "public",
-  "data",
-  "latest",
-);
-const fallbackSnapshotPath = path.join(
-  repoRoot,
-  "frontend",
-  "public",
-  "data",
-  "latest.json",
-);
-
+const outputDir = path.join(repoRoot, "frontend", "public", "data", "latest");
+const fallbackSnapshotPath = path.join(repoRoot, "frontend", "public", "data", "latest.json");
+const YAHOO_OPTIONS_BASE = "https://query2.finance.yahoo.com/v7/finance/options/";
 const DEFAULT_RISK_FREE_RATE = 0.045;
 const DEFAULT_UNIVERSE = ["SPY", "QQQ", "IWM", "AAPL"];
-const UNIVERSE_CONFIG = {
-  SPY: {
-    spot: 524.36,
-    expiries: ["2026-04-17", "2026-05-15", "2026-06-19"],
-    strikes: [500, 525, 540, 560, 580],
-    skewShift: 0.025,
-  },
-  QQQ: {
-    spot: 471.3,
-    expiries: ["2026-04-17", "2026-05-15", "2026-06-19"],
-    strikes: [430, 450, 470, 490, 510],
-    skewShift: 0.022,
-  },
-  IWM: {
-    spot: 212.48,
-    expiries: ["2026-04-17", "2026-05-15", "2026-06-19"],
-    strikes: [190, 200, 210, 220, 230],
-    skewShift: 0.028,
-  },
-  AAPL: {
-    spot: 198.74,
-    expiries: ["2026-04-17", "2026-05-15", "2026-06-19"],
-    strikes: [180, 190, 200, 210, 220],
-    skewShift: 0.02,
-  },
+const DEFAULT_MAX_EXPIRATIONS = 3;
+const REQUEST_HEADERS = {
+  "user-agent":
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+  accept: "application/json,text/plain,*/*",
 };
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function getArgumentValue(flag) {
   const index = process.argv.indexOf(flag);
   if (index === -1) return null;
   return process.argv[index + 1] ?? null;
-}
-
-function formatIsoDate(date) {
-  return date.toISOString().slice(0, 10);
-}
-
-function resolveAsOfTimestamp() {
-  const explicitDate = getArgumentValue("--as-of");
-  if (explicitDate) {
-    return `${explicitDate}T21:00:00.000Z`;
-  }
-
-  const now = new Date();
-  const yesterday = new Date(now);
-  yesterday.setUTCDate(now.getUTCDate() - 1);
-  return `${formatIsoDate(yesterday)}T21:00:00.000Z`;
 }
 
 function resolveUniverse() {
@@ -80,167 +36,253 @@ function resolveUniverse() {
     .filter((symbol, index, all) => all.indexOf(symbol) === index);
 }
 
-function normalCdf(value) {
-  const sign = value < 0 ? -1 : 1;
-  const abs = Math.abs(value) / Math.sqrt(2);
-  const a1 = 0.254829592;
-  const a2 = -0.284496736;
-  const a3 = 1.421413741;
-  const a4 = -1.453152027;
-  const a5 = 1.061405429;
-  const p = 0.3275911;
-
-  const t = 1 / (1 + p * abs);
-  const erf =
-    1 -
-    (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t) * Math.exp(-abs * abs);
-
-  return 0.5 * (1 + sign * erf);
+function resolveMaxExpirations() {
+  const raw =
+    getArgumentValue("--max-expirations") ??
+    process.env.STATIC_MAX_EXPIRATIONS ??
+    String(DEFAULT_MAX_EXPIRATIONS);
+  const value = Number(raw);
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : DEFAULT_MAX_EXPIRATIONS;
 }
 
-function blackScholesPrice(spot, strike, riskFreeRate, timeToExpiryYears, volatility, optionType) {
-  if (timeToExpiryYears <= 0 || volatility <= 0) {
-    return optionType === "call"
-      ? Math.max(spot - strike, 0)
-      : Math.max(strike - spot, 0);
+async function fetchJson(url) {
+  const response = await fetch(url, { headers: REQUEST_HEADERS });
+  if (!response.ok) {
+    throw new Error(`Request failed ${response.status} for ${url}`);
   }
-
-  const sqrtT = Math.sqrt(timeToExpiryYears);
-  const d1 =
-    (Math.log(spot / strike) + (riskFreeRate + 0.5 * volatility * volatility) * timeToExpiryYears) /
-    (volatility * sqrtT);
-  const d2 = d1 - volatility * sqrtT;
-
-  if (optionType === "call") {
-    return spot * normalCdf(d1) - strike * Math.exp(-riskFreeRate * timeToExpiryYears) * normalCdf(d2);
-  }
-
-  return strike * Math.exp(-riskFreeRate * timeToExpiryYears) * normalCdf(-d2) - spot * normalCdf(-d1);
+  return response.json();
 }
 
-function formatOptionSymbol(underlying, expiry, optionType, strike) {
-  const compactExpiry = expiry.slice(2).replace(/-/g, "");
-  const right = optionType === "call" ? "C" : "P";
-  const encodedStrike = Math.round(strike * 1000).toString().padStart(8, "0");
-  return `${underlying}${compactExpiry}${right}${encodedStrike}`;
+function toIsoTimestamp(unixSeconds) {
+  return new Date(unixSeconds * 1000).toISOString();
 }
 
-function buildQuote({ underlying, spot, expiry, strike, optionType, volatility, generatedAt }) {
-  const now = new Date(generatedAt);
-  const expiryDate = new Date(`${expiry}T20:00:00.000Z`);
-  const timeToExpiryYears = Math.max(
-    (expiryDate.getTime() - now.getTime()) / (365 * 24 * 60 * 60 * 1000),
-    1 / 365,
-  );
-  const mid = blackScholesPrice(
-    spot,
-    strike,
-    DEFAULT_RISK_FREE_RATE,
-    timeToExpiryYears,
-    volatility,
-    optionType,
-  );
-  const spread = Math.max(mid * 0.03, 0.05);
-  const moneyness = Math.abs(strike - spot) / spot;
-
-  return {
-    symbol: formatOptionSymbol(underlying, expiry, optionType, strike),
-    underlying,
-    optionType,
-    strike,
-    expiry,
-    bid: Number(Math.max(mid - spread / 2, 0.01).toFixed(2)),
-    ask: Number(Math.max(mid + spread / 2, 0.02).toFixed(2)),
-    last: Number(mid.toFixed(2)),
-    volume: Math.round(250 + moneyness * 1600),
-    openInterest: Math.round(1000 + moneyness * 4200 + (optionType === "put" ? 450 : 0)),
-  };
+function formatExpiry(unixSeconds) {
+  return new Date(unixSeconds * 1000).toISOString().slice(0, 10);
 }
 
-function buildSnapshot(symbol, generatedAt) {
-  const config = UNIVERSE_CONFIG[symbol];
-  if (!config) {
-    throw new Error(`Unsupported static symbol: ${symbol}`);
-  }
+async function createYahooSession(maxAttempts = 3) {
+  let lastError = null;
 
-  const quotes = [];
-  for (const expiry of config.expiries) {
-    for (const strike of config.strikes) {
-      const moneyness = Math.abs(strike - config.spot) / config.spot;
-      const baseVol = 0.18 + moneyness * 0.32;
-      quotes.push(
-        buildQuote({
-          underlying: symbol,
-          spot: config.spot,
-          expiry,
-          strike,
-          optionType: "call",
-          volatility: baseVol,
-          generatedAt,
-        }),
-      );
-      quotes.push(
-        buildQuote({
-          underlying: symbol,
-          spot: config.spot,
-          expiry,
-          strike,
-          optionType: "put",
-          volatility: baseVol + config.skewShift,
-          generatedAt,
-        }),
-      );
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const response = await fetch("https://fc.yahoo.com", { headers: REQUEST_HEADERS });
+      const setCookie = response.headers.get("set-cookie");
+      const cookie = setCookie?.split(";")[0];
+
+      if (!cookie) {
+        throw new Error("Unable to obtain Yahoo session cookie.");
+      }
+
+      const crumbResponse = await fetch("https://query1.finance.yahoo.com/v1/test/getcrumb", {
+        headers: {
+          ...REQUEST_HEADERS,
+          cookie,
+        },
+      });
+
+      if (!crumbResponse.ok) {
+        throw new Error(`Failed to retrieve Yahoo crumb: ${crumbResponse.status}`);
+      }
+
+      const crumb = (await crumbResponse.text()).trim();
+      if (!crumb) {
+        throw new Error("Yahoo crumb response was empty.");
+      }
+
+      return { cookie, crumb };
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxAttempts) {
+        await sleep(500 * attempt);
+      }
     }
   }
 
+  throw lastError ?? new Error("Unable to create Yahoo session.");
+}
+
+async function fetchOptionIndex(symbol, session) {
+  const url = `${YAHOO_OPTIONS_BASE}${encodeURIComponent(symbol)}?crumb=${encodeURIComponent(session.crumb)}`;
+  const payload = await fetch(url, {
+    headers: {
+      ...REQUEST_HEADERS,
+      cookie: session.cookie,
+    },
+  }).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(`Request failed ${response.status} for ${url}`);
+    }
+    return response.json();
+  });
+  const result = payload?.optionChain?.result?.[0];
+
+  if (!result) {
+    throw new Error(`Missing options index for ${symbol}`);
+  }
+
   return {
-    source: "static-daily-demo",
-    generatedAt,
+    quote: result.quote ?? null,
+    expirationDates: result.expirationDates ?? [],
+  };
+}
+
+function normalizeOptionQuote(rawQuote, optionType) {
+  const expiry = formatExpiry(rawQuote.expiration);
+  return {
+    symbol: rawQuote.contractSymbol,
+    underlying: rawQuote.symbol ?? rawQuote.contractSymbol.replace(/\d.*/, ""),
+    optionType,
+    strike: Number(rawQuote.strike),
+    expiry,
+    bid: Number(rawQuote.bid ?? rawQuote.lastPrice ?? 0),
+    ask: Number(rawQuote.ask ?? rawQuote.lastPrice ?? 0),
+    last: Number(rawQuote.lastPrice ?? 0),
+    volume: Number(rawQuote.volume ?? 0),
+    openInterest: Number(rawQuote.openInterest ?? 0),
+  };
+}
+
+async function fetchOptionChainForExpiry(symbol, expiryTimestamp, session) {
+  const url = `${YAHOO_OPTIONS_BASE}${encodeURIComponent(symbol)}?date=${expiryTimestamp}&crumb=${encodeURIComponent(session.crumb)}`;
+  const payload = await fetch(url, {
+    headers: {
+      ...REQUEST_HEADERS,
+      cookie: session.cookie,
+    },
+  }).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(`Request failed ${response.status} for ${url}`);
+    }
+    return response.json();
+  });
+  const result = payload?.optionChain?.result?.[0];
+  const options = result?.options?.[0];
+
+  if (!options) {
+    return [];
+  }
+
+  const calls = (options.calls ?? []).map((quote) => normalizeOptionQuote(quote, "call"));
+  const puts = (options.puts ?? []).map((quote) => normalizeOptionQuote(quote, "put"));
+  return [...calls, ...puts];
+}
+
+async function buildSnapshotFromYahoo(symbol, maxExpirations, session) {
+  const optionIndex = await fetchOptionIndex(symbol, session);
+  const expirationDates = optionIndex.expirationDates.slice(0, maxExpirations);
+  const chainBatches = await Promise.all(
+    expirationDates.map((expiryTimestamp) =>
+      fetchOptionChainForExpiry(symbol, expiryTimestamp, session),
+    ),
+  );
+  const quotes = chainBatches.flat().filter((quote) => Number.isFinite(quote.strike));
+  const regularMarketPrice = Number(optionIndex.quote?.regularMarketPrice ?? NaN);
+  const regularMarketTime = optionIndex.quote?.regularMarketTime;
+
+  if (!quotes.length || !Number.isFinite(regularMarketPrice)) {
+    throw new Error(`No option quotes returned for ${symbol}`);
+  }
+
+  return {
+    source: "yahoo-finance-public",
+    generatedAt: toIsoTimestamp(regularMarketTime ?? Math.floor(Date.now() / 1000)),
     riskFreeRate: DEFAULT_RISK_FREE_RATE,
     underlying: {
       symbol,
-      spot: config.spot,
-      currency: "USD",
-      timestamp: generatedAt,
+      spot: regularMarketPrice,
+      currency: optionIndex.quote?.currency ?? "USD",
+      timestamp: toIsoTimestamp(regularMarketTime ?? Math.floor(Date.now() / 1000)),
     },
     quotes,
   };
 }
 
+async function readJsonIfExists(filepath) {
+  try {
+    const raw = await readFile(filepath, "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
-  const generatedAt = resolveAsOfTimestamp();
   const universe = resolveUniverse();
+  const maxExpirations = resolveMaxExpirations();
+  let session = null;
+  try {
+    session = await createYahooSession();
+  } catch (error) {
+    console.warn("[static] Yahoo session bootstrap failed, falling back to cached snapshots.");
+    console.warn(error instanceof Error ? error.message : String(error));
+  }
 
   await mkdir(outputDir, { recursive: true });
 
   const manifest = {
-    asOf: generatedAt,
+    asOf: null,
+    generatedAt: new Date().toISOString(),
+    provider: "yahoo-finance-public",
     defaultSymbol: universe[0] ?? DEFAULT_UNIVERSE[0],
     symbols: [],
+    failedSymbols: [],
   };
 
   for (const symbol of universe) {
-    const snapshot = buildSnapshot(symbol, generatedAt);
-    const filename = `${symbol}.json`;
-    const relativePath = `/data/latest/${filename}`;
-    await writeFile(
-      path.join(outputDir, filename),
-      `${JSON.stringify(snapshot, null, 2)}\n`,
-      "utf8",
-    );
-    manifest.symbols.push({
-      symbol,
-      path: relativePath,
-      generatedAt,
-    });
+    try {
+      if (!session) {
+        throw new Error("Yahoo session unavailable");
+      }
 
-    if (symbol === manifest.defaultSymbol) {
+      const snapshot = await buildSnapshotFromYahoo(symbol, maxExpirations, session);
+      const filename = `${symbol}.json`;
+      const relativePath = `/data/latest/${filename}`;
       await writeFile(
-        fallbackSnapshotPath,
+        path.join(outputDir, filename),
         `${JSON.stringify(snapshot, null, 2)}\n`,
         "utf8",
       );
+
+      manifest.symbols.push({
+        symbol,
+        path: relativePath,
+        generatedAt: snapshot.generatedAt,
+      });
+
+      if (!manifest.asOf || snapshot.generatedAt < manifest.asOf) {
+        manifest.asOf = snapshot.generatedAt;
+      }
+
+      if (symbol === manifest.defaultSymbol) {
+        await writeFile(
+          fallbackSnapshotPath,
+          `${JSON.stringify(snapshot, null, 2)}\n`,
+          "utf8",
+        );
+      }
+      console.log(`[static] fetched ${symbol} with ${snapshot.quotes.length} quotes`);
+    } catch (error) {
+      console.warn(`[static] failed to fetch ${symbol}`);
+      console.warn(error instanceof Error ? error.message : String(error));
+      manifest.failedSymbols.push(symbol);
+
+      const existingSnapshot = await readJsonIfExists(path.join(outputDir, `${symbol}.json`));
+      if (existingSnapshot) {
+        manifest.symbols.push({
+          symbol,
+          path: `/data/latest/${symbol}.json`,
+          generatedAt: existingSnapshot.generatedAt ?? manifest.generatedAt,
+        });
+        if (!manifest.asOf || (existingSnapshot.generatedAt && existingSnapshot.generatedAt < manifest.asOf)) {
+          manifest.asOf = existingSnapshot.generatedAt ?? manifest.asOf;
+        }
+      }
     }
+  }
+
+  if (!manifest.symbols.length) {
+    throw new Error("No static snapshots were generated from public market data.");
   }
 
   await writeFile(
@@ -251,7 +293,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("[static] failed to generate snapshots");
+  console.error("[static] failed to generate Yahoo-based static snapshots");
   console.error(error);
   process.exitCode = 1;
 });
