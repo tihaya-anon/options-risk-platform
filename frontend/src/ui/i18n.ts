@@ -76,6 +76,9 @@ export type I18nKey =
   | "dataWorkspaceConnectionDesc"
   | "dataWorkspaceConnectionHealthDesc"
   | "dataWorkspaceDatasetTitle"
+  | "dataWorkspaceProviderTitle"
+  | "dataWorkspaceFailureCount"
+  | "dataWorkspaceFailedSymbols"
   | "dataWorkspaceLiveModeBody"
   | "dataWorkspaceImportHealthTitle"
   | "dataWorkspaceImportHealthDesc"
@@ -391,6 +394,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dataWorkspaceConnectionHealthDesc:
       "Keep connection settings here so analysis pages stay focused on portfolio decisions instead of infrastructure details.",
     dataWorkspaceDatasetTitle: "Dataset state",
+    dataWorkspaceProviderTitle: "Snapshot source",
+    dataWorkspaceFailureCount: "Failed symbols",
+    dataWorkspaceFailedSymbols: "Failed snapshot refresh",
     dataWorkspaceLiveModeBody:
       "Live backend mode can fetch fresher snapshots and run heavier analytics, but the panel should still start from the same book and risk workflow.",
     dataWorkspaceImportHealthTitle: "Import health",
@@ -736,6 +742,9 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     dataWorkspaceConnectionHealthDesc:
       "连接配置应该留在这里处理，让分析页始终聚焦在组合判断，而不是基础设施细节。",
     dataWorkspaceDatasetTitle: "数据状态",
+    dataWorkspaceProviderTitle: "快照来源",
+    dataWorkspaceFailureCount: "失败标的数",
+    dataWorkspaceFailedSymbols: "刷新失败标的",
     dataWorkspaceLiveModeBody:
       "后端实时模式可以获取更及时的快照并执行更重的分析，但工作流仍应从持仓簿和风险判断开始。",
     dataWorkspaceImportHealthTitle: "导入健康度",

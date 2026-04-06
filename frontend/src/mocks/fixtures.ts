@@ -178,6 +178,10 @@ export function buildMockSnapshot(symbol: string, provider: string): EnrichedSna
   };
 }
 
+export function buildMockUniverseSnapshots() {
+  return ["510050", "510300", "510500"].map((symbol) => buildMockSnapshot(symbol, "mock"));
+}
+
 export function analyzeMockPortfolio(input: {
   snapshot: EnrichedSnapshotFile;
   positionsInput: string;

@@ -67,11 +67,6 @@ export function RiskControlSection({
                 label: t("dashboardOpenScenarios"),
                 caption: t("worstSpotScenario"),
               },
-              {
-                to: "/greeks-summary",
-                label: t("dashboardOpenGreeks"),
-                caption: t("greeksSummaryTitle"),
-              },
             ]}
           />
 
@@ -224,24 +219,6 @@ export function RiskControlSection({
                     </strong>
                   </div>
                 </article>
-              </div>
-            </article>
-
-            <article className="card dashboard-column-card">
-              <div className="dashboard-section-head">
-                <div className="meta-block">
-                  <span>{t("greeksSummaryTitle")}</span>
-                  <strong>{t("riskMapTitle")}</strong>
-                </div>
-                <Link className="button-like dashboard-link" to="/greeks-summary">
-                  {t("dashboardOpenGreeks")}
-                </Link>
-              </div>
-              <div className="greek-mini-grid">
-                <GreekMetricCard greek="delta" label={t("portfolioDelta")} value={riskMap.exposure.delta.toFixed(2)} t={t} />
-                <GreekMetricCard greek="gamma" label={t("portfolioGamma")} value={riskMap.exposure.gamma.toFixed(2)} t={t} />
-                <GreekMetricCard greek="vega" label={t("portfolioVega")} value={riskMap.exposure.vega.toFixed(2)} t={t} />
-                <GreekMetricCard greek="theta" label={t("portfolioTheta")} value={riskMap.exposure.theta.toFixed(2)} t={t} />
               </div>
             </article>
           </div>

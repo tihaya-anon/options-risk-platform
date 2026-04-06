@@ -115,7 +115,21 @@ export function DataWorkspaceSection({
               <span>{t("defaultSymbolTitle")}</span>
               <strong>{staticDataset?.defaultSymbol ?? (settings.focusUnderlying || t("none"))}</strong>
             </div>
+            <div>
+              <span>{t("dataWorkspaceProviderTitle")}</span>
+              <strong>{staticDataset?.provider ?? settings.provider}</strong>
+            </div>
+            <div>
+              <span>{t("dataWorkspaceFailureCount")}</span>
+              <strong>{staticDataset?.failedSymbols.length ?? 0}</strong>
+            </div>
           </div>
+          {isStaticMode && staticDataset?.failedSymbols.length ? (
+            <div className="provider-note">
+              <span>{t("dataWorkspaceFailedSymbols")}</span>
+              <strong>{staticDataset.failedSymbols.join(", ")}</strong>
+            </div>
+          ) : null}
         </article>
 
         <article className="card dashboard-column-card">

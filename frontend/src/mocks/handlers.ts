@@ -1,9 +1,10 @@
 import {
-  analyzeMockPortfolio,
   buildMockBook,
   buildMockRiskMap,
   buildMockSnapshot,
+  buildMockUniverseSnapshots,
 } from "./fixtures";
+import { buildStaticAnalysis, buildStaticBook } from "../lib/staticWorkbench";
 import {
   getCompareStrategiesMockHandler,
   getCreateHedgeProposalsMockHandler,
@@ -87,8 +88,9 @@ export const handlers = [
       advisorMode: string;
     };
 
-    const result = analyzeMockPortfolio({
+    const result = buildStaticAnalysis({
       snapshot: body.snapshot,
+      universeSnapshots: buildMockUniverseSnapshots(),
       positionsInput: body.positionsInput,
       groupByMode: body.groupByMode,
       advisorMode: body.advisorMode,
@@ -110,10 +112,11 @@ export const handlers = [
       snapshot?: ReturnType<typeof buildMockSnapshot>;
     };
 
-    const book = buildMockBook({
+    const book = buildStaticBook({
       positionsInput: body.positionsInput,
       defaultSymbol: body.defaultSymbol,
       snapshot: body.snapshot,
+      universeSnapshots: buildMockUniverseSnapshots(),
     });
     logHandledRequest("POST /book/parse", {
       positions: book.positions.length,

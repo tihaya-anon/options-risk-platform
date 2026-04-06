@@ -31,6 +31,7 @@ const DEFAULT_STATIC_SYMBOL = "510050";
 interface StaticManifest {
   asOf: string;
   provider?: string;
+  failedSymbols?: string[];
   defaultSymbol: string;
   symbols: Array<{
     symbol: string;
@@ -44,6 +45,8 @@ export interface StaticDatasetInfo {
   asOf: string | null;
   defaultSymbol: string;
   symbols: string[];
+  provider: string | null;
+  failedSymbols: string[];
 }
 
 interface StaticUniverseContext {
@@ -151,6 +154,8 @@ export async function fetchStaticDatasetInfo(): Promise<StaticDatasetInfo> {
     asOf: manifest?.asOf ?? null,
     defaultSymbol: manifest?.defaultSymbol ?? DEFAULT_STATIC_SYMBOL,
     symbols: manifest?.symbols.map((item) => item.symbol) ?? [DEFAULT_STATIC_SYMBOL],
+    provider: manifest?.provider ?? null,
+    failedSymbols: manifest?.failedSymbols ?? [],
   };
 }
 

@@ -22,7 +22,6 @@ import { useStaticDatasetInfo } from "./hooks/useStaticDatasetInfo";
 import { ChainSection } from "./components/ChainSection";
 import { CurrentBookSection } from "./components/CurrentBookSection";
 import { DataWorkspaceSection } from "./components/DataWorkspaceSection";
-import { GreeksSummarySection } from "./components/GreeksSummarySection";
 import { HedgeDecisionSection } from "./components/HedgeDecisionSection";
 import { HedgeLabSection } from "./components/HedgeLabSection";
 import { HeroSection } from "./components/HeroSection";
@@ -46,7 +45,7 @@ import { useStrategyComparison } from "./hooks/useStrategyComparison";
 import { isStaticDemoMode } from "../lib/staticWorkbench";
 
 const DEFAULT_POSITIONS_INPUT =
-  "510050,20000\n510300,10000\n510500,5000";
+  "510050,20000\n510300,10000\n510500,5000\n510050C2604M02800,-2\n510050P2604M02800,3\n510300P2604M04400,2";
 
 const LazyGroupedExposureSection = lazy(() =>
   import("./components/GroupedExposureSection").then((module) => ({
@@ -292,7 +291,6 @@ export function App() {
           { path: "/risks", label: t("riskControlTitle") },
           { path: "/risk-map", label: t("riskMapTitle") },
           { path: "/grouped-exposure", label: t("groupedExposureTitle") },
-          { path: "/greeks-summary", label: t("greeksSummaryTitle") },
           { path: "/spot-scenario", label: t("scenarioTitle") },
           { path: "/vol-scenario", label: t("volScenarioTitle") },
           { path: "/time-scenario", label: t("timeScenarioTitle") },
@@ -565,16 +563,6 @@ export function App() {
                     onGroupByModeChange={setGroupByMode}
                   />
                 </Suspense>
-              }
-            />
-            <Route
-              path="/greeks-summary"
-              element={
-                <GreeksSummarySection
-                  summary={riskSummary}
-                  palette={paletteColors}
-                  t={t}
-                />
               }
             />
             <Route
