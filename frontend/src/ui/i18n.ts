@@ -480,7 +480,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     positionsTitle: "Portfolio Position Import",
     positionsDesc:
       "Paste simple CSV rows as symbol,quantity. Underlying shares are treated as delta 1. Option contracts are aggregated using chain Greeks times 100.",
-    positionsPlaceholder: "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1",
+    positionsPlaceholder: "510050,20000\n510300,10000\n510050C2604M02800,-2\n510050P2604M02800,3",
     portfolioDelta: "Portfolio Delta",
     portfolioGamma: "Portfolio Gamma",
     portfolioVega: "Portfolio Vega",
@@ -820,7 +820,7 @@ const translations: Record<Language, Record<I18nKey, string>> = {
     positionsTitle: "组合持仓导入",
     positionsDesc:
       "粘贴简单 CSV：symbol,quantity。标的现货按 delta=1 处理；期权合约按链上 Greeks 乘 100 股乘数聚合。",
-    positionsPlaceholder: "SPY,100\nSPY260515P00525000,2\nSPY260417C00540000,-1",
+    positionsPlaceholder: "510050,20000\n510300,10000\n510050C2604M02800,-2\n510050P2604M02800,3",
     portfolioDelta: "组合 Delta",
     portfolioGamma: "组合 Gamma",
     portfolioVega: "组合 Vega",

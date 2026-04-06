@@ -26,7 +26,7 @@ import { blackScholesModel } from "./bs";
 const STATIC_MANIFEST_URL = "/data/latest/manifest.json";
 const STATIC_FALLBACK_SNAPSHOT_URL = "/data/latest.json";
 const DEFAULT_STATIC_PROVIDER = "staticDaily";
-const DEFAULT_STATIC_SYMBOL = "SPY";
+const DEFAULT_STATIC_SYMBOL = "510050";
 
 interface StaticManifest {
   asOf: string;

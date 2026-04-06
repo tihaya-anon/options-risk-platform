@@ -16,20 +16,20 @@ export function useRuntimeConfig(apiBaseUrl: string) {
         if (isActive) {
           setRuntimeConfig({
             provider: "mock",
-            defaultSymbol: "SPY",
+            defaultSymbol: "510050",
             llmAdvisorMode: "disabled",
             providers: ["mock", "yahooSynthetic"],
             advisorModes: ["rules", "llm"],
             providerMetadata: [
               {
                 id: "mock",
-                label: "Mock provider",
+                label: "Mock CN options provider",
                 requiresApiKey: false,
                 supportsSnapshots: true,
                 supportsOptionChain: true,
                 supportsGreeks: true,
                 supportsScenarios: true,
-                notes: "Deterministic local snapshot for UI development and demo flows.",
+                notes: "Deterministic mainland ETF options snapshot for UI development and mock portfolio flows.",
               },
               {
                 id: "yahooSynthetic",
